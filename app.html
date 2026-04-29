@@ -831,22 +831,203 @@
   .cal-empty h3{margin:0 0 8px;color:#b6c2cf;font-size:16px;font-weight:600}
   .cal-empty p{margin:0 0 18px}
 
+  /* --- mobile drawer toggles (hidden on desktop) ----------------------- */
+  .sidebar-toggle,
+  .cal-side-toggle{display:none}
+  .sidebar-backdrop{
+    display:none;position:fixed;inset:0;
+    background:rgba(0,0,0,0.5);
+    z-index:55;opacity:0;pointer-events:none;
+    transition:opacity 0.18s;
+  }
+  .cal-side-backdrop{
+    display:none;position:absolute;inset:0;
+    background:rgba(0,0,0,0.45);
+    z-index:4;opacity:0;pointer-events:none;
+    transition:opacity 0.18s;
+  }
+
   /* --- responsive ------------------------------------------------------- */
   @media (max-width:780px){
-    .app{grid-template-columns:1fr;grid-template-areas:"topbar" "board";grid-template-rows:44px 1fr}
-    .sidebar{display:none}
+    .app{
+      grid-template-columns:1fr;
+      grid-template-areas:"topbar" "board";
+      grid-template-rows:48px 1fr;
+    }
+    .topbar{padding:0 10px;gap:8px}
+    .topbar-logo{font-size:13px}
+    .topbar-logo span{display:none}
+    .topbar-logo img{height:22px}
+
+    /* Hamburger toggle */
+    .sidebar-toggle{
+      display:inline-flex;
+      background:transparent;border:0;color:#b6c2cf;
+      width:38px;height:38px;border-radius:6px;
+      align-items:center;justify-content:center;
+      flex-shrink:0;
+      transition:background 0.12s,color 0.12s;
+    }
+    .sidebar-toggle:hover,.sidebar-toggle:active{background:#2c3338;color:#f4f5f7}
+    .sidebar-toggle.active{background:#1c2b41;color:#cce0ff}
+
+    /* Sidebar becomes off-canvas drawer */
+    .sidebar{
+      display:flex;
+      position:fixed;
+      top:48px;left:0;bottom:0;
+      width:80%;max-width:300px;
+      border-right:1px solid #2c3338;
+      z-index:60;
+      transform:translateX(-100%);
+      transition:transform 0.22s cubic-bezier(.4,0,.2,1);
+      box-shadow:8px 0 24px rgba(0,0,0,0.5);
+    }
+    .sidebar.drawer-open{transform:translateX(0)}
+    .sidebar-backdrop{display:block;top:48px}
+    .sidebar-backdrop.show{opacity:1;pointer-events:auto}
+
+    /* Project items: bigger tap targets */
+    .project-item{padding:10px 8px}
+    .project-icon{width:26px;height:26px;font-size:12px}
+    .project-name{font-size:15px}
+    .project-delete{opacity:1;width:30px;height:30px}
+
+    /* Top bar buttons */
+    .topbar-btn{padding:7px 10px;border-radius:6px}
     .topbar-btn span{display:none}
-    .cal-period{min-width:120px;font-size:13px}
-    .cal-views button{padding:5px 10px;font-size:11px}
-    .cal-week{grid-auto-flow:row;grid-template-columns:1fr}
-    .cal-week-col{border-right:0;border-bottom:1px solid #2c3338}
-    .cal-month-grid{grid-auto-rows:minmax(70px,1fr)}
-    .cal-side{width:160px;padding:8px 6px}
-    .cal-person-name{font-size:12px}
-    .cal-person-count{display:none}
+
+    /* Board */
+    .board-header{padding:12px 14px;gap:8px}
+    .board-title{font-size:17px;min-width:0;flex:1;max-width:none}
+    .board-meta{display:none}
+    .board-content{
+      padding:0 14px 16px;gap:10px;
+      scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      scroll-padding-left:14px;
+    }
+    .column{width:84vw;max-width:300px;scroll-snap-align:start}
+
+    /* Cards: visible delete (no hover on touch) */
+    .card{padding:10px 12px}
+    .card-actions{opacity:1}
+    .card-action{background:rgba(0,0,0,0.35);width:28px;height:28px}
+    .add-card{padding:10px 12px}
+
+    /* Modal: bottom-sheet style */
+    .modal-backdrop{align-items:flex-end;padding:0}
+    .modal{
+      max-width:100%;
+      width:100%;
+      border-radius:14px 14px 0 0;
+      padding:20px 18px 24px;
+      padding-bottom:calc(24px + env(safe-area-inset-bottom));
+      max-height:92vh;
+      overflow-y:auto;
+    }
+    .modal h2{font-size:17px}
+    .modal .actions{flex-wrap:wrap;gap:6px}
+    .modal .actions .btn-primary,
+    .modal .actions .btn-cancel{padding:10px 16px;font-size:14px}
+
+    /* Add-card form pills wrap */
+    .add-card-form .priority-row{flex-wrap:wrap;row-gap:6px}
+    .priority-pill{padding:6px 12px}
+
+    /* Calendar header */
+    .cal-header{padding:10px 12px;gap:6px;row-gap:8px}
+    .cal-title{font-size:15px;gap:8px;flex-shrink:0}
+    .cal-title svg{width:18px;height:18px}
+    .cal-spacer{display:none}
+    .cal-period{
+      min-width:0;font-size:13px;
+      flex:1 1 100%;text-align:left;
+      order:10;padding:0 2px;
+    }
+    .cal-views{order:7}
+    .cal-views button{padding:6px 10px;font-size:11px}
+    .cal-today-btn{padding:6px 10px;font-size:11px;order:8}
+    .cal-nav{order:9;margin-left:auto}
+    .cal-add-btn{padding:7px 11px;font-size:12px;order:6}
+    .cal-add-btn svg{width:13px;height:13px}
+    .cal-close{width:34px;height:34px;flex-shrink:0}
+
+    /* People filter: drawer */
+    .cal-main{position:relative}
+    .cal-side-toggle{
+      display:inline-flex;
+      background:#22272b;border:1px solid #38414b;color:#b6c2cf;
+      width:34px;height:34px;border-radius:6px;
+      align-items:center;justify-content:center;
+      flex-shrink:0;
+      transition:background 0.12s,color 0.12s,border-color 0.12s;
+    }
+    .cal-side-toggle:hover{background:#2c3338;color:#f4f5f7;border-color:#579dff}
+    .cal-side-toggle.active{background:#1c2b41;color:#cce0ff;border-color:#579dff}
+    .cal-side{
+      position:absolute;
+      top:0;left:0;bottom:0;
+      width:78%;max-width:260px;
+      transform:translateX(-100%);
+      transition:transform 0.22s cubic-bezier(.4,0,.2,1);
+      box-shadow:6px 0 18px rgba(0,0,0,0.5);
+      z-index:6;
+    }
+    .cal-side.drawer-open{transform:translateX(0)}
+    .cal-side-backdrop{display:block}
+    .cal-side-backdrop.show{opacity:1;pointer-events:auto}
+    .cal-person-row{padding:9px 8px}
+    .cal-person-name{font-size:13px}
+
+    /* Month view */
+    .cal-month-headrow > div{padding:6px 2px;font-size:10px;letter-spacing:0.3px}
+    .cal-month-grid{grid-auto-rows:minmax(72px,1fr)}
+    .cal-day-cell{padding:4px 3px 2px}
+    .cal-day-num{font-size:11px;padding:0 2px;margin-bottom:2px}
+    .cal-day-cell.today .cal-day-num{width:20px;height:20px;font-size:11px}
+    .cal-event{padding:1px 4px;font-size:10px;line-height:1.25;border-left-width:2px}
+    .cal-event-more{font-size:9px;padding:0 2px}
+
+    /* Day view */
+    .cal-day-view-head{padding:14px 14px}
+    .cal-day-view-head h3{font-size:18px}
+    .cal-day-list{padding:12px 14px;gap:6px}
+    .cal-day-event-card{padding:11px 13px;gap:8px;flex-direction:column}
+    .cal-day-event-time{min-width:0;font-size:12px}
+    .cal-day-event-title{font-size:14px}
+
+    /* Prevent iOS zoom-on-focus (inputs need >=16px) */
+    input[type=text],input[type=password],
+    input[type=date],input[type=time],
+    textarea,select{font-size:16px}
+    .board-title{font-size:17px}
   }
+
   @media (max-width:560px){
-    .cal-side{display:none}
+    .cal-week{grid-auto-flow:row;grid-template-columns:1fr}
+    .cal-week-col{border-right:0;border-bottom:1px solid #2c3338;min-height:80px}
+    .cal-week-head{padding:8px 12px}
+    .cal-week-day-num{font-size:18px}
+  }
+
+  @media (max-width:420px){
+    .topbar{padding:0 6px;gap:4px}
+    .topbar-btn{padding:6px 8px;border-radius:5px}
+    .cal-header{padding:8px 10px}
+    .cal-add-btn{width:34px;height:34px;padding:0;justify-content:center}
+    .cal-add-btn svg{width:14px;height:14px}
+    .cal-views button{padding:5px 8px}
+    .cal-today-btn{padding:5px 8px}
+    .cal-period{font-size:12px}
+    .board-content{padding:0 10px 16px}
+    .column{width:88vw}
+  }
+
+  /* Touch devices: always show secondary actions */
+  @media (hover: none){
+    .card-actions{opacity:1}
+    .project-delete{opacity:1}
   }
 </style>
 </head>
@@ -854,6 +1035,9 @@
 
 <div class="app" id="app">
   <header class="topbar">
+    <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-label="Apri menu progetti" aria-controls="sidebar" aria-expanded="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <div class="topbar-logo">
       <img src="wp-content/uploads/2023/11/logo-brown-enterpises-sito-04.svg" alt="Brown">
       <span>Project Manager</span>
@@ -868,7 +1052,7 @@
     </div>
   </header>
 
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <span class="sidebar-title">Progetti</span>
       <button class="sidebar-add" id="add-project-btn" title="Nuovo progetto">
@@ -888,11 +1072,15 @@
   <main class="board" id="board">
     <!-- Filled by JS -->
   </main>
+  <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
 </div>
 
 <!-- Calendar overlay -->
 <div class="cal-overlay" id="cal-overlay" aria-hidden="true">
   <div class="cal-header">
+    <button class="cal-side-toggle" id="cal-side-toggle" type="button" aria-label="Filtra per persona" aria-controls="cal-side" aria-expanded="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </button>
     <h2 class="cal-title">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Chi fa cosa
@@ -923,6 +1111,7 @@
   </div>
   <div class="cal-main">
     <aside class="cal-side" id="cal-side"></aside>
+    <div class="cal-side-backdrop" id="cal-side-backdrop" aria-hidden="true"></div>
     <div class="cal-body" id="cal-body"></div>
   </div>
 </div>
@@ -1490,6 +1679,72 @@ try{
 render();
 
 /* =====================================================================
+ * Mobile drawer toggles (sidebar + calendar people filter)
+ * ===================================================================== */
+(function mobileDrawers(){
+  var MOBILE_QUERY = window.matchMedia("(max-width:780px)");
+
+  function bindDrawer(toggleId, drawerId, backdropId){
+    var $toggle   = document.getElementById(toggleId);
+    var $drawer   = document.getElementById(drawerId);
+    var $backdrop = document.getElementById(backdropId);
+    if(!$toggle || !$drawer || !$backdrop) return null;
+
+    function open(){
+      $drawer.classList.add("drawer-open");
+      $backdrop.classList.add("show");
+      $toggle.classList.add("active");
+      $toggle.setAttribute("aria-expanded","true");
+    }
+    function close(){
+      $drawer.classList.remove("drawer-open");
+      $backdrop.classList.remove("show");
+      $toggle.classList.remove("active");
+      $toggle.setAttribute("aria-expanded","false");
+    }
+    function toggle(){
+      if($drawer.classList.contains("drawer-open")) close(); else open();
+    }
+    $toggle.addEventListener("click", function(e){ e.stopPropagation(); toggle(); });
+    $backdrop.addEventListener("click", close);
+    return { open: open, close: close };
+  }
+
+  var sideDrawer = bindDrawer("sidebar-toggle", "sidebar", "sidebar-backdrop");
+  var calDrawer  = bindDrawer("cal-side-toggle", "cal-side", "cal-side-backdrop");
+
+  // Close project drawer when a project is picked
+  if(sideDrawer){
+    document.getElementById("projects").addEventListener("click", function(e){
+      var item = e.target.closest(".project-item");
+      if(item && !e.target.closest(".project-delete") && MOBILE_QUERY.matches){
+        sideDrawer.close();
+      }
+    });
+  }
+
+  // Close drawers when leaving mobile breakpoint
+  function onResize(){
+    if(!MOBILE_QUERY.matches){
+      if(sideDrawer) sideDrawer.close();
+      if(calDrawer)  calDrawer.close();
+    }
+  }
+  if(typeof MOBILE_QUERY.addEventListener === "function"){
+    MOBILE_QUERY.addEventListener("change", onResize);
+  } else if(typeof MOBILE_QUERY.addListener === "function"){
+    MOBILE_QUERY.addListener(onResize);
+  }
+
+  // Close on Escape
+  document.addEventListener("keydown", function(e){
+    if(e.key !== "Escape") return;
+    if(sideDrawer) sideDrawer.close();
+    if(calDrawer)  calDrawer.close();
+  });
+})();
+
+/* =====================================================================
  * Calendar "Chi fa cosa"
  * ===================================================================== */
 (function calendarModule(){
@@ -1988,16 +2243,16 @@ render();
         '<input type="text" id="cm-person" placeholder="Chi se ne occupa" list="cm-persons" maxlength="80">' +
         '<datalist id="cm-persons"></datalist>' +
 
-        '<div style="display:flex;gap:10px">' +
-          '<div style="flex:1">' +
+        '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+          '<div style="flex:1 1 180px;min-width:0">' +
             '<label>Data</label>' +
             '<input type="date" id="cm-date">' +
           '</div>' +
-          '<div style="flex:0 0 110px">' +
+          '<div style="flex:1 1 110px;min-width:0">' +
             '<label>Inizio</label>' +
             '<input type="time" id="cm-time">' +
           '</div>' +
-          '<div style="flex:0 0 110px">' +
+          '<div style="flex:1 1 110px;min-width:0">' +
             '<label>Fine</label>' +
             '<input type="time" id="cm-end">' +
           '</div>' +

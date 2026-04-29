@@ -16,6 +16,9 @@
     align-items:center;
     justify-content:center;
     min-height:100vh;
+    padding:16px;
+    padding-top:max(16px,env(safe-area-inset-top));
+    padding-bottom:max(16px,env(safe-area-inset-bottom));
     background-image:radial-gradient(circle at 20% 20%,rgba(87,157,255,0.08),transparent 50%),radial-gradient(circle at 80% 80%,rgba(123,75,209,0.08),transparent 50%);
   }
   .login-card{
@@ -26,6 +29,12 @@
     border-radius:12px;
     padding:36px 32px;
     box-shadow:0 24px 60px rgba(0,0,0,0.5);
+  }
+  @media (max-width:480px){
+    .login-card{padding:28px 22px;border-radius:14px}
+    .logo{margin-bottom:20px}
+    .logo img{height:42px}
+    h1{font-size:19px}
   }
   .logo{
     display:flex;
@@ -66,12 +75,13 @@
     background:#22272b;
     border:1px solid #38414b;
     color:#f4f5f7;
-    padding:11px 13px;
+    padding:12px 13px;
     border-radius:6px;
-    font-size:14px;
+    font-size:16px;
     outline:none;
     transition:border-color 0.15s,background 0.15s;
     font-family:inherit;
+    -webkit-appearance:none;
   }
   input[type=text]:focus,input[type=password]:focus{
     border-color:#579dff;
@@ -82,16 +92,19 @@
     background:#579dff;
     color:#1d2125;
     border:0;
-    padding:11px 16px;
+    padding:13px 16px;
     border-radius:6px;
-    font-size:14px;
+    font-size:15px;
     font-weight:700;
     cursor:pointer;
     margin-top:10px;
     transition:background 0.15s;
     font-family:inherit;
+    -webkit-appearance:none;
+    min-height:44px;
   }
   button[type=submit]:hover{background:#85b8ff}
+  button[type=submit]:active{background:#85b8ff}
   .error{
     background:rgba(245,80,80,0.12);
     border:1px solid rgba(245,80,80,0.35);
@@ -107,11 +120,12 @@
     display:block;
     text-align:center;
     margin-top:18px;
+    padding:8px;
     color:#8c9bab;
     text-decoration:none;
-    font-size:12px;
+    font-size:13px;
   }
-  .back:hover{color:#b6c2cf}
+  .back:hover,.back:active{color:#b6c2cf}
   .hint{
     margin-top:18px;
     padding:10px 12px;
