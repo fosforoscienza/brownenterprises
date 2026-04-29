@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Area Riservata · Brown Enterprises</title>
+<link rel="icon" href="wp-content/uploads/2025/07/cropped-logo-brown-enterpises_sito-09-1-32x32.png" sizes="32x32">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Inter",Roboto,sans-serif;
+    background:#0b0d0f;
+    color:#b6c2cf;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    background-image:radial-gradient(circle at 20% 20%,rgba(87,157,255,0.08),transparent 50%),radial-gradient(circle at 80% 80%,rgba(123,75,209,0.08),transparent 50%);
+  }
+  .login-card{
+    width:100%;
+    max-width:380px;
+    background:#1d2125;
+    border:1px solid #2c3338;
+    border-radius:12px;
+    padding:36px 32px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.5);
+  }
+  .logo{
+    display:flex;
+    justify-content:center;
+    margin-bottom:24px;
+  }
+  .logo img{
+    height:48px;
+    filter:invert(1) brightness(2);
+  }
+  h1{
+    font-size:20px;
+    font-weight:600;
+    color:#f4f5f7;
+    margin:0 0 6px;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color:#8c9bab;
+    font-size:13px;
+    margin:0 0 28px;
+  }
+  .field{
+    margin-bottom:14px;
+  }
+  label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:#9fadbc;
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  input[type=text],input[type=password]{
+    width:100%;
+    background:#22272b;
+    border:1px solid #38414b;
+    color:#f4f5f7;
+    padding:11px 13px;
+    border-radius:6px;
+    font-size:14px;
+    outline:none;
+    transition:border-color 0.15s,background 0.15s;
+    font-family:inherit;
+  }
+  input[type=text]:focus,input[type=password]:focus{
+    border-color:#579dff;
+    background:#1d2125;
+  }
+  button[type=submit]{
+    width:100%;
+    background:#579dff;
+    color:#1d2125;
+    border:0;
+    padding:11px 16px;
+    border-radius:6px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:10px;
+    transition:background 0.15s;
+    font-family:inherit;
+  }
+  button[type=submit]:hover{background:#85b8ff}
+  .error{
+    background:rgba(245,80,80,0.12);
+    border:1px solid rgba(245,80,80,0.35);
+    color:#ff8a8a;
+    padding:10px 12px;
+    border-radius:6px;
+    font-size:13px;
+    margin-bottom:14px;
+    display:none;
+  }
+  .error.show{display:block}
+  .back{
+    display:block;
+    text-align:center;
+    margin-top:18px;
+    color:#8c9bab;
+    text-decoration:none;
+    font-size:12px;
+  }
+  .back:hover{color:#b6c2cf}
+  .hint{
+    margin-top:18px;
+    padding:10px 12px;
+    border-radius:6px;
+    background:#161a1d;
+    border:1px solid #2c3338;
+    font-size:11px;
+    color:#738496;
+    text-align:center;
+    line-height:1.5;
+  }
+  .hint code{
+    background:#22272b;
+    padding:1px 6px;
+    border-radius:3px;
+    color:#b6c2cf;
+    font-family:ui-monospace,Menlo,Monaco,Consolas,monospace;
+  }
+</style>
+</head>
+<body>
+  <form class="login-card" id="login-form" autocomplete="off">
+    <div class="logo">
+      <img src="wp-content/uploads/2023/11/logo-brown-enterpises-sito-04.svg" alt="Brown Enterprises">
+    </div>
+    <h1>Area Riservata</h1>
+    <p class="subtitle">Accedi al project manager</p>
+    <div class="error" id="error">Credenziali non valide</div>
+    <div class="field">
+      <label for="username">Utente</label>
+      <input type="text" id="username" name="username" required autocomplete="username" autofocus>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required autocomplete="current-password">
+    </div>
+    <button type="submit">Accedi</button>
+    <a class="back" href="index.html">&larr; Torna al sito</a>
+    <div class="hint">
+      Demo: <code>admin</code> / <code>brown2026</code>
+    </div>
+  </form>
+
+<script>
+  // Client-side credential check (no backend).
+  // Change CREDENTIALS to whatever you want; this is purely a gate, not real security.
+  var CREDENTIALS = { username: "admin", password: "brown2026" };
+
+  var form = document.getElementById("login-form");
+  var err  = document.getElementById("error");
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    var u = document.getElementById("username").value.trim();
+    var p = document.getElementById("password").value;
+    if(u === CREDENTIALS.username && p === CREDENTIALS.password){
+      try { sessionStorage.setItem("brown_auth", "1"); } catch(_) {}
+      try { localStorage.setItem("brown_auth_user", u); } catch(_) {}
+      window.location.href = "app.html";
+    } else {
+      err.classList.add("show");
+      document.getElementById("password").value = "";
+      document.getElementById("password").focus();
+    }
+  });
+
+  // If already authenticated, skip straight to app.
+  try {
+    if(sessionStorage.getItem("brown_auth") === "1"){
+      window.location.replace("app.html");
+    }
+  } catch(_) {}
+</script>
+</body>
+</html>

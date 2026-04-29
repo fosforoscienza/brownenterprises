@@ -1012,5 +1012,19 @@ const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(
 		</div>
 	</div>
 </div>
+
+<!-- Area Riservata: floating login button -->
+<a href="login.html" id="brown-area-riservata" style="position:fixed;bottom:24px;right:24px;z-index:99999;background:#0e1217;color:#fff;padding:12px 20px;border-radius:999px;text-decoration:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;letter-spacing:0.3px;box-shadow:0 8px 24px rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.08);display:inline-flex;align-items:center;gap:8px;transition:transform 0.2s ease,background 0.2s ease;">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+  Area Riservata
+</a>
+<script>
+  (function(){
+    var b=document.getElementById('brown-area-riservata');
+    if(!b)return;
+    b.addEventListener('mouseenter',function(){b.style.transform='translateY(-2px)';b.style.background='#1a1f26';});
+    b.addEventListener('mouseleave',function(){b.style.transform='translateY(0)';b.style.background='#0e1217';});
+  })();
+</script>
 </body>
 </html>

@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Project Manager · Brown Enterprises</title>
+<link rel="icon" href="wp-content/uploads/2025/07/cropped-logo-brown-enterpises_sito-09-1-32x32.png" sizes="32x32">
+<style>
+  /* --- reset & base ----------------------------------------------------- */
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Inter",Roboto,sans-serif;
+    background:#1d2125;
+    color:#b6c2cf;
+    font-size:14px;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;cursor:pointer}
+  ::selection{background:rgba(87,157,255,0.4);color:#fff}
+
+  /* --- layout ----------------------------------------------------------- */
+  .app{
+    display:grid;
+    grid-template-rows:44px 1fr;
+    grid-template-columns:260px 1fr;
+    grid-template-areas:"topbar topbar" "sidebar board";
+    height:100vh;
+  }
+
+  /* --- top bar ---------------------------------------------------------- */
+  .topbar{
+    grid-area:topbar;
+    background:#1d2125;
+    border-bottom:1px solid #2c3338;
+    display:flex;
+    align-items:center;
+    padding:0 16px;
+    gap:14px;
+    z-index:20;
+  }
+  .topbar-logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#f4f5f7;
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:0.2px;
+  }
+  .topbar-logo img{height:24px;filter:invert(1) brightness(2)}
+  .topbar-spacer{flex:1}
+  .topbar-user{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .topbar-user .avatar{
+    width:28px;height:28px;border-radius:50%;
+    background:linear-gradient(135deg,#579dff,#9f8fef);
+    color:#1d2125;
+    font-weight:700;font-size:12px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-btn{
+    background:transparent;border:0;color:#9fadbc;
+    width:32px;height:32px;border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:background 0.15s,color 0.15s;
+  }
+  .icon-btn:hover{background:#2c3338;color:#f4f5f7}
+
+  /* --- sidebar ---------------------------------------------------------- */
+  .sidebar{
+    grid-area:sidebar;
+    background:#1d2125;
+    border-right:1px solid #2c3338;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .sidebar-header{
+    padding:14px 14px 8px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .sidebar-title{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.8px;
+    color:#9fadbc;
+    font-weight:700;
+  }
+  .sidebar-add{
+    background:transparent;border:0;color:#9fadbc;
+    width:24px;height:24px;border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:background 0.15s,color 0.15s;
+  }
+  .sidebar-add:hover{background:#2c3338;color:#f4f5f7}
+  .projects{
+    flex:1;
+    overflow-y:auto;
+    padding:4px 8px 12px;
+  }
+  .project-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 8px;
+    border-radius:4px;
+    cursor:pointer;
+    color:#b6c2cf;
+    transition:background 0.12s,color 0.12s;
+    margin-bottom:2px;
+    user-select:none;
+    position:relative;
+  }
+  .project-item:hover{background:#2c3338}
+  .project-item.active{
+    background:#1c2b41;
+    color:#cce0ff;
+  }
+  .project-item.active .project-icon{background:#579dff;color:#1d2125}
+  .project-icon{
+    width:22px;height:22px;border-radius:4px;
+    background:linear-gradient(135deg,#4bce97,#579dff);
+    color:#1d2125;
+    font-size:11px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .project-name{
+    flex:1;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:14px;
+  }
+  .project-delete{
+    opacity:0;
+    background:transparent;border:0;color:#9fadbc;
+    width:22px;height:22px;border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:opacity 0.12s,background 0.12s,color 0.12s;
+  }
+  .project-item:hover .project-delete{opacity:1}
+  .project-delete:hover{background:#412a2a;color:#f87168}
+  .empty-projects{
+    text-align:center;
+    color:#738496;
+    font-size:12px;
+    padding:24px 12px;
+    line-height:1.5;
+  }
+  .sidebar-footer{
+    padding:10px 14px;
+    border-top:1px solid #2c3338;
+    font-size:11px;
+    color:#738496;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .logout-btn{
+    background:transparent;border:0;color:#9fadbc;
+    font-size:12px;
+    display:inline-flex;align-items:center;gap:4px;
+    padding:4px 8px;border-radius:4px;
+    transition:background 0.12s,color 0.12s;
+  }
+  .logout-btn:hover{background:#2c3338;color:#f4f5f7}
+
+  /* --- board ------------------------------------------------------------ */
+  .board{
+    grid-area:board;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    background:#1d2125;
+    background-image:linear-gradient(180deg,rgba(87,157,255,0.05),transparent 280px);
+  }
+  .board-header{
+    padding:14px 24px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-shrink:0;
+  }
+  .board-title{
+    font-size:18px;
+    font-weight:700;
+    color:#f4f5f7;
+    background:transparent;
+    border:1px solid transparent;
+    border-radius:4px;
+    padding:4px 8px;
+    margin:0;
+    outline:none;
+    min-width:120px;
+    max-width:600px;
+  }
+  .board-title:hover{background:rgba(255,255,255,0.04)}
+  .board-title:focus{background:#22272b;border-color:#579dff}
+  .board-meta{
+    color:#8c9bab;
+    font-size:12px;
+  }
+  .board-content{
+    flex:1;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:0 24px 24px;
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    scrollbar-width:thin;
+    scrollbar-color:#38414b transparent;
+  }
+  .board-content::-webkit-scrollbar{height:12px}
+  .board-content::-webkit-scrollbar-track{background:transparent}
+  .board-content::-webkit-scrollbar-thumb{background:#38414b;border-radius:6px;border:3px solid #1d2125}
+
+  /* --- columns ---------------------------------------------------------- */
+  .column{
+    background:#101204;
+    border-radius:10px;
+    width:280px;
+    flex-shrink:0;
+    max-height:100%;
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 1px 0 rgba(255,255,255,0.04);
+  }
+  .column.drag-over{
+    background:#161a1d;
+    outline:2px dashed #579dff;
+    outline-offset:-2px;
+  }
+  .column-header{
+    padding:10px 12px 6px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-shrink:0;
+  }
+  .column-title{
+    font-size:13px;
+    font-weight:700;
+    color:#f4f5f7;
+    display:flex;align-items:center;gap:8px;
+  }
+  .column-count{
+    background:#22272b;
+    color:#9fadbc;
+    font-size:11px;
+    font-weight:600;
+    padding:1px 7px;
+    border-radius:10px;
+  }
+  .cards{
+    flex:1;
+    overflow-y:auto;
+    padding:0 8px;
+    scrollbar-width:thin;
+    scrollbar-color:#38414b transparent;
+    min-height:8px;
+  }
+  .cards::-webkit-scrollbar{width:8px}
+  .cards::-webkit-scrollbar-track{background:transparent}
+  .cards::-webkit-scrollbar-thumb{background:#38414b;border-radius:4px}
+
+  /* --- card ------------------------------------------------------------- */
+  .card{
+    background:#22272b;
+    border-radius:8px;
+    padding:8px 12px;
+    margin-bottom:8px;
+    cursor:grab;
+    transition:background 0.12s,box-shadow 0.12s,transform 0.12s;
+    border:1px solid transparent;
+    box-shadow:0 1px 0 rgba(0,0,0,0.25);
+    position:relative;
+    user-select:none;
+  }
+  .card:hover{
+    background:#2c3338;
+    border-color:#38414b;
+  }
+  .card.dragging{
+    opacity:0.4;
+    cursor:grabbing;
+    transform:rotate(1.5deg);
+  }
+  .card-priority{
+    display:inline-block;
+    height:6px;
+    width:42px;
+    border-radius:3px;
+    margin-bottom:6px;
+  }
+  .card-priority.red   { background:#f87168 }
+  .card-priority.yellow{ background:#f5cd47 }
+  .card-priority.green { background:#4bce97 }
+  .card-title{
+    color:#f4f5f7;
+    font-size:14px;
+    line-height:1.35;
+    word-wrap:break-word;
+    white-space:pre-wrap;
+  }
+  .card-actions{
+    position:absolute;
+    top:6px;
+    right:6px;
+    opacity:0;
+    transition:opacity 0.12s;
+  }
+  .card:hover .card-actions{opacity:1}
+  .card-action{
+    background:rgba(0,0,0,0.4);
+    border:0;color:#9fadbc;
+    width:22px;height:22px;border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    margin-left:2px;
+    transition:background 0.12s,color 0.12s;
+  }
+  .card-action:hover{background:#412a2a;color:#f87168}
+
+  /* --- add card --------------------------------------------------------- */
+  .add-card{
+    margin:4px 8px 8px;
+    padding:8px 12px;
+    color:#9fadbc;
+    background:transparent;
+    border:0;
+    border-radius:6px;
+    font-size:14px;
+    text-align:left;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition:background 0.12s,color 0.12s;
+  }
+  .add-card:hover{
+    background:rgba(255,255,255,0.06);
+    color:#f4f5f7;
+  }
+  .add-card-form{
+    margin:4px 8px 8px;
+    background:transparent;
+  }
+  .add-card-form textarea{
+    width:100%;
+    background:#22272b;
+    border:1px solid #579dff;
+    color:#f4f5f7;
+    border-radius:8px;
+    padding:8px 12px;
+    font-family:inherit;
+    font-size:14px;
+    resize:vertical;
+    min-height:60px;
+    outline:none;
+    box-shadow:0 1px 0 rgba(0,0,0,0.25);
+  }
+  .add-card-form .priority-row{
+    display:flex;
+    gap:6px;
+    margin-top:8px;
+    align-items:center;
+  }
+  .priority-row .label{font-size:11px;color:#9fadbc;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-right:2px}
+  .priority-pill{
+    background:transparent;
+    border:1px solid #38414b;
+    border-radius:999px;
+    padding:3px 10px;
+    font-size:11px;
+    color:#b6c2cf;
+    display:inline-flex;align-items:center;gap:5px;
+    transition:background 0.12s,border-color 0.12s;
+  }
+  .priority-pill:hover{background:#2c3338}
+  .priority-pill.active{border-color:#579dff;background:#1c2b41}
+  .priority-pill .dot{
+    width:8px;height:8px;border-radius:50%;
+  }
+  .priority-pill .dot.red{background:#f87168}
+  .priority-pill .dot.yellow{background:#f5cd47}
+  .priority-pill .dot.green{background:#4bce97}
+  .add-card-form .actions{
+    display:flex;
+    gap:6px;
+    margin-top:8px;
+    align-items:center;
+  }
+  .btn-primary{
+    background:#579dff;
+    color:#1d2125;
+    border:0;
+    padding:7px 14px;
+    border-radius:4px;
+    font-weight:700;
+    font-size:13px;
+    transition:background 0.12s;
+  }
+  .btn-primary:hover{background:#85b8ff}
+  .btn-cancel{
+    background:transparent;
+    border:0;
+    color:#9fadbc;
+    padding:6px 8px;
+    border-radius:4px;
+    font-size:13px;
+  }
+  .btn-cancel:hover{background:#2c3338;color:#f4f5f7}
+
+  /* --- empty state ------------------------------------------------------ */
+  .empty-board{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#738496;
+    text-align:center;
+    padding:40px;
+  }
+  .empty-board h2{
+    color:#b6c2cf;
+    font-size:18px;
+    margin:0 0 8px;
+  }
+  .empty-board p{margin:0 0 16px;font-size:14px}
+  .empty-board .btn-primary{padding:9px 18px;font-size:14px}
+
+  /* --- modal ------------------------------------------------------------ */
+  .modal-backdrop{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    backdrop-filter:blur(2px);
+  }
+  .modal{
+    background:#22272b;
+    border:1px solid #38414b;
+    border-radius:10px;
+    padding:24px;
+    width:100%;
+    max-width:420px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.6);
+  }
+  .modal h2{
+    margin:0 0 16px;
+    color:#f4f5f7;
+    font-size:16px;
+    font-weight:700;
+  }
+  .modal label{
+    display:block;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:#9fadbc;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .modal textarea,.modal input[type=text]{
+    width:100%;
+    background:#1d2125;
+    border:1px solid #38414b;
+    color:#f4f5f7;
+    border-radius:6px;
+    padding:9px 11px;
+    font-family:inherit;
+    font-size:14px;
+    outline:none;
+    margin-bottom:14px;
+  }
+  .modal textarea{resize:vertical;min-height:80px}
+  .modal textarea:focus,.modal input[type=text]:focus{border-color:#579dff}
+  .modal .actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:8px;
+  }
+
+  /* --- responsive ------------------------------------------------------- */
+  @media (max-width:780px){
+    .app{grid-template-columns:1fr;grid-template-areas:"topbar" "board";grid-template-rows:44px 1fr}
+    .sidebar{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="topbar-logo">
+      <img src="wp-content/uploads/2023/11/logo-brown-enterpises-sito-04.svg" alt="Brown">
+      <span>Project Manager</span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-user">
+      <div class="avatar" id="avatar">A</div>
+    </div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Progetti</span>
+      <button class="sidebar-add" id="add-project-btn" title="Nuovo progetto">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+    <div class="projects" id="projects"></div>
+    <div class="sidebar-footer">
+      <span id="user-label">admin</span>
+      <button class="logout-btn" id="logout-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Esci
+      </button>
+    </div>
+  </aside>
+
+  <main class="board" id="board">
+    <!-- Filled by JS -->
+  </main>
+</div>
+
+<script>
+/* =====================================================================
+ * Auth gate
+ * ===================================================================== */
+(function authGate(){
+  try{
+    if(sessionStorage.getItem("brown_auth") !== "1"){
+      window.location.replace("login.html");
+    }
+  }catch(_){
+    window.location.replace("login.html");
+  }
+})();
+
+/* =====================================================================
+ * Storage helpers
+ * ===================================================================== */
+var STORAGE_KEY = "brown_pm_data_v1";
+var COLUMNS = [
+  { id:"todo",       title:"To Do" },
+  { id:"inprogress", title:"In Progress" },
+  { id:"done",       title:"Done" }
+];
+
+function uid(prefix){
+  return prefix + "_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3);
+}
+function loadData(){
+  try{
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      var parsed = JSON.parse(raw);
+      if(parsed && Array.isArray(parsed.projects)) return parsed;
+    }
+  }catch(_){}
+  return seedData();
+}
+function saveData(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(_){}
+}
+function seedData(){
+  var pid = uid("p");
+  return {
+    version: 1,
+    activeProjectId: pid,
+    projects: [{
+      id: pid,
+      name: "Progetto di esempio",
+      columns: {
+        todo: [
+          { id: uid("c"), title: "Brief al cliente",            priority: "red" },
+          { id: uid("c"), title: "Mockup grafico homepage",     priority: "yellow" }
+        ],
+        inprogress: [
+          { id: uid("c"), title: "Sviluppo landing page",       priority: "yellow" }
+        ],
+        done: [
+          { id: uid("c"), title: "Riunione kickoff",            priority: "green" }
+        ]
+      }
+    }]
+  };
+}
+
+/* =====================================================================
+ * State
+ * ===================================================================== */
+var state = loadData();
+
+function getActiveProject(){
+  return state.projects.find(function(p){ return p.id === state.activeProjectId; }) || state.projects[0] || null;
+}
+
+/* =====================================================================
+ * Rendering
+ * ===================================================================== */
+var $projects = document.getElementById("projects");
+var $board    = document.getElementById("board");
+
+function projectInitial(name){
+  return (name || "?").trim().charAt(0).toUpperCase() || "?";
+}
+
+function renderSidebar(){
+  $projects.innerHTML = "";
+  if(!state.projects.length){
+    var empty = document.createElement("div");
+    empty.className = "empty-projects";
+    empty.textContent = "Nessun progetto. Aggiungine uno con +";
+    $projects.appendChild(empty);
+    return;
+  }
+  state.projects.forEach(function(proj){
+    var item = document.createElement("div");
+    item.className = "project-item" + (proj.id === state.activeProjectId ? " active" : "");
+    item.dataset.projectId = proj.id;
+
+    var ico = document.createElement("div");
+    ico.className = "project-icon";
+    ico.textContent = projectInitial(proj.name);
+
+    var name = document.createElement("div");
+    name.className = "project-name";
+    name.textContent = proj.name;
+
+    var del = document.createElement("button");
+    del.className = "project-delete";
+    del.title = "Elimina progetto";
+    del.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>';
+    del.addEventListener("click", function(e){
+      e.stopPropagation();
+      deleteProject(proj.id);
+    });
+
+    item.appendChild(ico);
+    item.appendChild(name);
+    item.appendChild(del);
+    item.addEventListener("click", function(){
+      state.activeProjectId = proj.id;
+      saveData();
+      render();
+    });
+
+    $projects.appendChild(item);
+  });
+}
+
+function renderBoard(){
+  $board.innerHTML = "";
+
+  var proj = getActiveProject();
+  if(!proj){
+    var empty = document.createElement("div");
+    empty.className = "empty-board";
+    empty.innerHTML = '<h2>Nessun progetto attivo</h2><p>Crea il tuo primo progetto per iniziare.</p>';
+    var btn = document.createElement("button");
+    btn.className = "btn-primary";
+    btn.textContent = "+ Nuovo progetto";
+    btn.addEventListener("click", promptNewProject);
+    empty.appendChild(btn);
+    $board.appendChild(empty);
+    return;
+  }
+
+  // Header
+  var header = document.createElement("div");
+  header.className = "board-header";
+  var title = document.createElement("input");
+  title.className = "board-title";
+  title.value = proj.name;
+  title.spellcheck = false;
+  title.addEventListener("change", function(){
+    var v = title.value.trim();
+    if(!v){ title.value = proj.name; return; }
+    proj.name = v;
+    saveData();
+    renderSidebar();
+  });
+  title.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ e.preventDefault(); title.blur(); }
+  });
+  var meta = document.createElement("span");
+  meta.className = "board-meta";
+  var totalCards = COLUMNS.reduce(function(sum,col){ return sum + (proj.columns[col.id]||[]).length; }, 0);
+  meta.textContent = totalCards + " card · 3 liste";
+  header.appendChild(title);
+  header.appendChild(meta);
+  $board.appendChild(header);
+
+  // Columns
+  var content = document.createElement("div");
+  content.className = "board-content";
+
+  COLUMNS.forEach(function(col){
+    var $col = document.createElement("section");
+    $col.className = "column";
+    $col.dataset.columnId = col.id;
+
+    var $head = document.createElement("div");
+    $head.className = "column-header";
+    var $t = document.createElement("div");
+    $t.className = "column-title";
+    var cnt = (proj.columns[col.id] || []).length;
+    $t.innerHTML = '<span>' + col.title + '</span><span class="column-count">' + cnt + '</span>';
+    $head.appendChild($t);
+    $col.appendChild($head);
+
+    var $cards = document.createElement("div");
+    $cards.className = "cards";
+    $cards.dataset.columnId = col.id;
+    (proj.columns[col.id] || []).forEach(function(card){
+      $cards.appendChild(buildCardEl(card, col.id));
+    });
+    $col.appendChild($cards);
+
+    var $add = document.createElement("button");
+    $add.className = "add-card";
+    $add.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Aggiungi una carta';
+    $add.addEventListener("click", function(){
+      openAddCardForm($col, col.id);
+    });
+    $col.appendChild($add);
+
+    // drop zone events on the whole column
+    $col.addEventListener("dragover", function(e){
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      $col.classList.add("drag-over");
+    });
+    $col.addEventListener("dragleave", function(e){
+      if(e.target === $col || !$col.contains(e.relatedTarget)){
+        $col.classList.remove("drag-over");
+      }
+    });
+    $col.addEventListener("drop", function(e){
+      e.preventDefault();
+      $col.classList.remove("drag-over");
+      var cardId = e.dataTransfer.getData("text/card-id");
+      var fromCol = e.dataTransfer.getData("text/from-col");
+      if(!cardId) return;
+
+      // figure out drop position relative to the cards in this column
+      var afterEl = getDragAfterElement($cards, e.clientY);
+      moveCard(cardId, fromCol, col.id, afterEl ? afterEl.dataset.cardId : null);
+    });
+
+    content.appendChild($col);
+  });
+
+  $board.appendChild(content);
+}
+
+function buildCardEl(card, columnId){
+  var $card = document.createElement("article");
+  $card.className = "card";
+  $card.draggable = true;
+  $card.dataset.cardId = card.id;
+  $card.dataset.columnId = columnId;
+
+  if(card.priority){
+    var $p = document.createElement("span");
+    $p.className = "card-priority " + card.priority;
+    $card.appendChild($p);
+  }
+
+  var $t = document.createElement("div");
+  $t.className = "card-title";
+  $t.textContent = card.title;
+  $card.appendChild($t);
+
+  var $actions = document.createElement("div");
+  $actions.className = "card-actions";
+  var $del = document.createElement("button");
+  $del.className = "card-action";
+  $del.title = "Elimina";
+  $del.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+  $del.addEventListener("click", function(e){
+    e.stopPropagation();
+    deleteCard(card.id, columnId);
+  });
+  $actions.appendChild($del);
+  $card.appendChild($actions);
+
+  // edit on click
+  $card.addEventListener("click", function(e){
+    if(e.target.closest(".card-action")) return;
+    openEditCardModal(card.id, columnId);
+  });
+
+  // dragging
+  $card.addEventListener("dragstart", function(e){
+    $card.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/card-id", card.id);
+    e.dataTransfer.setData("text/from-col", columnId);
+  });
+  $card.addEventListener("dragend", function(){
+    $card.classList.remove("dragging");
+    document.querySelectorAll(".column.drag-over").forEach(function(c){ c.classList.remove("drag-over"); });
+  });
+
+  return $card;
+}
+
+function getDragAfterElement(container, y){
+  var els = Array.prototype.slice.call(container.querySelectorAll(".card:not(.dragging)"));
+  var closest = null, closestOffset = -Infinity;
+  for(var i=0;i<els.length;i++){
+    var box = els[i].getBoundingClientRect();
+    var offset = y - box.top - box.height / 2;
+    if(offset < 0 && offset > closestOffset){
+      closestOffset = offset;
+      closest = els[i];
+    }
+  }
+  return closest;
+}
+
+/* =====================================================================
+ * Mutations
+ * ===================================================================== */
+function moveCard(cardId, fromColId, toColId, beforeCardId){
+  var proj = getActiveProject(); if(!proj) return;
+  var fromArr = proj.columns[fromColId];
+  var idx = fromArr.findIndex(function(c){ return c.id === cardId; });
+  if(idx < 0) return;
+  var card = fromArr.splice(idx,1)[0];
+  var toArr = proj.columns[toColId];
+  if(beforeCardId){
+    var bIdx = toArr.findIndex(function(c){ return c.id === beforeCardId; });
+    if(bIdx >= 0){ toArr.splice(bIdx, 0, card); }
+    else toArr.push(card);
+  } else {
+    toArr.push(card);
+  }
+  saveData();
+  renderBoard();
+}
+
+function deleteCard(cardId, columnId){
+  var proj = getActiveProject(); if(!proj) return;
+  proj.columns[columnId] = proj.columns[columnId].filter(function(c){ return c.id !== cardId; });
+  saveData();
+  renderBoard();
+}
+
+function addCard(columnId, title, priority){
+  var proj = getActiveProject(); if(!proj) return;
+  proj.columns[columnId].push({ id: uid("c"), title: title.trim(), priority: priority || null });
+  saveData();
+  renderBoard();
+}
+
+function updateCard(cardId, columnId, title, priority){
+  var proj = getActiveProject(); if(!proj) return;
+  var card = proj.columns[columnId].find(function(c){ return c.id === cardId; });
+  if(!card) return;
+  card.title = title.trim();
+  card.priority = priority || null;
+  saveData();
+  renderBoard();
+}
+
+function deleteProject(projectId){
+  if(!confirm("Eliminare definitivamente questo progetto?")) return;
+  state.projects = state.projects.filter(function(p){ return p.id !== projectId; });
+  if(state.activeProjectId === projectId){
+    state.activeProjectId = state.projects.length ? state.projects[0].id : null;
+  }
+  saveData();
+  render();
+}
+
+function promptNewProject(){
+  showInputModal({
+    title: "Nuovo progetto",
+    label: "Nome del progetto",
+    placeholder: "Es. Sito istituzionale",
+    confirmText: "Crea",
+    onConfirm: function(name){
+      var n = name.trim();
+      if(!n) return;
+      var p = {
+        id: uid("p"),
+        name: n,
+        columns: { todo:[], inprogress:[], done:[] }
+      };
+      state.projects.push(p);
+      state.activeProjectId = p.id;
+      saveData();
+      render();
+    }
+  });
+}
+
+/* =====================================================================
+ * Inline add-card form
+ * ===================================================================== */
+function openAddCardForm($col, columnId){
+  // close any other open form
+  document.querySelectorAll(".add-card-form").forEach(function(f){ f.remove(); });
+  document.querySelectorAll(".add-card").forEach(function(b){ b.style.display = ""; });
+
+  var $existingBtn = $col.querySelector(".add-card");
+  if($existingBtn) $existingBtn.style.display = "none";
+
+  var form = document.createElement("div");
+  form.className = "add-card-form";
+  form.innerHTML =
+    '<textarea placeholder="Inserisci un titolo per la carta..."></textarea>' +
+    '<div class="priority-row">' +
+      '<span class="label">Priorità</span>' +
+      '<button class="priority-pill" data-priority="red"   ><span class="dot red"></span>Alta</button>' +
+      '<button class="priority-pill" data-priority="yellow"><span class="dot yellow"></span>Media</button>' +
+      '<button class="priority-pill active" data-priority="green" ><span class="dot green"></span>Bassa</button>' +
+    '</div>' +
+    '<div class="actions">' +
+      '<button class="btn-primary">Aggiungi carta</button>' +
+      '<button class="btn-cancel">Annulla</button>' +
+    '</div>';
+  $col.appendChild(form);
+
+  var $ta      = form.querySelector("textarea");
+  var $confirm = form.querySelector(".btn-primary");
+  var $cancel  = form.querySelector(".btn-cancel");
+  var $pills   = form.querySelectorAll(".priority-pill");
+  var priority = "green";
+
+  $pills.forEach(function(p){
+    p.addEventListener("click", function(){
+      $pills.forEach(function(x){ x.classList.remove("active"); });
+      p.classList.add("active");
+      priority = p.dataset.priority;
+    });
+  });
+
+  function close(){
+    form.remove();
+    if($existingBtn) $existingBtn.style.display = "";
+  }
+  function commit(){
+    var v = $ta.value.trim();
+    if(!v){ $ta.focus(); return; }
+    addCard(columnId, v, priority);
+  }
+  $confirm.addEventListener("click", commit);
+  $cancel.addEventListener("click", close);
+  $ta.addEventListener("keydown", function(e){
+    if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); commit(); }
+    if(e.key === "Escape"){ close(); }
+  });
+  $ta.focus();
+}
+
+/* =====================================================================
+ * Edit card modal
+ * ===================================================================== */
+function openEditCardModal(cardId, columnId){
+  var proj = getActiveProject(); if(!proj) return;
+  var card = proj.columns[columnId].find(function(c){ return c.id === cardId; });
+  if(!card) return;
+
+  var backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.innerHTML =
+    '<div class="modal" role="dialog">' +
+      '<h2>Modifica carta</h2>' +
+      '<label>Titolo</label>' +
+      '<textarea id="m-title"></textarea>' +
+      '<label>Priorità</label>' +
+      '<div class="priority-row" style="margin-bottom:14px">' +
+        '<button class="priority-pill" data-priority="red"   ><span class="dot red"></span>Alta</button>' +
+        '<button class="priority-pill" data-priority="yellow"><span class="dot yellow"></span>Media</button>' +
+        '<button class="priority-pill" data-priority="green" ><span class="dot green"></span>Bassa</button>' +
+      '</div>' +
+      '<div class="actions">' +
+        '<button class="btn-cancel" id="m-cancel">Annulla</button>' +
+        '<button class="btn-primary" id="m-save">Salva</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(backdrop);
+
+  var $ta = backdrop.querySelector("#m-title");
+  $ta.value = card.title;
+  setTimeout(function(){ $ta.focus(); $ta.select(); }, 0);
+
+  var priority = card.priority || "green";
+  var $pills = backdrop.querySelectorAll(".priority-pill");
+  $pills.forEach(function(p){
+    if(p.dataset.priority === priority) p.classList.add("active");
+    p.addEventListener("click", function(){
+      $pills.forEach(function(x){ x.classList.remove("active"); });
+      p.classList.add("active");
+      priority = p.dataset.priority;
+    });
+  });
+
+  function close(){ backdrop.remove(); document.removeEventListener("keydown", onKey); }
+  function save(){
+    var v = $ta.value.trim();
+    if(!v) { $ta.focus(); return; }
+    updateCard(cardId, columnId, v, priority);
+    close();
+  }
+  function onKey(e){
+    if(e.key === "Escape") close();
+    if(e.key === "Enter" && (e.metaKey || e.ctrlKey)) save();
+  }
+  document.addEventListener("keydown", onKey);
+
+  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+  backdrop.querySelector("#m-cancel").addEventListener("click", close);
+  backdrop.querySelector("#m-save").addEventListener("click", save);
+}
+
+/* =====================================================================
+ * Generic input modal
+ * ===================================================================== */
+function showInputModal(opts){
+  var backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.innerHTML =
+    '<div class="modal" role="dialog">' +
+      '<h2></h2>' +
+      '<label></label>' +
+      '<input type="text" id="m-input">' +
+      '<div class="actions">' +
+        '<button class="btn-cancel" id="m-cancel">Annulla</button>' +
+        '<button class="btn-primary" id="m-confirm"></button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(backdrop);
+
+  backdrop.querySelector("h2").textContent = opts.title;
+  backdrop.querySelector("label").textContent = opts.label;
+  var $i = backdrop.querySelector("#m-input");
+  $i.placeholder = opts.placeholder || "";
+  var $c = backdrop.querySelector("#m-confirm");
+  $c.textContent = opts.confirmText || "OK";
+
+  setTimeout(function(){ $i.focus(); }, 0);
+
+  function close(){ backdrop.remove(); document.removeEventListener("keydown", onKey); }
+  function commit(){
+    var v = $i.value;
+    close();
+    if(opts.onConfirm) opts.onConfirm(v);
+  }
+  function onKey(e){
+    if(e.key === "Escape") close();
+    if(e.key === "Enter") commit();
+  }
+  document.addEventListener("keydown", onKey);
+
+  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+  backdrop.querySelector("#m-cancel").addEventListener("click", close);
+  $c.addEventListener("click", commit);
+}
+
+/* =====================================================================
+ * Wire up
+ * ===================================================================== */
+function render(){
+  renderSidebar();
+  renderBoard();
+}
+
+document.getElementById("add-project-btn").addEventListener("click", promptNewProject);
+document.getElementById("logout-btn").addEventListener("click", function(){
+  try{ sessionStorage.removeItem("brown_auth"); }catch(_){}
+  window.location.href = "login.html";
+});
+
+// User badge
+try{
+  var u = localStorage.getItem("brown_auth_user") || "admin";
+  document.getElementById("user-label").textContent = u;
+  document.getElementById("avatar").textContent = u.charAt(0).toUpperCase();
+}catch(_){}
+
+render();
+</script>
+</body>
+</html>
