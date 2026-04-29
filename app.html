@@ -579,6 +579,86 @@
   }
   .cal-close:hover{background:#412a2a;color:#f87168}
 
+  .cal-main{flex:1;display:flex;overflow:hidden}
+  .cal-side{
+    width:220px;flex-shrink:0;
+    background:#1d2125;
+    border-right:1px solid #2c3338;
+    padding:12px 10px;
+    overflow-y:auto;
+    display:flex;flex-direction:column;
+    gap:2px;
+  }
+  .cal-side h3{
+    margin:0 0 8px;padding:0 8px;
+    font-size:11px;font-weight:700;color:#9fadbc;
+    text-transform:uppercase;letter-spacing:0.6px;
+  }
+  .cal-person-row{
+    display:flex;align-items:center;gap:10px;
+    padding:7px 8px;
+    border-radius:6px;
+    cursor:pointer;
+    user-select:none;
+    font-size:13px;
+    color:#b6c2cf;
+    transition:background 0.12s;
+    --pc:#579dff;
+  }
+  .cal-person-row:hover{background:#2c3338}
+  .cal-person-row.all{
+    font-weight:700;color:#cce0ff;
+    margin-bottom:4px;
+  }
+  .cal-cb{
+    width:16px;height:16px;
+    border:2px solid #38414b;
+    border-radius:4px;
+    flex-shrink:0;
+    background:#1d2125;
+    position:relative;
+    transition:background 0.12s,border-color 0.12s;
+  }
+  .cal-person-row.checked .cal-cb{
+    background:var(--pc);
+    border-color:var(--pc);
+  }
+  .cal-person-row.checked .cal-cb::after{
+    content:"";
+    position:absolute;
+    left:4px;top:1px;
+    width:4px;height:8px;
+    border:solid #1d2125;
+    border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+  }
+  .cal-person-name{
+    flex:1;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .cal-person-count{
+    background:#22272b;
+    color:#9fadbc;
+    font-size:10px;font-weight:700;
+    padding:1px 7px;border-radius:10px;
+    flex-shrink:0;
+  }
+  .cal-side-divider{
+    height:1px;background:#2c3338;
+    margin:6px 4px;
+  }
+  .cal-side-actions{
+    display:flex;gap:6px;margin:6px 0 4px;
+  }
+  .cal-side-actions button{
+    flex:1;
+    background:#22272b;border:1px solid #38414b;color:#9fadbc;
+    padding:5px 8px;border-radius:4px;
+    font-size:11px;font-weight:600;
+    transition:background 0.12s,color 0.12s;
+  }
+  .cal-side-actions button:hover{background:#2c3338;color:#f4f5f7}
+
   .cal-body{flex:1;overflow:hidden;display:flex;flex-direction:column;background:#101204}
 
   /* Month view */
@@ -761,6 +841,12 @@
     .cal-week{grid-auto-flow:row;grid-template-columns:1fr}
     .cal-week-col{border-right:0;border-bottom:1px solid #2c3338}
     .cal-month-grid{grid-auto-rows:minmax(70px,1fr)}
+    .cal-side{width:160px;padding:8px 6px}
+    .cal-person-name{font-size:12px}
+    .cal-person-count{display:none}
+  }
+  @media (max-width:560px){
+    .cal-side{display:none}
   }
 </style>
 </head>
@@ -835,7 +921,10 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
   </div>
-  <div class="cal-body" id="cal-body"></div>
+  <div class="cal-main">
+    <aside class="cal-side" id="cal-side"></aside>
+    <div class="cal-body" id="cal-body"></div>
+  </div>
 </div>
 
 <script>
@@ -1493,9 +1582,36 @@ render();
   var view = "week";          // 'day' | 'week' | 'month'
   var cursor = new Date();    // anchor date for current view
 
+  /* ---------- person filter ---------- */
+  var FILTER_KEY = "brown_calendar_filter_v1";
+  var selectedPersons; // Set<string>; null until loaded
+  function loadFilter(){
+    try{
+      var raw = localStorage.getItem(FILTER_KEY);
+      if(raw){
+        var arr = JSON.parse(raw);
+        if(Array.isArray(arr)) return new Set(arr);
+      }
+    }catch(_){}
+    return new Set(KNOWN_PERSONS); // default: all six selected
+  }
+  function saveFilter(){
+    try{
+      var arr = []; selectedPersons.forEach(function(p){ arr.push(p); });
+      localStorage.setItem(FILTER_KEY, JSON.stringify(arr));
+    }catch(_){}
+  }
+  selectedPersons = loadFilter();
+
+  function eventVisible(e){
+    if(!e.person) return true;     // events without a person are always shown
+    return selectedPersons.has(e.person);
+  }
+
   /* ---------- DOM refs ---------- */
   var $overlay = document.getElementById("cal-overlay");
   var $body    = document.getElementById("cal-body");
+  var $side    = document.getElementById("cal-side");
   var $period  = document.getElementById("cal-period");
   var $views   = $overlay.querySelectorAll(".cal-views button");
 
@@ -1530,7 +1646,7 @@ render();
   /* ---------- event helpers ---------- */
   function eventsForDate(dateStr){
     return calState.events
-      .filter(function(e){ return e.date === dateStr; })
+      .filter(function(e){ return e.date === dateStr && eventVisible(e); })
       .sort(function(a,b){
         var ta = a.time || "99:99";
         var tb = b.time || "99:99";
@@ -1544,7 +1660,91 @@ render();
   }
 
   /* ---------- rendering ---------- */
+  function getAllPersons(){
+    // Known team first (in stable order), then any extra persons found in events
+    var seen = {};
+    var ordered = [];
+    KNOWN_PERSONS.forEach(function(p){ seen[p]=1; ordered.push(p); });
+    var extras = [];
+    calState.events.forEach(function(e){
+      if(e.person && !seen[e.person]){ seen[e.person]=1; extras.push(e.person); }
+    });
+    extras.sort(function(a,b){ return a.localeCompare(b); });
+    return ordered.concat(extras);
+  }
+
+  function renderPersonSide(){
+    var people = getAllPersons();
+    $side.innerHTML = "";
+
+    var h = document.createElement("h3");
+    h.textContent = "Persone";
+    $side.appendChild(h);
+
+    // "Tutti" master toggle
+    var allRow = document.createElement("div");
+    allRow.className = "cal-person-row all";
+    var allOn = people.length > 0 && people.every(function(p){ return selectedPersons.has(p); });
+    if(allOn) allRow.classList.add("checked");
+    allRow.innerHTML = '<div class="cal-cb"></div><div class="cal-person-name">Tutti</div>'+
+                       '<div class="cal-person-count">'+ people.length +'</div>';
+    allRow.addEventListener("click", function(){
+      if(allOn){ selectedPersons.clear(); }
+      else { people.forEach(function(p){ selectedPersons.add(p); }); }
+      saveFilter();
+      render();
+    });
+    $side.appendChild(allRow);
+
+    var divider = document.createElement("div");
+    divider.className = "cal-side-divider";
+    $side.appendChild(divider);
+
+    // Per-person rows
+    people.forEach(function(p){
+      var row = document.createElement("div");
+      row.className = "cal-person-row";
+      if(selectedPersons.has(p)) row.classList.add("checked");
+      row.style.setProperty("--pc", personColor(p));
+      var count = calState.events.reduce(function(n,e){ return n + (e.person === p ? 1 : 0); }, 0);
+      row.innerHTML =
+        '<div class="cal-cb"></div>'+
+        '<div class="cal-person-name">'+ escapeHtml(p) +'</div>'+
+        '<div class="cal-person-count">'+ count +'</div>';
+      row.addEventListener("click", function(e){
+        if(e.shiftKey || e.metaKey || e.ctrlKey){
+          // modifier-click: solo questa persona
+          selectedPersons.clear();
+          selectedPersons.add(p);
+        } else {
+          if(selectedPersons.has(p)) selectedPersons.delete(p);
+          else selectedPersons.add(p);
+        }
+        saveFilter();
+        render();
+      });
+      $side.appendChild(row);
+    });
+
+    // Quick-action buttons
+    var actions = document.createElement("div");
+    actions.className = "cal-side-actions";
+    actions.innerHTML =
+      '<button data-act="all">Tutti</button>'+
+      '<button data-act="none">Nessuno</button>';
+    actions.querySelector('[data-act="all"]').addEventListener("click", function(){
+      people.forEach(function(p){ selectedPersons.add(p); });
+      saveFilter(); render();
+    });
+    actions.querySelector('[data-act="none"]').addEventListener("click", function(){
+      selectedPersons.clear();
+      saveFilter(); render();
+    });
+    $side.appendChild(actions);
+  }
+
   function render(){
+    renderPersonSide();
     if(view === "day")   renderDay();
     if(view === "week")  renderWeek();
     if(view === "month") renderMonth();
