@@ -1,14 +1,14 @@
 @font-face {
   font-family: star;
   src: url(../../../themes/dt-the7/css/compatibility/woo-fonts/star.eot);
-  src: url(../../../themes/dt-the7/css/compatibility/woo-fonts/star.eot%3F) format('embedded-opentype'), url(../../../themes/dt-the7/css/compatibility/woo-fonts/star.woff) format('woff'), url(../../../themes/dt-the7/css/compatibility/woo-fonts/star.ttf) format('truetype');
+  src: url(../../../themes/dt-the7/css/compatibility/woo-fonts/star.eot) format('embedded-opentype'), url(../../../themes/dt-the7/css/compatibility/woo-fonts/star.woff) format('woff'), url(../../../themes/dt-the7/css/compatibility/woo-fonts/star.ttf) format('truetype');
   font-weight: 400;
   font-style: normal;
 }
 @font-face {
   font-family: WooCommerce;
   src: url(../../../themes/dt-the7/css/compatibility/woo-fonts/WooCommerce.eot);
-  src: url(../../../themes/dt-the7/css/compatibility/woo-fonts/WooCommerce.eot%3F) format('embedded-opentype'), url(../../../themes/dt-the7/css/compatibility/woo-fonts/WooCommerce.woff) format('woff'), url(../../../themes/dt-the7/css/compatibility/woo-fonts/WooCommerce.ttf) format('truetype');
+  src: url(../../../themes/dt-the7/css/compatibility/woo-fonts/WooCommerce.eot) format('embedded-opentype'), url(../../../themes/dt-the7/css/compatibility/woo-fonts/WooCommerce.woff) format('woff'), url(../../../themes/dt-the7/css/compatibility/woo-fonts/WooCommerce.ttf) format('truetype');
   font-weight: 400;
   font-style: normal;
 }
