@@ -252,23 +252,7 @@
 img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 /*# sourceURL=wp-img-auto-sizes-contain-inline-css */
 </style>
-<link rel='stylesheet' id='dashicons-css' href='../../wp-includes/css/dashicons.min.css' media='all' />
 <link rel='stylesheet' id='post-views-counter-frontend-css' href='../../wp-content/plugins/post-views-counter/css/frontend.min.css' media='all' />
-<style id='wp-emoji-styles-inline-css'>
-
-	img.wp-smiley, img.emoji {
-		display: inline !important;
-		border: none !important;
-		box-shadow: none !important;
-		height: 1em !important;
-		width: 1em !important;
-		margin: 0 0.07em !important;
-		vertical-align: -0.1em !important;
-		background: none !important;
-		padding: 0 !important;
-	}
-/*# sourceURL=wp-emoji-styles-inline-css */
-</style>
 <link rel='stylesheet' id='wp-block-library-css' href='../../wp-includes/css/dist/block-library/style.min.css' media='all' />
 <style id='classic-theme-styles-inline-css'>
 /*! This file is auto-generated */
@@ -334,7 +318,6 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 <link rel='stylesheet' id='the7-elements-css' href='../../wp-content/uploads/the7-css/post-type-dynamic.css' media='all' />
 <link rel='stylesheet' id='style-css' href='../../wp-content/themes/dt-the7/style.css' media='all' />
 <link rel='stylesheet' id='the7-elementor-global-css' href='../../wp-content/themes/dt-the7/css/compatibility/elementor/elementor-global.min.css' media='all' />
-<link rel='stylesheet' id='elementor-gf-local-montserrat-css' href='../../wp-content/uploads/elementor/google-fonts/css/montserrat.css' media='all' />
 <link rel='stylesheet' id='elementor-gf-local-inter-css' href='../../wp-content/uploads/elementor/google-fonts/css/inter.css' media='all' />
 <script src="../../wp-includes/js/jquery/jquery.min.js" id="jquery-core-js"></script>
 <script src="../../wp-includes/js/jquery/jquery-migrate.min.js" id="jquery-migrate-js"></script>
@@ -516,6 +499,7 @@ var dtShare = {"shareButtonText":{"facebook":"Condividi su Facebook","twitter":"
 	width: 1.25em;
 }
 </style>
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/wp-content/plugins/woocommerce/assets/fonts/Inter-VariableFont_slnt,wght.woff2" />
 </head>
 <body id="the7-body" class="wp-singular product-template-default single single-product postid-2059 wp-custom-logo wp-embed-responsive wp-theme-dt-the7 theme-dt-the7 the7-core-ver-2.7.10 woocommerce woocommerce-page woocommerce-no-js dt-responsive-on right-mobile-menu-close-icon ouside-menu-close-icon mobile-close-right-caption  fade-thin-mobile-menu-close-icon fade-medium-menu-close-icon srcset-enabled btn-flat custom-btn-color custom-btn-hover-color first-switch-logo-left first-switch-menu-right second-switch-logo-left second-switch-menu-right right-mobile-menu layzr-loading-on popup-message-style the7-ver-12.5.3 elementor-default elementor-kit-10 elementor-page-2064">
 <!-- The7 12.5.3 -->
@@ -797,11 +781,6 @@ h1:where(.wp-block-heading).has-background,h2:where(.wp-block-heading).has-backg
 	
 //# sourceURL=wp-block-template-skip-link-js-after
 </script>
-<script id="pagevico-tracker-js-extra">
-var pagevicoTracker = {"ajax_url":"https://www.brownenterprises.it/wp-json/pagevico/v1/track","nonce":"b5685297ab"};
-//# sourceURL=pagevico-tracker-js-extra
-</script>
-<script src="../../wp-content/plugins/page-visit-counter-analytics/assets/js/tracker.js" id="pagevico-tracker-js"></script>
 <script id="wc-add-to-cart-js-extra">
 var wc_add_to_cart_params = {"ajax_url":"/wp-admin/admin-ajax.php","wc_ajax_url":"/?wc-ajax=%%endpoint%%","i18n_view_cart":"Vedi carrello","cart_url":"https://www.brownenterprises.it/cart/","is_cart":"","cart_redirect_after_add":"no"};
 //# sourceURL=wc-add-to-cart-js-extra
@@ -822,7 +801,6 @@ var elementorFrontendConfig = {"environmentMode":{"edit":false,"wpPreview":false
 <script src="../../wp-content/plugins/woocommerce/assets/js/zoom/jquery.zoom.min.js" id="zoom-js" data-wp-strategy="defer"></script>
 <script src="../../wp-content/themes/dt-the7/js/compatibility/elementor/gallery-scroller.min.js" id="the7-gallery-scroller-js"></script>
 <script src="../../wp-content/themes/dt-the7/js/compatibility/elementor/the7-woocommerce-add-to-cart.min.js" id="the7-woocommerce-product-add-to-cart-v2-js"></script>
-<script src="../../wp-content/plugins/woocommerce/assets/js/sourcebuster/sourcebuster.min.js" id="sourcebuster-js-js"></script>
 <script id="wc-order-attribution-js-extra">
 var wc_order_attribution = {"params":{"lifetime":1.0e-5,"session":30,"base64":false,"ajaxurl":"https://www.brownenterprises.it/wp-admin/admin-ajax.php","prefix":"wc_order_attribution_","allowTracking":true},"fields":{"source_type":"current.typ","referrer":"current_add.rf","utm_campaign":"current.cmp","utm_source":"current.src","utm_medium":"current.mdm","utm_content":"current.cnt","utm_id":"current.id","utm_term":"current.trm","utm_source_platform":"current.plt","utm_creative_format":"current.fmt","utm_marketing_tactic":"current.tct","session_entry":"current_add.ep","session_start_time":"current_add.fd","session_pages":"session.pgs","session_count":"udata.vst","user_agent":"udata.uag"}};
 //# sourceURL=wc-order-attribution-js-extra
@@ -843,9 +821,6 @@ var ElementorProFrontendConfig = {"ajaxurl":"https:\/\/www.brownenterprises.it\/
 </script>
 <script src="../../wp-content/plugins/pro-elements/assets/js/frontend.min.js" id="elementor-pro-frontend-js"></script>
 <script src="../../wp-content/plugins/pro-elements/assets/js/elements-handlers.min.js" id="pro-elements-handlers-js"></script>
-<script id="wp-emoji-settings" type="application/json">
-{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"/wp-includes/js/wp-emoji-release.min.js?ver=6.9.4"}}
-</script>
 <script type="module">
 /*! This file is auto-generated */
 const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
