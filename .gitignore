@@ -1,0 +1,5 @@
+# Tooling locale / sessione
+.claude/
+
+# macOS
+.DS_Store

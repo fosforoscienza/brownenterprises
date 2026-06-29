@@ -1,0 +1,38 @@
+{
+  "name": "Brown Enterprises — Canalizziamo le tue idee",
+  "short_name": "Brown Enterprises",
+  "description": "Comunicazione e divulgazione della scienza, della cultura e della tecnologia: edutainment, formazione e progetti su misura. Canalizziamo le tue idee.",
+  "lang": "it-IT",
+  "dir": "ltr",
+  "id": "/",
+  "start_url": "/?utm_source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "background_color": "#0E1217",
+  "theme_color": "#0E1217",
+  "categories": ["education", "business", "entertainment"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Seven Wireless",
+      "short_name": "Seven Wireless",
+      "description": "Scopri Seven Wireless",
+      "url": "/product/seven-wireless/?utm_source=pwa_shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Area riservata",
+      "short_name": "Area riservata",
+      "description": "Accedi all'area riservata",
+      "url": "/login.html?utm_source=pwa_shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
