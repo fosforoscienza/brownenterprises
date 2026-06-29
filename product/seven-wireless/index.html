@@ -9,7 +9,30 @@
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 <title>Seven Wireless | Cuffie wireless Brown Enterprises</title>
 		<!-- This site uses the Google Analytics by MonsterInsights plugin v10.1.3 - Using Analytics tracking - https://www.monsterinsights.com/ -->
-							<script src="https://www.googletagmanager.com/gtag/js?id=G-C9Q1EXYC7Q"  data-cfasync="false" data-wpfc-render="false" async></script>
+							<!-- Google Consent Mode v2 — default DENIED (deve precedere il caricamento di gtag) -->
+<script>
+(function(){
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  window.gtag = window.gtag || gtag;
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage': 'denied',
+    'functionality_storage': 'granted',
+    'security_storage': 'granted',
+    'wait_for_update': 500
+  });
+  try {
+    if (localStorage.getItem('be-consent') === 'granted') {
+      gtag('consent', 'update', { 'analytics_storage': 'granted' });
+    }
+  } catch (e) {}
+})();
+</script>
+
+<script src="https://www.googletagmanager.com/gtag/js?id=G-C9Q1EXYC7Q"  data-cfasync="false" data-wpfc-render="false" async></script>
 			<script data-cfasync="false" data-wpfc-render="false">
 				var mi_version = '10.1.3';
 				var mi_track_user = true;
@@ -604,7 +627,7 @@ brownsrls@pec.it • info@brownenterprises.it
 					<div class="e-con-inner">
 		<div class="elementor-element elementor-element-4bc5a08 e-con-full e-flex e-con e-child" data-id="4bc5a08" data-element_type="container">
 				<div class="elementor-element elementor-element-0a4591e elementor-widget elementor-widget-text-editor" data-id="0a4591e" data-element_type="widget" data-widget_type="text-editor.default">
-									<p>© Copyright 2026</p>								</div>
+									<p>© Copyright 2026</p><p style="font-size:13px;opacity:.7;margin-top:6px"><a href="/privacy-policy.html" style="color:inherit">Privacy Policy</a> &middot; <a href="/cookie-policy.html" style="color:inherit">Cookie Policy</a></p>								</div>
 				<div class="elementor-element elementor-element-56e6ff3 elementor-widget elementor-widget-text-editor" data-id="56e6ff3" data-element_type="widget" data-widget_type="text-editor.default">
 									<p>Brown Enterprises Srls</p>								</div>
 				</div>
@@ -877,5 +900,43 @@ const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(
 })();
 </script>
 <div id="be-lang" aria-label="Language" style="position:fixed;top:16px;right:16px;z-index:99997;display:flex;gap:3px;background:rgba(14,18,23,.82);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:4px;font-family:Inter,system-ui,sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;box-shadow:0 8px 24px rgba(0,0,0,.3);"><a href="/product/seven-wireless/" hreflang="it" style="display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:30px;padding:0 10px;border-radius:999px;text-decoration:none;transition:background .15s,color .15s;background:#fff;color:#0e1217;">IT</a><a href="/en/product/seven-wireless/" hreflang="en" style="display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:30px;padding:0 10px;border-radius:999px;text-decoration:none;transition:background .15s,color .15s;background:transparent;color:#fff;opacity:.85;">EN</a></div>
+<!-- Banner consenso cookie (vanilla, bilingue IT/EN) -->
+<script>
+(function(){
+  'use strict';
+  try { if (localStorage.getItem('be-consent')) return; } catch(e){}
+  var EN = (document.documentElement.lang || '').toLowerCase().indexOf('en') === 0;
+  var POLICY = EN ? '/en/cookie-policy.html' : '/cookie-policy.html';
+  var T = EN ? {
+    msg: 'We use analytics cookies (Google Analytics) to understand how the site is used. You can accept or reject them.',
+    more: 'Cookie Policy', accept: 'Accept', reject: 'Reject'
+  } : {
+    msg: 'Usiamo cookie analitici (Google Analytics) per capire come viene usato il sito. Puoi accettarli o rifiutarli.',
+    more: 'Cookie Policy', accept: 'Accetta', reject: 'Rifiuta'
+  };
+  function set(v){
+    try { localStorage.setItem('be-consent', v); } catch(e){}
+    if (v === 'granted' && typeof gtag === 'function') {
+      gtag('consent','update',{'analytics_storage':'granted','ad_storage':'denied'});
+    }
+    var b = document.getElementById('be-cookie'); if (b) b.remove();
+  }
+  var w = document.createElement('div');
+  w.id = 'be-cookie';
+  w.setAttribute('role','dialog');
+  w.setAttribute('aria-label', EN ? 'Cookie consent' : 'Consenso cookie');
+  w.style.cssText = 'position:fixed;left:16px;right:16px;bottom:16px;z-index:2147483600;max-width:560px;margin:0 auto;background:#0e1217;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:16px 18px;box-shadow:0 14px 44px rgba(0,0,0,.5);font-family:Inter,system-ui,-apple-system,sans-serif;';
+  w.innerHTML =
+    '<p style="margin:0 0 12px;font-size:14px;line-height:1.55;color:rgba(255,255,255,.86)">'+T.msg+
+    ' <a href="'+POLICY+'" style="color:#fff;text-decoration:underline">'+T.more+'</a></p>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">'+
+    '<button type="button" id="be-ck-rej" style="cursor:pointer;border:1px solid rgba(255,255,255,.22);background:transparent;color:#fff;padding:10px 18px;border-radius:999px;font:600 14px Inter,system-ui,sans-serif">'+T.reject+'</button>'+
+    '<button type="button" id="be-ck-acc" style="cursor:pointer;border:0;background:#fff;color:#0e1217;padding:10px 20px;border-radius:999px;font:700 14px Inter,system-ui,sans-serif">'+T.accept+'</button>'+
+    '</div>';
+  (document.body || document.documentElement).appendChild(w);
+  document.getElementById('be-ck-acc').addEventListener('click', function(){ set('granted'); });
+  document.getElementById('be-ck-rej').addEventListener('click', function(){ set('denied'); });
+})();
+</script>
 </body>
 </html>
