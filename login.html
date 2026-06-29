@@ -4,7 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Area Riservata · Brown Enterprises</title>
-<link rel="icon" href="wp-content/uploads/2025/07/cropped-logo-brown-enterpises_sito-09-1-32x32.png" sizes="32x32">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0E1217">
+<meta name="color-scheme" content="dark light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Brown Enterprises">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <style>
   *,*::before,*::after{box-sizing:border-box}
   html,body{margin:0;padding:0;height:100%}
@@ -198,6 +209,13 @@
       window.location.replace("app.html");
     }
   } catch(_) {}
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    });
+  }
 </script>
 </body>
 </html>
