@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="it-IT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#0E1217" />
+  <title>Sei offline · Brown Enterprises</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <style>
+    :root {
+      --bg: #0E1217;
+      --bg-soft: #141a22;
+      --fg: #ffffff;
+      --muted: rgba(255, 255, 255, 0.62);
+      --line: rgba(255, 255, 255, 0.10);
+      --accent: #ffffff;
+      --accent-ink: #0E1217;
+      --ring: rgba(255, 255, 255, 0.20);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(1100px 620px at 50% -12%, rgba(255, 255, 255, 0.06), transparent 60%),
+        var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+        "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(20px, 5vw, 48px);
+      padding-top: max(env(safe-area-inset-top), clamp(20px, 5vw, 48px));
+      padding-bottom: max(env(safe-area-inset-bottom), clamp(20px, 5vw, 48px));
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ff5f56;
+      box-shadow: 0 0 0 4px rgba(255, 95, 86, 0.18);
+    }
+
+    .logo {
+      margin: 30px auto 0;
+      width: 84px;
+      height: 84px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .logo svg { width: 50px; height: 50px; display: block; }
+
+    h1 {
+      margin: 26px 0 0;
+      font-size: clamp(28px, 6vw, 38px);
+      line-height: 1.1;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand {
+      margin: 14px 0 0;
+      font-size: 13px;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    p.lead {
+      margin: 18px auto 0;
+      max-width: 420px;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .actions {
+      margin-top: 32px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn {
+      appearance: none;
+      cursor: pointer;
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 30px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      color: var(--accent-ink);
+      background: var(--accent);
+      transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); opacity: 0.9; }
+    .btn:focus-visible { outline: none; box-shadow: 0 0 0 4px var(--ring); }
+
+    .tagline {
+      margin-top: 38px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <span class="badge"><span class="dot" aria-hidden="true"></span>Nessuna connessione</span>
+
+    <div class="logo" aria-hidden="true">
+      <!-- DeLorean stilizzata (riferimento al brand) -->
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 38h56l-5-9-12-4-8-7H22l-8 9-10 2v9z" stroke="#fff" stroke-width="2.4"
+              stroke-linejoin="round" fill="rgba(255,255,255,0.06)"/>
+        <path d="M22 18l-3 9h24l-6-9H22z" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/>
+        <circle cx="19" cy="42" r="6" stroke="#fff" stroke-width="2.4" fill="#0E1217"/>
+        <circle cx="45" cy="42" r="6" stroke="#fff" stroke-width="2.4" fill="#0E1217"/>
+      </svg>
+    </div>
+
+    <h1>Sei offline</h1>
+    <p class="brand">Brown Enterprises</p>
+
+    <p class="lead">
+      Sembra che la connessione a internet non sia disponibile.
+      Controlla la tua rete e riprova: la pagina tornerà online non appena
+      sarai di nuovo connesso.
+    </p>
+
+    <div class="actions">
+      <button class="btn" type="button" id="retry">Riprova</button>
+    </div>
+
+    <p class="tagline">&ldquo;Canalizziamo le tue idee&rdquo;</p>
+  </main>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('retry');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          location.reload();
+        });
+      }
+      // Ricarica automaticamente quando la connessione torna disponibile.
+      window.addEventListener('online', function () {
+        location.reload();
+      });
+    })();
+  </script>
+</body>
+</html>
