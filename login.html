@@ -175,40 +175,55 @@
     </div>
     <button type="submit">Accedi</button>
     <a class="back" href="index.html">&larr; Torna al sito</a>
-    <div class="hint">
-      Demo: <code>admin</code> / <code>brown2026</code>
-    </div>
   </form>
 
+<script src="vendor/supabase-js.min.js"></script>
+<script src="js/be-config.js"></script>
 <script>
-  // Client-side credential check (no backend).
-  // Change CREDENTIALS to whatever you want; this is purely a gate, not real security.
-  var CREDENTIALS = { username: "admin", password: "brown2026" };
-
   var form = document.getElementById("login-form");
   var err  = document.getElementById("error");
+  var $submit = form.querySelector("button[type=submit]");
+
+  function setError(msg){
+    err.textContent = msg;
+    err.classList.add("show");
+  }
 
   form.addEventListener("submit", function(e){
     e.preventDefault();
+    err.classList.remove("show");
     var u = document.getElementById("username").value.trim();
     var p = document.getElementById("password").value;
-    if(u === CREDENTIALS.username && p === CREDENTIALS.password){
-      try { sessionStorage.setItem("brown_auth", "1"); } catch(_) {}
-      try { localStorage.setItem("brown_auth_user", u); } catch(_) {}
+    if(!u || !p) return;
+
+    $submit.disabled = true;
+    $submit.textContent = "Accesso in corso…";
+
+    window.beClient.auth.signInWithPassword({
+      email: window.beEmailForName(u),
+      password: p
+    }).then(function(res){
+      if(res.error){
+        setError("Credenziali non valide");
+        document.getElementById("password").value = "";
+        document.getElementById("password").focus();
+        return;
+      }
       window.location.href = "app.html";
-    } else {
-      err.classList.add("show");
-      document.getElementById("password").value = "";
-      document.getElementById("password").focus();
-    }
+    }).catch(function(){
+      setError("Errore di connessione. Riprova.");
+    }).finally(function(){
+      $submit.disabled = false;
+      $submit.textContent = "Accedi";
+    });
   });
 
-  // If already authenticated, skip straight to app.
-  try {
-    if(sessionStorage.getItem("brown_auth") === "1"){
+  // Se già autenticato, salta direttamente all'app.
+  window.beClient.auth.getSession().then(function(res){
+    if(res.data && res.data.session){
       window.location.replace("app.html");
     }
-  } catch(_) {}
+  });
 </script>
 <script>
   if ('serviceWorker' in navigator) {

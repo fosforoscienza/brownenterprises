@@ -165,6 +165,51 @@
     padding:24px 12px;
     line-height:1.5;
   }
+  .sidebar-section-title{
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    color:#738496;
+    font-weight:700;
+    padding:10px 8px 4px;
+  }
+  .sidebar-section-title:first-child{padding-top:2px}
+  .project-share{
+    opacity:0;
+    background:transparent;border:0;color:#9fadbc;
+    width:22px;height:22px;border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:opacity 0.12s,background 0.12s,color 0.12s;
+  }
+  .project-item:hover .project-share{opacity:1}
+  .project-share:hover{background:#1c2b41;color:#85b8ff}
+  .share-list{
+    display:flex;flex-direction:column;gap:2px;
+    margin-bottom:14px;
+    max-height:260px;overflow-y:auto;
+  }
+  .share-row{
+    display:flex;align-items:center;gap:10px;
+    padding:8px;border-radius:6px;
+    cursor:pointer;user-select:none;
+  }
+  .share-row:hover{background:#1d2125}
+  .share-row .cal-cb{
+    width:16px;height:16px;
+    border:2px solid #38414b;
+    border-radius:4px;
+    flex-shrink:0;
+    background:#1d2125;
+    position:relative;
+    transition:background 0.12s,border-color 0.12s;
+  }
+  .share-row.checked .cal-cb{background:#579dff;border-color:#579dff}
+  .share-row.checked .cal-cb::after{
+    content:"";position:absolute;left:4px;top:1px;
+    width:4px;height:8px;border:solid #1d2125;border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+  }
+  .share-row-name{font-size:14px;color:#f4f5f7}
   .sidebar-footer{
     padding:10px 14px;
     border-top:1px solid #2c3338;
@@ -1127,77 +1172,93 @@
   </div>
 </div>
 
+<script src="vendor/supabase-js.min.js"></script>
+<script src="js/be-config.js"></script>
 <script>
 /* =====================================================================
- * Auth gate
+ * Auth gate + data layer (Supabase)
  * ===================================================================== */
-(function authGate(){
-  try{
-    if(sessionStorage.getItem("brown_auth") !== "1"){
-      window.location.replace("login.html");
-    }
-  }catch(_){
-    window.location.replace("login.html");
-  }
-})();
-
-/* =====================================================================
- * Storage helpers
- * ===================================================================== */
-var STORAGE_KEY = "brown_pm_data_v1";
-var COLUMNS = [
-  { id:"todo",       title:"To Do" },
-  { id:"inprogress", title:"In Progress" },
-  { id:"done",       title:"Done" }
-];
+var sb = window.beClient;
+var DEFAULT_COLUMNS = ["To Do", "In Progress", "Done"];
 
 function uid(prefix){
   return prefix + "_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3);
-}
-function loadData(){
-  try{
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if(raw){
-      var parsed = JSON.parse(raw);
-      if(parsed && Array.isArray(parsed.projects)) return parsed;
-    }
-  }catch(_){}
-  return seedData();
-}
-function saveData(){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(_){}
-}
-function seedData(){
-  var pid = uid("p");
-  return {
-    version: 1,
-    activeProjectId: pid,
-    projects: [{
-      id: pid,
-      name: "Progetto di esempio",
-      columns: {
-        todo: [
-          { id: uid("c"), title: "Brief al cliente",            priority: "red" },
-          { id: uid("c"), title: "Mockup grafico homepage",     priority: "yellow" }
-        ],
-        inprogress: [
-          { id: uid("c"), title: "Sviluppo landing page",       priority: "yellow" }
-        ],
-        done: [
-          { id: uid("c"), title: "Riunione kickoff",            priority: "green" }
-        ]
-      }
-    }]
-  };
 }
 
 /* =====================================================================
  * State
  * ===================================================================== */
-var state = loadData();
+var state = { me: null, profiles: [], projects: [], activeProjectId: null };
 
 function getActiveProject(){
   return state.projects.find(function(p){ return p.id === state.activeProjectId; }) || state.projects[0] || null;
+}
+function profileName(userId){
+  var p = state.profiles.find(function(x){ return x.id === userId; });
+  return p ? p.display_name : "?";
+}
+
+async function loadEverything(){
+  var sessionRes = await sb.auth.getSession();
+  var session = sessionRes.data && sessionRes.data.session;
+  if(!session){ window.location.replace("login.html"); return false; }
+  var user = session.user;
+  state.me = {
+    id: user.id,
+    email: user.email,
+    display_name: (user.user_metadata && user.user_metadata.display_name) || user.email
+  };
+
+  var results = await Promise.all([
+    sb.from("be_profiles").select("id, display_name"),
+    sb.from("be_projects").select("id, name, owner_id, created_at").order("created_at", { ascending: true }),
+    sb.from("be_project_shares").select("project_id, user_id"),
+    sb.from("be_columns").select("id, project_id, name, position").order("position", { ascending: true }),
+    sb.from("be_cards").select("id, project_id, column_id, title, priority, position").order("position", { ascending: true })
+  ]);
+
+  for (var i = 0; i < results.length; i++){
+    if(results[i].error){
+      alert("Errore nel caricamento dei dati: " + results[i].error.message);
+      return false;
+    }
+  }
+
+  state.profiles = results[0].data || [];
+
+  var sharesByProject = {};
+  (results[2].data || []).forEach(function(s){
+    (sharesByProject[s.project_id] = sharesByProject[s.project_id] || []).push(s.user_id);
+  });
+
+  var columnsByProject = {};
+  var columnById = {};
+  (results[3].data || []).forEach(function(c){
+    var col = { id: c.id, name: c.name, position: c.position, cards: [] };
+    columnById[c.id] = col;
+    (columnsByProject[c.project_id] = columnsByProject[c.project_id] || []).push(col);
+  });
+
+  (results[4].data || []).forEach(function(c){
+    var col = columnById[c.column_id];
+    if(col) col.cards.push({ id: c.id, title: c.title, priority: c.priority, position: c.position });
+  });
+
+  state.projects = (results[1].data || []).map(function(p){
+    return {
+      id: p.id,
+      name: p.name,
+      owner_id: p.owner_id,
+      isOwner: p.owner_id === state.me.id,
+      shares: sharesByProject[p.id] || [],
+      columns: columnsByProject[p.id] || []
+    };
+  });
+
+  if(!state.activeProjectId || !state.projects.some(function(p){ return p.id === state.activeProjectId; })){
+    state.activeProjectId = state.projects.length ? state.projects[0].id : null;
+  }
+  return true;
 }
 
 /* =====================================================================
@@ -1210,27 +1271,33 @@ function projectInitial(name){
   return (name || "?").trim().charAt(0).toUpperCase() || "?";
 }
 
-function renderSidebar(){
-  $projects.innerHTML = "";
-  if(!state.projects.length){
-    var empty = document.createElement("div");
-    empty.className = "empty-projects";
-    empty.textContent = "Nessun progetto. Aggiungine uno con +";
-    $projects.appendChild(empty);
-    return;
-  }
-  state.projects.forEach(function(proj){
-    var item = document.createElement("div");
-    item.className = "project-item" + (proj.id === state.activeProjectId ? " active" : "");
-    item.dataset.projectId = proj.id;
+function buildProjectItem(proj){
+  var item = document.createElement("div");
+  item.className = "project-item" + (proj.id === state.activeProjectId ? " active" : "");
+  item.dataset.projectId = proj.id;
 
-    var ico = document.createElement("div");
-    ico.className = "project-icon";
-    ico.textContent = projectInitial(proj.name);
+  var ico = document.createElement("div");
+  ico.className = "project-icon";
+  ico.textContent = projectInitial(proj.name);
 
-    var name = document.createElement("div");
-    name.className = "project-name";
-    name.textContent = proj.name;
+  var name = document.createElement("div");
+  name.className = "project-name";
+  name.textContent = proj.name;
+  name.title = proj.isOwner ? proj.name : (proj.name + " · di " + profileName(proj.owner_id));
+
+  item.appendChild(ico);
+  item.appendChild(name);
+
+  if(proj.isOwner){
+    var share = document.createElement("button");
+    share.className = "project-share";
+    share.title = "Condividi progetto";
+    share.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>';
+    share.addEventListener("click", function(e){
+      e.stopPropagation();
+      openShareModal(proj.id);
+    });
+    item.appendChild(share);
 
     var del = document.createElement("button");
     del.className = "project-delete";
@@ -1240,18 +1307,108 @@ function renderSidebar(){
       e.stopPropagation();
       deleteProject(proj.id);
     });
-
-    item.appendChild(ico);
-    item.appendChild(name);
     item.appendChild(del);
-    item.addEventListener("click", function(){
-      state.activeProjectId = proj.id;
-      saveData();
-      render();
-    });
+  }
 
-    $projects.appendChild(item);
+  item.addEventListener("click", function(){
+    state.activeProjectId = proj.id;
+    render();
   });
+
+  return item;
+}
+
+function renderSidebar(){
+  $projects.innerHTML = "";
+  if(!state.projects.length){
+    var empty = document.createElement("div");
+    empty.className = "empty-projects";
+    empty.textContent = "Nessun progetto. Aggiungine uno con +";
+    $projects.appendChild(empty);
+    return;
+  }
+
+  var mine = state.projects.filter(function(p){ return p.isOwner; });
+  var shared = state.projects.filter(function(p){ return !p.isOwner; });
+
+  var h1 = document.createElement("div");
+  h1.className = "sidebar-section-title";
+  h1.textContent = "I miei progetti";
+  $projects.appendChild(h1);
+  if(!mine.length){
+    var e1 = document.createElement("div");
+    e1.className = "empty-projects";
+    e1.textContent = "Nessuno. Creane uno con +";
+    $projects.appendChild(e1);
+  } else {
+    mine.forEach(function(proj){ $projects.appendChild(buildProjectItem(proj)); });
+  }
+
+  var h2 = document.createElement("div");
+  h2.className = "sidebar-section-title";
+  h2.textContent = "Condivisi con me";
+  $projects.appendChild(h2);
+  if(!shared.length){
+    var e2 = document.createElement("div");
+    e2.className = "empty-projects";
+    e2.textContent = "Nessun progetto condiviso con te.";
+    $projects.appendChild(e2);
+  } else {
+    shared.forEach(function(proj){ $projects.appendChild(buildProjectItem(proj)); });
+  }
+}
+
+function openShareModal(projectId){
+  var proj = state.projects.find(function(p){ return p.id === projectId; });
+  if(!proj) return;
+  var others = state.profiles.filter(function(p){ return p.id !== state.me.id; });
+
+  var backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.innerHTML =
+    '<div class="modal" role="dialog">' +
+      '<h2>Condividi &laquo;' + proj.name.replace(/</g,"&lt;") + '&raquo;</h2>' +
+      '<div class="share-list" id="share-list"></div>' +
+      '<div class="actions">' +
+        '<button class="btn-cancel" id="m-close">Chiudi</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(backdrop);
+
+  var $list = backdrop.querySelector("#share-list");
+  others.forEach(function(p){
+    var row = document.createElement("div");
+    var checked = proj.shares.indexOf(p.id) >= 0;
+    row.className = "share-row" + (checked ? " checked" : "");
+    row.innerHTML = '<div class="cal-cb"></div><div class="share-row-name">' + p.display_name + '</div>';
+    row.addEventListener("click", function(){
+      toggleShare(proj, p.id, !row.classList.contains("checked"), row);
+    });
+    $list.appendChild(row);
+  });
+
+  function close(){ backdrop.remove(); }
+  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+  backdrop.querySelector("#m-close").addEventListener("click", close);
+}
+
+async function toggleShare(proj, userId, add, $row){
+  $row.style.pointerEvents = "none";
+  var res;
+  if(add){
+    res = await sb.from("be_project_shares").insert({ project_id: proj.id, user_id: userId });
+  } else {
+    res = await sb.from("be_project_shares").delete().eq("project_id", proj.id).eq("user_id", userId);
+  }
+  $row.style.pointerEvents = "";
+  if(res.error){ alert("Errore: " + res.error.message); return; }
+  if(add){
+    proj.shares.push(userId);
+    $row.classList.add("checked");
+  } else {
+    proj.shares = proj.shares.filter(function(id){ return id !== userId; });
+    $row.classList.remove("checked");
+  }
 }
 
 function renderBoard(){
@@ -1271,6 +1428,8 @@ function renderBoard(){
     return;
   }
 
+  var cols = proj.columns.slice().sort(function(a,b){ return a.position - b.position; });
+
   // Header
   var header = document.createElement("div");
   header.className = "board-header";
@@ -1278,20 +1437,25 @@ function renderBoard(){
   title.className = "board-title";
   title.value = proj.name;
   title.spellcheck = false;
-  title.addEventListener("change", function(){
-    var v = title.value.trim();
-    if(!v){ title.value = proj.name; return; }
-    proj.name = v;
-    saveData();
-    renderSidebar();
-  });
-  title.addEventListener("keydown", function(e){
-    if(e.key === "Enter"){ e.preventDefault(); title.blur(); }
-  });
+  title.readOnly = !proj.isOwner;
+  if(!proj.isOwner) title.title = "Solo " + profileName(proj.owner_id) + " (proprietario) può rinominare questo progetto";
+  if(proj.isOwner){
+    title.addEventListener("change", async function(){
+      var v = title.value.trim();
+      if(!v){ title.value = proj.name; return; }
+      var res = await sb.from("be_projects").update({ name: v }).eq("id", proj.id);
+      if(res.error){ alert("Errore: " + res.error.message); title.value = proj.name; return; }
+      proj.name = v;
+      renderSidebar();
+    });
+    title.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){ e.preventDefault(); title.blur(); }
+    });
+  }
   var meta = document.createElement("span");
   meta.className = "board-meta";
-  var totalCards = COLUMNS.reduce(function(sum,col){ return sum + (proj.columns[col.id]||[]).length; }, 0);
-  meta.textContent = totalCards + " card · 3 liste";
+  var totalCards = cols.reduce(function(sum,col){ return sum + col.cards.length; }, 0);
+  meta.textContent = totalCards + " card · " + cols.length + " liste" + (proj.isOwner ? "" : " · condiviso da " + profileName(proj.owner_id));
   header.appendChild(title);
   header.appendChild(meta);
   $board.appendChild(header);
@@ -1300,7 +1464,7 @@ function renderBoard(){
   var content = document.createElement("div");
   content.className = "board-content";
 
-  COLUMNS.forEach(function(col){
+  cols.forEach(function(col){
     var $col = document.createElement("section");
     $col.className = "column";
     $col.dataset.columnId = col.id;
@@ -1309,15 +1473,15 @@ function renderBoard(){
     $head.className = "column-header";
     var $t = document.createElement("div");
     $t.className = "column-title";
-    var cnt = (proj.columns[col.id] || []).length;
-    $t.innerHTML = '<span>' + col.title + '</span><span class="column-count">' + cnt + '</span>';
+    var cnt = col.cards.length;
+    $t.innerHTML = '<span>' + col.name + '</span><span class="column-count">' + cnt + '</span>';
     $head.appendChild($t);
     $col.appendChild($head);
 
     var $cards = document.createElement("div");
     $cards.className = "cards";
     $cards.dataset.columnId = col.id;
-    (proj.columns[col.id] || []).forEach(function(card){
+    col.cards.slice().sort(function(a,b){ return a.position - b.position; }).forEach(function(card){
       $cards.appendChild(buildCardEl(card, col.id));
     });
     $col.appendChild($cards);
@@ -1428,55 +1592,93 @@ function getDragAfterElement(container, y){
 /* =====================================================================
  * Mutations
  * ===================================================================== */
-function moveCard(cardId, fromColId, toColId, beforeCardId){
+async function moveCard(cardId, fromColId, toColId, beforeCardId){
   var proj = getActiveProject(); if(!proj) return;
-  var fromArr = proj.columns[fromColId];
-  var idx = fromArr.findIndex(function(c){ return c.id === cardId; });
+  var fromCol = proj.columns.find(function(c){ return c.id === fromColId; });
+  var toCol = proj.columns.find(function(c){ return c.id === toColId; });
+  if(!fromCol || !toCol) return;
+  var idx = fromCol.cards.findIndex(function(c){ return c.id === cardId; });
   if(idx < 0) return;
-  var card = fromArr.splice(idx,1)[0];
-  var toArr = proj.columns[toColId];
+  var card = fromCol.cards.splice(idx,1)[0];
   if(beforeCardId){
-    var bIdx = toArr.findIndex(function(c){ return c.id === beforeCardId; });
-    if(bIdx >= 0){ toArr.splice(bIdx, 0, card); }
-    else toArr.push(card);
+    var bIdx = toCol.cards.findIndex(function(c){ return c.id === beforeCardId; });
+    if(bIdx >= 0){ toCol.cards.splice(bIdx, 0, card); }
+    else toCol.cards.push(card);
   } else {
-    toArr.push(card);
+    toCol.cards.push(card);
   }
-  saveData();
+  renderBoard();
+
+  var updates = [];
+  if(fromCol.id !== toCol.id){
+    fromCol.cards.forEach(function(c, i){
+      c.position = i;
+      updates.push(sb.from("be_cards").update({ position: i }).eq("id", c.id));
+    });
+  }
+  toCol.cards.forEach(function(c, i){
+    c.position = i;
+    var payload = { position: i };
+    if(c.id === cardId && fromCol.id !== toCol.id) payload.column_id = toColId;
+    updates.push(sb.from("be_cards").update(payload).eq("id", c.id));
+  });
+  var results = await Promise.all(updates);
+  var failed = results.find(function(r){ return r.error; });
+  if(failed){
+    alert("Errore nel salvataggio dello spostamento: " + failed.error.message);
+    var ok = await loadEverything();
+    if(ok) render();
+  }
+}
+
+async function deleteCard(cardId, columnId){
+  var proj = getActiveProject(); if(!proj) return;
+  var col = proj.columns.find(function(c){ return c.id === columnId; });
+  if(!col) return;
+  var res = await sb.from("be_cards").delete().eq("id", cardId);
+  if(res.error){ alert("Errore: " + res.error.message); return; }
+  col.cards = col.cards.filter(function(c){ return c.id !== cardId; });
   renderBoard();
 }
 
-function deleteCard(cardId, columnId){
+async function addCard(columnId, title, priority){
   var proj = getActiveProject(); if(!proj) return;
-  proj.columns[columnId] = proj.columns[columnId].filter(function(c){ return c.id !== cardId; });
-  saveData();
+  var col = proj.columns.find(function(c){ return c.id === columnId; });
+  if(!col) return;
+  var res = await sb.from("be_cards").insert({
+    project_id: proj.id,
+    column_id: columnId,
+    title: title.trim(),
+    priority: priority || null,
+    position: col.cards.length,
+    created_by: state.me.id
+  }).select().single();
+  if(res.error){ alert("Errore: " + res.error.message); return; }
+  col.cards.push({ id: res.data.id, title: res.data.title, priority: res.data.priority, position: res.data.position });
   renderBoard();
 }
 
-function addCard(columnId, title, priority){
+async function updateCard(cardId, columnId, title, priority){
   var proj = getActiveProject(); if(!proj) return;
-  proj.columns[columnId].push({ id: uid("c"), title: title.trim(), priority: priority || null });
-  saveData();
-  renderBoard();
-}
-
-function updateCard(cardId, columnId, title, priority){
-  var proj = getActiveProject(); if(!proj) return;
-  var card = proj.columns[columnId].find(function(c){ return c.id === cardId; });
+  var col = proj.columns.find(function(c){ return c.id === columnId; });
+  if(!col) return;
+  var card = col.cards.find(function(c){ return c.id === cardId; });
   if(!card) return;
+  var res = await sb.from("be_cards").update({ title: title.trim(), priority: priority || null }).eq("id", cardId);
+  if(res.error){ alert("Errore: " + res.error.message); return; }
   card.title = title.trim();
   card.priority = priority || null;
-  saveData();
   renderBoard();
 }
 
-function deleteProject(projectId){
-  if(!confirm("Eliminare definitivamente questo progetto?")) return;
+async function deleteProject(projectId){
+  if(!confirm("Eliminare definitivamente questo progetto? Verranno eliminate anche colonne, card e condivisioni.")) return;
+  var res = await sb.from("be_projects").delete().eq("id", projectId);
+  if(res.error){ alert("Errore: " + res.error.message); return; }
   state.projects = state.projects.filter(function(p){ return p.id !== projectId; });
   if(state.activeProjectId === projectId){
     state.activeProjectId = state.projects.length ? state.projects[0].id : null;
   }
-  saveData();
   render();
 }
 
@@ -1486,17 +1688,25 @@ function promptNewProject(){
     label: "Nome del progetto",
     placeholder: "Es. Sito istituzionale",
     confirmText: "Crea",
-    onConfirm: function(name){
+    onConfirm: async function(name){
       var n = name.trim();
       if(!n) return;
-      var p = {
-        id: uid("p"),
-        name: n,
-        columns: { todo:[], inprogress:[], done:[] }
-      };
-      state.projects.push(p);
-      state.activeProjectId = p.id;
-      saveData();
+      var pRes = await sb.from("be_projects").insert({ owner_id: state.me.id, name: n }).select().single();
+      if(pRes.error){ alert("Errore: " + pRes.error.message); return; }
+      var project = pRes.data;
+      var colsPayload = DEFAULT_COLUMNS.map(function(colName, i){
+        return { project_id: project.id, name: colName, position: i };
+      });
+      var cRes = await sb.from("be_columns").insert(colsPayload).select();
+      if(cRes.error){ alert("Errore nella creazione delle colonne: " + cRes.error.message); }
+      var columns = (cRes.data || []).map(function(c){
+        return { id: c.id, name: c.name, position: c.position, cards: [] };
+      });
+      state.projects.push({
+        id: project.id, name: project.name, owner_id: project.owner_id,
+        isOwner: true, shares: [], columns: columns
+      });
+      state.activeProjectId = project.id;
       render();
     }
   });
@@ -1566,7 +1776,8 @@ function openAddCardForm($col, columnId){
  * ===================================================================== */
 function openEditCardModal(cardId, columnId){
   var proj = getActiveProject(); if(!proj) return;
-  var card = proj.columns[columnId].find(function(c){ return c.id === cardId; });
+  var col = proj.columns.find(function(c){ return c.id === columnId; });
+  var card = col && col.cards.find(function(c){ return c.id === cardId; });
   if(!card) return;
 
   var backdrop = document.createElement("div");
@@ -1675,19 +1886,18 @@ function render(){
 }
 
 document.getElementById("add-project-btn").addEventListener("click", promptNewProject);
-document.getElementById("logout-btn").addEventListener("click", function(){
-  try{ sessionStorage.removeItem("brown_auth"); }catch(_){}
+document.getElementById("logout-btn").addEventListener("click", async function(){
+  await sb.auth.signOut();
   window.location.href = "login.html";
 });
 
-// User badge
-try{
-  var u = localStorage.getItem("brown_auth_user") || "admin";
-  document.getElementById("user-label").textContent = u;
-  document.getElementById("avatar").textContent = u.charAt(0).toUpperCase();
-}catch(_){}
-
-render();
+(async function init(){
+  var ok = await loadEverything();
+  if(!ok) return;
+  document.getElementById("user-label").textContent = state.me.display_name;
+  document.getElementById("avatar").textContent = (state.me.display_name || "?").charAt(0).toUpperCase();
+  render();
+})();
 
 /* =====================================================================
  * Mobile drawer toggles (sidebar + calendar people filter)
