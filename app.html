@@ -473,6 +473,141 @@
   }
   .btn-cancel:hover{background:#2c3338;color:#f4f5f7}
 
+  /* --- biblioteca ------------------------------------------------------- */
+  .column.library{
+    background:#0f1215;
+    border:1px solid #2a3340;
+  }
+  .column.library .lib-head{display:inline-flex;align-items:center;gap:6px}
+  .column.library .lib-head svg{color:#9fadbc;flex-shrink:0}
+  .column.library.file-over{
+    outline:2px dashed #4bce97;
+    outline-offset:-2px;
+    background:#101a15;
+  }
+  .lib-items{
+    flex:1;
+    overflow-y:auto;
+    padding:0 8px;
+    scrollbar-width:thin;
+    scrollbar-color:#38414b transparent;
+    min-height:8px;
+  }
+  .lib-items::-webkit-scrollbar{width:8px}
+  .lib-items::-webkit-scrollbar-track{background:transparent}
+  .lib-items::-webkit-scrollbar-thumb{background:#38414b;border-radius:4px}
+  .lib-item{
+    background:#22272b;
+    border:1px solid transparent;
+    border-radius:8px;
+    padding:8px 10px;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    position:relative;
+    box-shadow:0 1px 0 rgba(0,0,0,0.25);
+    transition:background 0.12s,border-color 0.12s;
+  }
+  .lib-item:hover{background:#2c3338;border-color:#38414b}
+  .lib-icon{
+    width:32px;height:32px;
+    flex-shrink:0;
+    border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:9px;font-weight:800;letter-spacing:0.3px;
+    color:#1d2125;
+    background:#8c9bab;
+    text-transform:uppercase;
+  }
+  .lib-icon.link{background:#1c2b41;color:#85b8ff}
+  .lib-icon.drive{background:#16301f;color:#4bce97}
+  .lib-body{min-width:0;flex:1}
+  .lib-title{
+    color:#f4f5f7;
+    font-size:13.5px;
+    line-height:1.3;
+    word-break:break-word;
+  }
+  .lib-meta{
+    color:#8c9bab;
+    font-size:11px;
+    margin-top:3px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .lib-actions{
+    position:absolute;
+    top:6px;right:6px;
+    opacity:0;
+    transition:opacity 0.12s;
+    display:flex;
+  }
+  .lib-item:hover .lib-actions{opacity:1}
+  .lib-action{
+    background:rgba(0,0,0,0.45);
+    border:0;color:#9fadbc;
+    width:22px;height:22px;border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    margin-left:2px;
+    transition:background 0.12s,color 0.12s;
+  }
+  .lib-action:hover{background:#2c3338;color:#f4f5f7}
+  .lib-action.danger:hover{background:#412a2a;color:#f87168}
+  .lib-empty{
+    color:#738496;
+    font-size:12.5px;
+    line-height:1.45;
+    text-align:center;
+    border:1px dashed #2a3340;
+    border-radius:8px;
+    padding:16px 12px;
+    margin-bottom:8px;
+  }
+  .lib-warning{
+    background:#412a2a;
+    border:1px solid #5d3a3a;
+    color:#ffbdad;
+    font-size:11.5px;
+    line-height:1.45;
+    border-radius:8px;
+    padding:9px 10px;
+    margin-bottom:8px;
+    word-break:break-word;
+  }
+  .lib-upload{
+    background:#1c2b41;
+    border:1px solid #2a4a75;
+    border-radius:8px;
+    padding:8px 10px;
+    margin-bottom:8px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .lib-upload .lib-title{color:#b6c2cf}
+  .lib-spinner{
+    width:16px;height:16px;flex-shrink:0;
+    border:2px solid #2a4a75;
+    border-top-color:#85b8ff;
+    border-radius:50%;
+    animation:lib-spin 0.7s linear infinite;
+  }
+  @keyframes lib-spin{to{transform:rotate(360deg)}}
+  .lib-drop-hint{
+    display:none;
+    margin:0 8px 8px;
+    padding:14px 10px;
+    border:2px dashed #4bce97;
+    border-radius:8px;
+    color:#4bce97;
+    font-size:12.5px;
+    font-weight:600;
+    text-align:center;
+  }
+  .column.library.file-over .lib-drop-hint{display:block}
+  .lib-buttons{display:flex;flex-direction:column}
+
   /* --- empty state ------------------------------------------------------ */
   .empty-board{
     flex:1;
@@ -971,6 +1106,11 @@
     .card-action{background:rgba(0,0,0,0.35);width:28px;height:28px}
     .add-card{padding:10px 12px}
 
+    /* Biblioteca */
+    .lib-item{padding:10px}
+    .lib-actions{opacity:1}
+    .lib-action{background:rgba(0,0,0,0.35);width:28px;height:28px}
+
     /* Modal: bottom-sheet style */
     .modal-backdrop{align-items:flex-end;padding:0}
     .modal{
@@ -1083,6 +1223,7 @@
   /* Touch devices: always show secondary actions */
   @media (hover: none){
     .card-actions{opacity:1}
+    .lib-actions{opacity:1}
     .project-delete{opacity:1}
   }
 </style>
@@ -1188,7 +1329,7 @@ function uid(prefix){
 /* =====================================================================
  * State
  * ===================================================================== */
-var state = { me: null, profiles: [], projects: [], activeProjectId: null };
+var state = { me: null, profiles: [], projects: [], activeProjectId: null, library: {}, libraryError: null };
 
 function getActiveProject(){
   return state.projects.find(function(p){ return p.id === state.activeProjectId; }) || state.projects[0] || null;
@@ -1258,6 +1399,8 @@ async function loadEverything(){
   if(!state.activeProjectId || !state.projects.some(function(p){ return p.id === state.activeProjectId; })){
     state.activeProjectId = state.projects.length ? state.projects[0].id : null;
   }
+
+  await loadLibrary();
   return true;
 }
 
@@ -1455,7 +1598,10 @@ function renderBoard(){
   var meta = document.createElement("span");
   meta.className = "board-meta";
   var totalCards = cols.reduce(function(sum,col){ return sum + col.cards.length; }, 0);
-  meta.textContent = totalCards + " card · " + cols.length + " liste" + (proj.isOwner ? "" : " · condiviso da " + profileName(proj.owner_id));
+  var docCount = libraryItems(proj.id).length;
+  meta.textContent = totalCards + " card · " + (cols.length + 1) + " liste · " + docCount +
+    (docCount === 1 ? " documento" : " documenti") +
+    (proj.isOwner ? "" : " · condiviso da " + profileName(proj.owner_id));
   header.appendChild(title);
   header.appendChild(meta);
   $board.appendChild(header);
@@ -1519,6 +1665,8 @@ function renderBoard(){
 
     content.appendChild($col);
   });
+
+  content.appendChild(buildLibraryColumn(proj));
 
   $board.appendChild(content);
 }
@@ -1672,9 +1820,14 @@ async function updateCard(cardId, columnId, title, priority){
 }
 
 async function deleteProject(projectId){
-  if(!confirm("Eliminare definitivamente questo progetto? Verranno eliminate anche colonne, card e condivisioni.")) return;
+  if(!confirm("Eliminare definitivamente questo progetto? Verranno eliminate anche colonne, card, documenti della Biblioteca e condivisioni.")) return;
+  var paths = (state.library[projectId] || [])
+    .filter(function(it){ return it.kind === "file" && it.storage_path; })
+    .map(function(it){ return it.storage_path; });
   var res = await sb.from("be_projects").delete().eq("id", projectId);
   if(res.error){ alert("Errore: " + res.error.message); return; }
+  if(paths.length){ try { await sb.storage.from(LIBRARY_BUCKET).remove(paths); } catch(e){} }
+  delete state.library[projectId];
   state.projects = state.projects.filter(function(p){ return p.id !== projectId; });
   if(state.activeProjectId === projectId){
     state.activeProjectId = state.projects.length ? state.projects[0].id : null;
@@ -1878,12 +2031,484 @@ function showInputModal(opts){
 }
 
 /* =====================================================================
+ * Biblioteca — documenti e link del progetto
+ * ===================================================================== */
+var LIBRARY_BUCKET = "be-library";
+var LIBRARY_MAX_BYTES = 50 * 1024 * 1024;
+var pendingUploads = [];
+
+async function loadLibrary(){
+  var res = await sb.from("be_library_items")
+    .select("id, project_id, kind, title, url, storage_path, mime_type, size_bytes, position, created_by")
+    .order("position", { ascending: true });
+  if(res.error){
+    state.library = {};
+    state.libraryError = res.error.message;
+    return;
+  }
+  state.libraryError = null;
+  var byProject = {};
+  (res.data || []).forEach(function(it){
+    (byProject[it.project_id] = byProject[it.project_id] || []).push(it);
+  });
+  state.library = byProject;
+}
+
+function libraryItems(projectId){
+  return (state.library[projectId] || []).slice().sort(function(a,b){ return a.position - b.position; });
+}
+
+function fileExtension(name){
+  var m = /\.([A-Za-z0-9]{1,8})$/.exec(name || "");
+  return m ? m[1].toLowerCase() : "";
+}
+
+function formatBytes(n){
+  if(n === null || n === undefined) return "";
+  if(n < 1024) return n + " B";
+  var units = ["KB","MB","GB"], i = -1, v = n;
+  do { v = v / 1024; i++; } while(v >= 1024 && i < units.length - 1);
+  return (v >= 10 ? Math.round(v) : v.toFixed(1)) + " " + units[i];
+}
+
+function safeFileName(name){
+  return (name || "file")
+    .normalize("NFKD")
+    .replace(/[^A-Za-z0-9._-]+/g, "_")
+    .replace(/_{2,}/g, "_")
+    .slice(-80);
+}
+
+function linkHost(url){
+  try { return new URL(url).hostname.replace(/^www\./, ""); } catch(e){ return ""; }
+}
+
+function isDriveHost(host){
+  return /(^|\.)(drive|docs|sheets|slides)\.google\.com$/.test(host);
+}
+
+var LIB_ICON_COLORS = {
+  pdf:"#f87168",
+  doc:"#579dff", docx:"#579dff", odt:"#579dff", rtf:"#579dff", pages:"#579dff",
+  xls:"#4bce97", xlsx:"#4bce97", csv:"#4bce97", numbers:"#4bce97",
+  ppt:"#f5a623", pptx:"#f5a623", key:"#f5a623",
+  png:"#c9a6ff", jpg:"#c9a6ff", jpeg:"#c9a6ff", gif:"#c9a6ff", webp:"#c9a6ff",
+  svg:"#c9a6ff", heic:"#c9a6ff", ai:"#c9a6ff", psd:"#c9a6ff",
+  mp4:"#f5cd47", mov:"#f5cd47", mp3:"#f5cd47", wav:"#f5cd47",
+  zip:"#8c9bab", rar:"#8c9bab", "7z":"#8c9bab"
+};
+
+function buildLibIcon(item){
+  var box = document.createElement("div");
+  box.className = "lib-icon";
+  if(item.kind === "link"){
+    var host = linkHost(item.url);
+    if(isDriveHost(host)){
+      box.classList.add("drive");
+      box.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>';
+    } else {
+      box.classList.add("link");
+      box.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+    }
+    return box;
+  }
+  var ext = fileExtension(item.title) || fileExtension(item.storage_path || "");
+  box.style.background = LIB_ICON_COLORS[ext] || "#8c9bab";
+  box.textContent = ext ? ext.slice(0,4) : "FILE";
+  return box;
+}
+
+function buildLibItem(proj, item){
+  var $it = document.createElement("article");
+  $it.className = "lib-item";
+  $it.appendChild(buildLibIcon(item));
+
+  var $body = document.createElement("div");
+  $body.className = "lib-body";
+  var $t = document.createElement("div");
+  $t.className = "lib-title";
+  $t.textContent = item.title;
+  $body.appendChild($t);
+
+  var bits = [];
+  if(item.kind === "link"){
+    var host = linkHost(item.url);
+    bits.push(isDriveHost(host) ? "Google Drive" : (host || "link"));
+  } else {
+    var ext = fileExtension(item.title);
+    if(ext) bits.push(ext.toUpperCase());
+    if(item.size_bytes) bits.push(formatBytes(item.size_bytes));
+  }
+  if(item.created_by) bits.push(profileName(item.created_by));
+  var $m = document.createElement("div");
+  $m.className = "lib-meta";
+  $m.textContent = bits.join(" · ");
+  $m.title = item.kind === "link" ? item.url : bits.join(" · ");
+  $body.appendChild($m);
+  $it.appendChild($body);
+
+  var $actions = document.createElement("div");
+  $actions.className = "lib-actions";
+
+  if(item.kind === "file"){
+    var $dl = document.createElement("button");
+    $dl.className = "lib-action";
+    $dl.title = "Scarica";
+    $dl.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+    $dl.addEventListener("click", function(e){
+      e.stopPropagation();
+      openLibraryItem(item, true);
+    });
+    $actions.appendChild($dl);
+  }
+
+  var $del = document.createElement("button");
+  $del.className = "lib-action danger";
+  $del.title = "Elimina";
+  $del.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+  $del.addEventListener("click", function(e){
+    e.stopPropagation();
+    deleteLibraryItem(proj.id, item.id);
+  });
+  $actions.appendChild($del);
+  $it.appendChild($actions);
+
+  $it.addEventListener("click", function(e){
+    if(e.target.closest(".lib-action")) return;
+    openLibraryItem(item, false);
+  });
+
+  return $it;
+}
+
+function buildLibraryColumn(proj){
+  var items = libraryItems(proj.id);
+  var uploads = pendingUploads.filter(function(u){ return u.projectId === proj.id; });
+
+  var $col = document.createElement("section");
+  $col.className = "column library";
+
+  var $head = document.createElement("div");
+  $head.className = "column-header";
+  $head.innerHTML =
+    '<div class="column-title">' +
+      '<span class="lib-head">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' +
+        'Biblioteca' +
+      '</span>' +
+      '<span class="column-count">' + items.length + '</span>' +
+    '</div>';
+  $col.appendChild($head);
+
+  var $list = document.createElement("div");
+  $list.className = "lib-items";
+
+  if(state.libraryError){
+    var $warn = document.createElement("div");
+    $warn.className = "lib-warning";
+    $warn.textContent = "Biblioteca non disponibile: " + state.libraryError +
+      " — esegui sql/biblioteca.sql sul database Supabase.";
+    $list.appendChild($warn);
+  }
+
+  uploads.forEach(function(u){
+    var $up = document.createElement("div");
+    $up.className = "lib-upload";
+    $up.innerHTML = '<div class="lib-spinner"></div>';
+    var $b = document.createElement("div");
+    $b.className = "lib-body";
+    $b.innerHTML = '<div class="lib-title"></div><div class="lib-meta">Caricamento in corso…</div>';
+    $b.querySelector(".lib-title").textContent = u.name;
+    $up.appendChild($b);
+    $list.appendChild($up);
+  });
+
+  if(!items.length && !uploads.length && !state.libraryError){
+    var $empty = document.createElement("div");
+    $empty.className = "lib-empty";
+    $empty.textContent = "Nessun documento. Trascina qui i file oppure aggiungi un link a Google Drive.";
+    $list.appendChild($empty);
+  }
+
+  items.forEach(function(item){ $list.appendChild(buildLibItem(proj, item)); });
+  $col.appendChild($list);
+
+  var $hint = document.createElement("div");
+  $hint.className = "lib-drop-hint";
+  $hint.textContent = "Rilascia qui per caricare";
+  $col.appendChild($hint);
+
+  var $file = document.createElement("input");
+  $file.type = "file";
+  $file.multiple = true;
+  $file.style.display = "none";
+  $file.addEventListener("change", function(){
+    var files = $file.files;
+    $file.value = "";
+    uploadLibraryFiles(proj, files);
+  });
+  $col.appendChild($file);
+
+  var $buttons = document.createElement("div");
+  $buttons.className = "lib-buttons";
+
+  var $addFile = document.createElement("button");
+  $addFile.className = "add-card";
+  $addFile.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Carica un file';
+  $addFile.addEventListener("click", function(){ $file.click(); });
+  $buttons.appendChild($addFile);
+
+  var $addLink = document.createElement("button");
+  $addLink.className = "add-card";
+  $addLink.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Aggiungi un link Drive';
+  $addLink.addEventListener("click", function(){ openAddLinkModal(proj); });
+  $buttons.appendChild($addLink);
+
+  $col.appendChild($buttons);
+
+  /* --- drag & drop di file e link ---------------------------------------- */
+  function dragKind(e){
+    var dt = e.dataTransfer;
+    if(!dt) return null;
+    var types = dt.types ? Array.prototype.slice.call(dt.types) : [];
+    if(types.indexOf("Files") >= 0) return "file";
+    if(types.indexOf("text/uri-list") >= 0) return "link";
+    return null;
+  }
+  function onOver(e){
+    if(!dragKind(e)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    $col.classList.add("file-over");
+  }
+  $col.addEventListener("dragenter", onOver);
+  $col.addEventListener("dragover", onOver);
+  $col.addEventListener("dragleave", function(e){
+    if(e.target === $col || !$col.contains(e.relatedTarget)) $col.classList.remove("file-over");
+  });
+  $col.addEventListener("drop", function(e){
+    var kind = dragKind(e);
+    if(!kind) return;
+    e.preventDefault();
+    $col.classList.remove("file-over");
+    if(kind === "file" && e.dataTransfer.files && e.dataTransfer.files.length){
+      uploadLibraryFiles(proj, e.dataTransfer.files);
+      return;
+    }
+    var uri = (e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain") || "")
+      .split("\n")
+      .map(function(l){ return l.trim(); })
+      .filter(function(l){ return l && l.charAt(0) !== "#"; })[0];
+    if(uri) addLibraryLink(proj, uri, "");
+  });
+
+  return $col;
+}
+
+/* --- mutazioni Biblioteca ------------------------------------------------ */
+function libraryUnavailable(){
+  if(!state.libraryError) return false;
+  alert("La Biblioteca non è ancora attiva sul database.\n\n" + state.libraryError +
+        "\n\nEsegui lo script sql/biblioteca.sql nell'editor SQL di Supabase.");
+  return true;
+}
+
+async function uploadLibraryFiles(proj, fileList){
+  if(libraryUnavailable()) return;
+  var files = Array.prototype.slice.call(fileList || []);
+  if(!files.length) return;
+
+  var tooBig = files.filter(function(f){ return f.size > LIBRARY_MAX_BYTES; });
+  files = files.filter(function(f){ return f.size <= LIBRARY_MAX_BYTES; });
+  if(tooBig.length){
+    alert("File troppo grandi (limite " + formatBytes(LIBRARY_MAX_BYTES) + "):\n" +
+      tooBig.map(function(f){ return "· " + f.name + " (" + formatBytes(f.size) + ")"; }).join("\n"));
+  }
+  if(!files.length) return;
+
+  var tickets = files.map(function(f){
+    var t = { projectId: proj.id, name: f.name };
+    pendingUploads.push(t);
+    return t;
+  });
+  renderBoard();
+
+  var errors = [];
+  for(var i = 0; i < files.length; i++){
+    var err = await uploadOneFile(proj, files[i]);
+    if(err) errors.push(files[i].name + ": " + err);
+    pendingUploads = pendingUploads.filter(function(t){ return t !== tickets[i]; });
+    renderBoard();
+  }
+  if(errors.length) alert("Caricamento non riuscito:\n" + errors.join("\n"));
+}
+
+async function uploadOneFile(proj, file){
+  var items = state.library[proj.id] || (state.library[proj.id] = []);
+  var path = proj.id + "/" + uid("f").slice(2) + "_" + safeFileName(file.name);
+
+  var up = await sb.storage.from(LIBRARY_BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: file.type || "application/octet-stream"
+  });
+  if(up.error) return up.error.message;
+
+  var ins = await sb.from("be_library_items").insert({
+    project_id: proj.id,
+    kind: "file",
+    title: file.name,
+    storage_path: path,
+    mime_type: file.type || null,
+    size_bytes: file.size,
+    position: items.length,
+    created_by: state.me.id
+  }).select().single();
+
+  if(ins.error){
+    try { await sb.storage.from(LIBRARY_BUCKET).remove([path]); } catch(e){}
+    return ins.error.message;
+  }
+  items.push(ins.data);
+  return null;
+}
+
+function normalizeUrl(raw){
+  var v = (raw || "").trim();
+  if(!v) return null;
+  if(!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(v)) v = "https://" + v;
+  try {
+    var u = new URL(v);
+    if(u.protocol !== "http:" && u.protocol !== "https:") return null;
+    return u.href;
+  } catch(e){ return null; }
+}
+
+function titleFromUrl(url){
+  try {
+    var u = new URL(url);
+    var host = u.hostname.replace(/^www\./, "");
+    if(isDriveHost(host)) return "Documento su Google Drive";
+    var seg = u.pathname.split("/").filter(Boolean).pop();
+    if(seg) return decodeURIComponent(seg).replace(/[-_]+/g, " ").slice(0, 80);
+    return host;
+  } catch(e){ return url.slice(0, 80); }
+}
+
+async function addLibraryLink(proj, rawUrl, rawTitle){
+  if(libraryUnavailable()) return;
+  var url = normalizeUrl(rawUrl);
+  if(!url){ alert("Indirizzo non valido. Usa un URL http:// o https://"); return; }
+  var items = state.library[proj.id] || (state.library[proj.id] = []);
+  var title = (rawTitle || "").trim() || titleFromUrl(url);
+
+  var res = await sb.from("be_library_items").insert({
+    project_id: proj.id,
+    kind: "link",
+    title: title,
+    url: url,
+    position: items.length,
+    created_by: state.me.id
+  }).select().single();
+  if(res.error){ alert("Errore: " + res.error.message); return; }
+  items.push(res.data);
+  renderBoard();
+}
+
+async function deleteLibraryItem(projectId, itemId){
+  var items = state.library[projectId] || [];
+  var item = items.find(function(it){ return it.id === itemId; });
+  if(!item) return;
+  if(!confirm("Eliminare «" + item.title + "» dalla Biblioteca?")) return;
+
+  var res = await sb.from("be_library_items").delete().eq("id", itemId);
+  if(res.error){ alert("Errore: " + res.error.message); return; }
+  if(item.kind === "file" && item.storage_path){
+    var rm = await sb.storage.from(LIBRARY_BUCKET).remove([item.storage_path]);
+    if(rm.error) console.warn("File non rimosso dallo storage:", rm.error.message);
+  }
+  state.library[projectId] = items.filter(function(it){ return it.id !== itemId; });
+  renderBoard();
+}
+
+async function openLibraryItem(item, forceDownload){
+  if(item.kind === "link"){
+    window.open(item.url, "_blank", "noopener");
+    return;
+  }
+  var win = window.open("", "_blank");
+  var opts = forceDownload ? { download: item.title } : {};
+  var res = await sb.storage.from(LIBRARY_BUCKET).createSignedUrl(item.storage_path, 120, opts);
+  if(res.error || !res.data){
+    if(win) win.close();
+    alert("Impossibile aprire il file: " + ((res.error && res.error.message) || "errore sconosciuto"));
+    return;
+  }
+  if(win) win.location.href = res.data.signedUrl;
+  else window.location.href = res.data.signedUrl;
+}
+
+function openAddLinkModal(proj){
+  var backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.innerHTML =
+    '<div class="modal" role="dialog">' +
+      '<h2>Aggiungi un link alla Biblioteca</h2>' +
+      '<label>Indirizzo (Google Drive, Dropbox, qualsiasi URL)</label>' +
+      '<input type="text" id="m-url" placeholder="https://drive.google.com/…">' +
+      '<label>Nome (facoltativo)</label>' +
+      '<input type="text" id="m-name" placeholder="Es. Brief di progetto">' +
+      '<div class="actions">' +
+        '<button class="btn-cancel" id="m-cancel">Annulla</button>' +
+        '<button class="btn-primary" id="m-save">Aggiungi</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(backdrop);
+
+  var $url  = backdrop.querySelector("#m-url");
+  var $name = backdrop.querySelector("#m-name");
+  setTimeout(function(){ $url.focus(); }, 0);
+
+  function close(){ backdrop.remove(); document.removeEventListener("keydown", onKey); }
+  function save(){
+    var v = $url.value.trim();
+    if(!v){ $url.focus(); return; }
+    if(!normalizeUrl(v)){ alert("Indirizzo non valido. Usa un URL http:// o https://"); $url.focus(); return; }
+    var name = $name.value;
+    close();
+    addLibraryLink(proj, v, name);
+  }
+  function onKey(e){
+    if(e.key === "Escape") close();
+    if(e.key === "Enter") save();
+  }
+  document.addEventListener("keydown", onKey);
+
+  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+  backdrop.querySelector("#m-cancel").addEventListener("click", close);
+  backdrop.querySelector("#m-save").addEventListener("click", save);
+}
+
+/* =====================================================================
  * Wire up
  * ===================================================================== */
 function render(){
   renderSidebar();
   renderBoard();
 }
+
+/* Evita che un file rilasciato fuori dalla Biblioteca faccia navigare il browser */
+["dragover","drop"].forEach(function(ev){
+  window.addEventListener(ev, function(e){
+    var t = e.target;
+    if(t && t.closest && t.closest(".column.library")) return;
+    var types = (e.dataTransfer && e.dataTransfer.types) ? Array.prototype.slice.call(e.dataTransfer.types) : [];
+    if(types.indexOf("Files") >= 0){
+      e.preventDefault();
+      if(ev === "dragover") e.dataTransfer.dropEffect = "none";
+    }
+  });
+});
 
 document.getElementById("add-project-btn").addEventListener("click", promptNewProject);
 document.getElementById("logout-btn").addEventListener("click", async function(){
