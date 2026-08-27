@@ -1,21 +1,15 @@
 <!DOCTYPE html>
-<html lang="it">
+<html data-be-bg="dark" lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover">
 <title>Project Manager · Brown Enterprises</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1217">
-<meta name="color-scheme" content="dark light">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Brown Enterprises">
-<link rel="manifest" href="/manifest.webmanifest">
+<meta name="color-scheme" content="dark">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <style>
   /* --- reset & base ----------------------------------------------------- */
   *,*::before,*::after{box-sizing:border-box}
@@ -37,6 +31,10 @@
     grid-template-columns:260px 1fr;
     grid-template-areas:"topbar topbar" "sidebar board";
     height:100vh;
+    /* dvh: su iOS 100vh include la barra di Safari, quindi il fondo della
+       board restava irraggiungibile. Il doppio valore tiene i browser vecchi. */
+    height:100dvh;
+    padding-top:env(safe-area-inset-top,0px);
   }
 
   /* --- top bar ---------------------------------------------------------- */
@@ -46,7 +44,7 @@
     border-bottom:1px solid #2c3338;
     display:flex;
     align-items:center;
-    padding:0 16px;
+    padding:0 max(16px, env(safe-area-inset-right,0px)) 0 max(16px, env(safe-area-inset-left,0px));
     gap:14px;
     z-index:20;
   }
@@ -59,7 +57,7 @@
     font-size:14px;
     letter-spacing:0.2px;
   }
-  .topbar-logo img{height:24px;filter:invert(1) brightness(2)}
+  .topbar-logo img{height:24px}  /* il logo SVG e' gia' bianco */
   .area-tabs{
     display:inline-flex;background:#22272b;border:1px solid #38414b;border-radius:6px;padding:2px;
   }
@@ -773,6 +771,49 @@
   .modal textarea{resize:vertical;min-height:80px}
   .modal textarea:focus,.modal input[type=text]:focus,.modal input[type=date]:focus{border-color:#579dff}
   .modal input[type=date]{color-scheme:dark;width:auto;min-width:180px}
+  .col-select{
+    width:100%;
+    background:#1d2125;
+    border:1px solid #38414b;
+    color:#f4f5f7;
+    border-radius:6px;
+    padding:10px 11px;
+    font-family:inherit;
+    font-size:14px;
+    outline:none;
+    margin-bottom:14px;
+    color-scheme:dark;
+  }
+  .col-select:focus{border-color:#579dff}
+
+  /* Pannello "Sposta progetto": l'alternativa al trascinamento. */
+  .move-label{
+    margin:0 0 8px;
+    font-size:11px;text-transform:uppercase;letter-spacing:0.5px;
+    color:#9fadbc;font-weight:700;
+  }
+  .move-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .move-opt{
+    flex:1 1 auto;min-height:44px;
+    background:#1d2125;border:1px solid #38414b;color:#f4f5f7;
+    border-radius:8px;padding:11px 14px;
+    font-family:inherit;font-size:14px;font-weight:600;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    transition:background 0.12s,border-color 0.12s;
+  }
+  .move-opt:hover:not(:disabled){background:#2c3338;border-color:#579dff}
+  .move-opt:disabled{opacity:0.55;cursor:default}
+  .move-opt.current{background:#1c2b41;border-color:#1c2b41;color:#cce0ff}
+  .move-now{font-size:11px;font-weight:600;opacity:0.7;text-transform:uppercase;letter-spacing:0.4px}
+  .project-move{
+    opacity:0;
+    background:transparent;border:0;color:#9fadbc;
+    width:22px;height:22px;border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:opacity 0.12s,background 0.12s,color 0.12s;
+  }
+  .project-item:hover .project-move{opacity:1}
+  .project-move:hover{background:#2c3338;color:#f4f5f7}
   .modal .actions{
     display:flex;
     justify-content:flex-end;
@@ -1178,7 +1219,7 @@
     .sidebar{
       display:flex;
       position:fixed;
-      top:88px;left:0;bottom:0;
+      top:calc(88px + env(safe-area-inset-top,0px));left:0;bottom:0;
       width:80%;max-width:300px;
       border-right:1px solid #2c3338;
       z-index:60;
@@ -1187,7 +1228,7 @@
       box-shadow:8px 0 24px rgba(0,0,0,0.5);
     }
     .sidebar.drawer-open{transform:translateX(0)}
-    .sidebar-backdrop{display:block;top:88px}
+    .sidebar-backdrop{display:block;top:calc(88px + env(safe-area-inset-top,0px))}
     .sidebar-backdrop.show{opacity:1;pointer-events:auto}
 
     /* Project items: bigger tap targets */
@@ -1340,8 +1381,53 @@
     .card-actions{opacity:1}
     .lib-actions{opacity:1}
     .project-delete{opacity:1}
+    .project-move{opacity:1}
   }
+
+  /* --- ergonomia su telefono -------------------------------------------- */
+
+  /* iOS zooma il campo appena lo si tocca se il testo e' sotto 16px, e poi
+     non torna indietro. Vale per tutti i controlli di input. */
+  @media (max-width:780px){
+    .modal textarea,
+    .modal input[type=text],
+    .modal input[type=date],
+    .add-card-form textarea,
+    input[type=date].date-input,
+    .modal select,
+    select{font-size:16px}
+
+    /* I pittogrammi restano piccoli, l'area sensibile arriva a 44px. */
+    .card-action,.lib-action,.project-delete,.project-move{
+      width:36px;height:36px;position:relative;
+    }
+    .card-action::after,.lib-action::after,
+    .project-delete::after,.project-move::after{
+      content:"";position:absolute;inset:-4px;
+    }
+
+    /* Niente pull-to-refresh mentre si scorre la board o una lista. */
+    .board-content{overscroll-behavior-x:contain;overscroll-behavior-y:none}
+    .sidebar,.modal,.cal-side,.cards{overscroll-behavior:contain}
+    .modal{max-height:92vh;max-height:92dvh}
+  }
+
+  /* Il lampo grigio del tap e il menu contestuale al long-press tradiscono
+     il browser dentro quella che dovrebbe sembrare un'app. */
+  .card,.card-action,.lib-action,.project-item,.project-delete,.project-move,
+  .icon-btn,.topbar-btn,.area-tabs button,.add-card,.sidebar-section-add{
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+  .card,.project-item{-webkit-touch-callout:none}
 </style>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Progetti">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/pwa.css">
 </head>
 <body>
 
@@ -1470,6 +1556,80 @@ function profileName(userId){
   return p ? p.display_name : "?";
 }
 
+/* =====================================================================
+ * Errori e rete
+ *
+ * supabase-js non rigetta sugli errori di rete: li restituisce dentro
+ * res.error. Senza distinguerli, offline l'app mostrava all'utente il
+ * messaggio grezzo della libreria ("TypeError: Load failed").
+ * ===================================================================== */
+function isNetworkError(err){
+  if(!navigator.onLine) return true;
+  if(!err) return false;
+  if(err.status === 0) return true;
+  if(err.name === "AuthRetryableFetchError") return true;
+  return /fetch|network|load failed|failed to fetch/i.test(err.message || "");
+}
+
+function errorText(err, fallback){
+  if(isNetworkError(err)) return "Sei offline: la modifica non è stata salvata.";
+  return (fallback || "Errore") + ": " + ((err && err.message) || "imprevisto");
+}
+
+/* Pannello a tutta board: usato quando non c'e' proprio nulla da mostrare
+   (offline al primo avvio, oppure errore bloccante). Prima al suo posto
+   c'era una shell vuota piu' un alert nativo. */
+function showBoardPanel(title, text, actionLabel, onAction){
+  var $b = document.getElementById("board");
+  if(!$b) return;
+  $b.innerHTML = "";
+  var box = document.createElement("div");
+  box.className = "empty-board";
+  var h = document.createElement("h2");
+  h.textContent = title;
+  var p = document.createElement("p");
+  p.textContent = text;
+  box.appendChild(h);
+  box.appendChild(p);
+  if(actionLabel){
+    var btn = document.createElement("button");
+    btn.className = "btn-primary";
+    btn.textContent = actionLabel;
+    btn.addEventListener("click", onAction);
+    box.appendChild(btn);
+  }
+  $b.appendChild(box);
+}
+
+function showOfflinePanel(){
+  showBoardPanel(
+    "Sei offline",
+    "Non riesco a raggiungere il server. I progetti torneranno appena la connessione sarà disponibile.",
+    "Riprova",
+    function(){ boot(); }
+  );
+}
+
+function showErrorPanel(title, detail){
+  showBoardPanel(title, detail || "Errore imprevisto.", "Riprova", function(){ boot(); });
+}
+
+/* Un avviso in pagina al posto di alert(): non blocca, non sembra un
+   errore di sistema, e usa il toast condiviso quando c'e'. */
+function notify(message, opts){
+  opts = opts || {};
+  if(window.bePWA && window.bePWA.toast){
+    window.bePWA.toast({
+      kind: opts.kind || "app",
+      html: String(message).replace(/</g, "&lt;"),
+      warn: opts.warn !== false,
+      autoHide: opts.autoHide || 6000
+    });
+    return;
+  }
+  alert(message);
+}
+
 /* Le colonne due_date/done_at potrebbero non essere ancora state migrate:
    in quel caso si ricarica senza, e la UI delle date resta nascosta. */
 async function fetchCards(){
@@ -1578,7 +1738,14 @@ function buildDateField(value, isDone, inModal){
 async function loadEverything(){
   var sessionRes = await sb.auth.getSession();
   var session = sessionRes.data && sessionRes.data.session;
-  if(!session){ window.location.replace("login.html"); return false; }
+  if(!session){
+    // Offline getSession puo' fallire pur avendo un refresh token valido in
+    // locale: rimandare al login qui significava accusare l'utente di non
+    // essere autenticato solo perche' manca la rete.
+    if(isNetworkError(sessionRes.error)){ showOfflinePanel(); return false; }
+    window.location.replace("login.html");
+    return false;
+  }
   var user = session.user;
   state.me = {
     id: user.id,
@@ -1596,7 +1763,8 @@ async function loadEverything(){
 
   for (var i = 0; i < results.length; i++){
     if(results[i].error){
-      alert("Errore nel caricamento dei dati: " + results[i].error.message);
+      if(isNetworkError(results[i].error)){ showOfflinePanel(); return false; }
+      showErrorPanel("Errore nel caricamento dei dati", results[i].error.message);
       return false;
     }
   }
@@ -1671,6 +1839,19 @@ function buildProjectItem(proj){
   item.appendChild(name);
 
   if(proj.isOwner){
+    // Il trascinamento e' HTML5 DnD, che da un dito non parte mai: su iOS e
+    // Android questo bottone e' l'unico modo di spostare un progetto.
+    var move = document.createElement("button");
+    move.className = "project-move";
+    move.title = "Sposta progetto";
+    move.setAttribute("aria-label", "Sposta " + proj.name);
+    move.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>';
+    move.addEventListener("click", function(e){
+      e.stopPropagation();
+      openMoveProjectSheet(proj);
+    });
+    item.appendChild(move);
+
     var share = document.createElement("button");
     share.className = "project-share";
     share.title = "Condividi progetto";
@@ -1780,22 +1961,94 @@ function renderSidebar(){
   $projects.appendChild(buildSidebarSection("Bandi", "bandi", bandi));
 }
 
-async function moveProjectToSpace(projectId, space){
+var AREA_LABELS = {
+  in_progettazione: "In progettazione",
+  in_corso: "In corso",
+  amministrazione: "Amministrazione"
+};
+var SPACE_LABELS = { progetti: "Progetti", bandi: "Bandi" };
+
+/* Il trascinamento resta, ma da telefono non esiste: questo pannello e'
+   l'equivalente esplicito, e sposta anche fra le tre aree — cosa che il
+   drag'n'drop nella sidebar non permette comunque. */
+function openMoveProjectSheet(proj){
+  var backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+
+  var rows = "";
+  Object.keys(SPACE_LABELS).forEach(function(sp){
+    var on = proj.space === sp;
+    rows += '<button type="button" class="move-opt' + (on ? " current" : "") +
+      '" data-kind="space" data-value="' + sp + '"' + (on ? " disabled" : "") + '>' +
+      SPACE_LABELS[sp] + (on ? ' <span class="move-now">attuale</span>' : '') + '</button>';
+  });
+
+  var areaRows = "";
+  AREAS.forEach(function(a){
+    var on = proj.area === a;
+    areaRows += '<button type="button" class="move-opt' + (on ? " current" : "") +
+      '" data-kind="area" data-value="' + a + '"' + (on ? " disabled" : "") + '>' +
+      AREA_LABELS[a] + (on ? ' <span class="move-now">attuale</span>' : '') + '</button>';
+  });
+
+  backdrop.innerHTML =
+    '<div class="modal" role="dialog" aria-label="Sposta progetto">' +
+      '<h2>Sposta &laquo;' + proj.name.replace(/</g, "&lt;") + '&raquo;</h2>' +
+      '<p class="move-label">Sezione</p>' +
+      '<div class="move-group">' + rows + '</div>' +
+      '<p class="move-label">Area di lavoro</p>' +
+      '<div class="move-group">' + areaRows + '</div>' +
+      '<div class="actions"><button class="btn-cancel" id="m-close">Chiudi</button></div>' +
+    '</div>';
+  document.body.appendChild(backdrop);
+
+  function close(){ backdrop.remove(); document.removeEventListener("keydown", onKey); }
+  function onKey(e){ if(e.key === "Escape") close(); }
+  document.addEventListener("keydown", onKey);
+  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+  backdrop.querySelector("#m-close").addEventListener("click", close);
+
+  backdrop.querySelectorAll(".move-opt").forEach(function(b){
+    b.addEventListener("click", function(){
+      close();
+      if(b.dataset.kind === "space") moveProjectToSpace(proj.id, b.dataset.value);
+      else moveProjectToArea(proj.id, b.dataset.value);
+    });
+  });
+}
+
+/* Aggiorna una colonna sola di be_projects, in modo ottimistico: se la
+   scrittura fallisce si torna al valore precedente invece di lasciare la UI
+   con una modifica mai salvata. */
+async function updateProjectField(projectId, field, value){
   var proj = state.projects.find(function(p){ return p.id === projectId; });
-  if(!proj || proj.space === space) return;
+  if(!proj || proj[field] === value) return;
   if(!proj.isOwner){
-    alert("Solo " + profileName(proj.owner_id) + " (proprietario) può spostare questo progetto.");
+    notify("Solo " + profileName(proj.owner_id) + " (proprietario) può spostare questo progetto.");
     return;
   }
-  var previous = proj.space;
-  proj.space = space;
+  var previous = proj[field];
+  proj[field] = value;
+  if(field === "area") state.area = value;
+  syncActiveProject();
   render();
-  var res = await sb.from("be_projects").update({ space: space }).eq("id", projectId);
+
+  var payload = {};
+  payload[field] = value;
+  var res = await sb.from("be_projects").update(payload).eq("id", projectId);
   if(res.error){
-    proj.space = previous;
+    proj[field] = previous;
+    syncActiveProject();
     render();
-    alert("Errore nello spostamento: " + res.error.message);
+    notify(errorText(res.error, "Non sono riuscito a spostare il progetto"));
   }
+}
+
+function moveProjectToSpace(projectId, space){
+  return updateProjectField(projectId, "space", space);
+}
+function moveProjectToArea(projectId, area){
+  return updateProjectField(projectId, "area", area);
 }
 
 function openShareModal(projectId){
@@ -1841,7 +2094,7 @@ async function toggleShare(proj, userId, add, $row){
     res = await sb.from("be_project_shares").delete().eq("project_id", proj.id).eq("user_id", userId);
   }
   $row.style.pointerEvents = "";
-  if(res.error){ alert("Errore: " + res.error.message); return; }
+  if(res.error){ notify(errorText(res.error)); return; }
   if(add){
     proj.shares.push(userId);
     $row.classList.add("checked");
@@ -1884,7 +2137,7 @@ function renderBoard(){
       var v = title.value.trim();
       if(!v){ title.value = proj.name; return; }
       var res = await sb.from("be_projects").update({ name: v }).eq("id", proj.id);
-      if(res.error){ alert("Errore: " + res.error.message); title.value = proj.name; return; }
+      if(res.error){ notify(errorText(res.error)); title.value = proj.name; return; }
       proj.name = v;
       renderSidebar();
     });
@@ -2063,6 +2316,20 @@ async function moveCard(cardId, fromColId, toColId, beforeCardId){
   if(!fromCol || !toCol) return;
   var idx = fromCol.cards.findIndex(function(c){ return c.id === cardId; });
   if(idx < 0) return;
+
+  // Fotografia dello stato prima dello spostamento ottimistico: se la
+  // scrittura fallisce (tipicamente offline) si ripristina in locale, senza
+  // ricaricare da un server che tanto non risponde.
+  var snapshot = {
+    from: fromCol.cards.slice(),
+    to: toCol.cards.slice(),
+    positions: proj.columns.reduce(function(acc, c){
+      c.cards.forEach(function(k){ acc[k.id] = k.position; });
+      return acc;
+    }, {}),
+    doneAt: fromCol.cards[idx].done_at
+  };
+
   var card = fromCol.cards.splice(idx,1)[0];
   if(beforeCardId){
     var bIdx = toCol.cards.findIndex(function(c){ return c.id === beforeCardId; });
@@ -2102,9 +2369,18 @@ async function moveCard(cardId, fromColId, toColId, beforeCardId){
   var results = await Promise.all(updates);
   var failed = results.find(function(r){ return r.error; });
   if(failed){
-    alert("Errore nel salvataggio dello spostamento: " + failed.error.message);
-    var ok = await loadEverything();
-    if(ok) render();
+    // Rollback locale: la card torna dov'era, cosi' la board non mostra
+    // uno spostamento che sul server non e' mai avvenuto.
+    fromCol.cards = snapshot.from;
+    toCol.cards = snapshot.to;
+    card.done_at = snapshot.doneAt;
+    proj.columns.forEach(function(c){
+      c.cards.forEach(function(k){
+        if(snapshot.positions[k.id] !== undefined) k.position = snapshot.positions[k.id];
+      });
+    });
+    renderBoard();
+    notify(errorText(failed.error, "Spostamento non salvato"));
   }
 }
 
@@ -2113,7 +2389,7 @@ async function deleteCard(cardId, columnId){
   var col = proj.columns.find(function(c){ return c.id === columnId; });
   if(!col) return;
   var res = await sb.from("be_cards").delete().eq("id", cardId);
-  if(res.error){ alert("Errore: " + res.error.message); return; }
+  if(res.error){ notify(errorText(res.error)); return; }
   col.cards = col.cards.filter(function(c){ return c.id !== cardId; });
   renderBoard();
 }
@@ -2135,7 +2411,7 @@ async function addCard(columnId, title, priority, dateValue, isDoneCol){
     payload.done_at  = isDoneCol ? (dateValue || null) : null;
   }
   var res = await sb.from("be_cards").insert(payload).select().single();
-  if(res.error){ alert("Errore: " + res.error.message); return; }
+  if(res.error){ notify(errorText(res.error)); return; }
   col.cards.push({
     id: res.data.id, title: res.data.title, priority: res.data.priority, position: res.data.position,
     due_date: res.data.due_date || null, done_at: res.data.done_at || null
@@ -2155,7 +2431,7 @@ async function updateCard(cardId, columnId, title, priority, dateValue, isDoneCo
     else payload.due_date = dateValue || null;
   }
   var res = await sb.from("be_cards").update(payload).eq("id", cardId);
-  if(res.error){ alert("Errore: " + res.error.message); return; }
+  if(res.error){ notify(errorText(res.error)); return; }
   card.title = payload.title;
   card.priority = payload.priority;
   if(!state.cardDatesError){
@@ -2171,7 +2447,7 @@ async function deleteProject(projectId){
     .filter(function(it){ return it.kind === "file" && it.storage_path; })
     .map(function(it){ return it.storage_path; });
   var res = await sb.from("be_projects").delete().eq("id", projectId);
-  if(res.error){ alert("Errore: " + res.error.message); return; }
+  if(res.error){ notify(errorText(res.error)); return; }
   if(paths.length){ try { await sb.storage.from(LIBRARY_BUCKET).remove(paths); } catch(e){} }
   delete state.library[projectId];
   state.projects = state.projects.filter(function(p){ return p.id !== projectId; });
@@ -2190,13 +2466,13 @@ function promptNewProject(space){
       var n = name.trim();
       if(!n) return;
       var pRes = await sb.from("be_projects").insert({ owner_id: state.me.id, name: n, space: sp, area: state.area }).select().single();
-      if(pRes.error){ alert("Errore: " + pRes.error.message); return; }
+      if(pRes.error){ notify(errorText(pRes.error)); return; }
       var project = pRes.data;
       var colsPayload = DEFAULT_COLUMNS.map(function(colName, i){
         return { project_id: project.id, name: colName, position: i };
       });
       var cRes = await sb.from("be_columns").insert(colsPayload).select();
-      if(cRes.error){ alert("Errore nella creazione delle colonne: " + cRes.error.message); }
+      if(cRes.error){ notify(errorText(cRes.error, "Colonne non create")); }
       var columns = (cRes.data || []).map(function(c){
         return { id: c.id, name: c.name, position: c.position, cards: [] };
       });
@@ -2300,12 +2576,26 @@ function openEditCardModal(cardId, columnId, isDoneCol){
         '<button class="priority-pill" data-priority="green" ><span class="dot green"></span>Bassa</button>' +
       '</div>' +
       '<div id="m-date-slot"></div>' +
+      '<label for="m-col">Lista</label>' +
+      '<select id="m-col" class="col-select"></select>' +
       '<div class="actions">' +
         '<button class="btn-cancel" id="m-cancel">Annulla</button>' +
         '<button class="btn-primary" id="m-save">Salva</button>' +
       '</div>' +
     '</div>';
   document.body.appendChild(backdrop);
+
+  // Da telefono il drag non parte: senza questo selettore una card non si
+  // puo' proprio spostare di lista.
+  var $col = backdrop.querySelector("#m-col");
+  proj.columns.slice().sort(function(a,b){ return a.position - b.position; })
+    .forEach(function(c){
+      var o = document.createElement("option");
+      o.value = c.id;
+      o.textContent = c.name;
+      if(c.id === columnId) o.selected = true;
+      $col.appendChild(o);
+    });
 
   var $ta = backdrop.querySelector("#m-title");
   $ta.value = card.title;
@@ -2340,7 +2630,11 @@ function openEditCardModal(cardId, columnId, isDoneCol){
   function save(){
     var v = $ta.value.trim();
     if(!v) { $ta.focus(); return; }
+    var target = $col.value;
     updateCard(cardId, columnId, v, priority, $dateField ? $dateField.getValue() : null, isDoneCol);
+    // Lo spostamento passa dalla stessa funzione del drop handler, cosi'
+    // riordino delle position e data di completamento restano coerenti.
+    if(target && target !== columnId) moveCard(cardId, columnId, target, null);
     close();
   }
   function onKey(e){
@@ -2778,7 +3072,7 @@ async function addLibraryLink(proj, rawUrl, rawTitle){
     position: items.length,
     created_by: state.me.id
   }).select().single();
-  if(res.error){ alert("Errore: " + res.error.message); return; }
+  if(res.error){ notify(errorText(res.error)); return; }
   items.push(res.data);
   renderBoard();
 }
@@ -2790,7 +3084,7 @@ async function deleteLibraryItem(projectId, itemId){
   if(!confirm("Eliminare «" + item.title + "» dalla Biblioteca?")) return;
 
   var res = await sb.from("be_library_items").delete().eq("id", itemId);
-  if(res.error){ alert("Errore: " + res.error.message); return; }
+  if(res.error){ notify(errorText(res.error)); return; }
   if(item.kind === "file" && item.storage_path){
     var rm = await sb.storage.from(LIBRARY_BUCKET).remove([item.storage_path]);
     if(rm.error) console.warn("File non rimosso dallo storage:", rm.error.message);
@@ -2901,13 +3195,29 @@ document.getElementById("logout-btn").addEventListener("click", async function()
   window.location.href = "login.html";
 });
 
-(async function init(){
-  var ok = await loadEverything();
-  if(!ok) return;
-  document.getElementById("user-label").textContent = state.me.display_name;
-  document.getElementById("avatar").textContent = (state.me.display_name || "?").charAt(0).toUpperCase();
-  render();
-})();
+var booting = false;
+
+async function boot(){
+  if(booting) return;
+  booting = true;
+  try {
+    var ok = await loadEverything();
+    if(!ok) return;
+    document.getElementById("user-label").textContent = state.me.display_name;
+    document.getElementById("avatar").textContent = (state.me.display_name || "?").charAt(0).toUpperCase();
+    render();
+  } finally {
+    booting = false;
+  }
+}
+
+boot();
+
+/* Tornata la rete, ricarica da sola: senza, chi ha aperto l'app in metro
+   resta davanti al pannello "sei offline" finche' non ricarica a mano. */
+window.addEventListener("online", function(){
+  if(!state.me || !state.projects.length) boot();
+});
 
 /* =====================================================================
  * Mobile drawer toggles (sidebar + calendar people filter)
@@ -3606,12 +3916,7 @@ document.getElementById("logout-btn").addEventListener("click", async function()
   $views.forEach(function(b){ b.classList.toggle("active", b.dataset.view === view); });
 })();
 </script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
-    });
-  }
-</script>
+
+<script defer src="/js/pwa.js"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it">
+<html data-be-bg="dark" lang="it">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -8,7 +8,6 @@
 <title>404 — Pagina non trovata · Brown Enterprises</title>
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 <style>
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -31,6 +30,13 @@
   .alt{display:block;margin-top:16px;color:rgba(255,255,255,.55);font-size:14px;text-decoration:none}
   .alt:hover{color:#fff}
 </style>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Brown">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/pwa.css">
 </head>
 <body>
   <main class="card" role="main">
@@ -49,5 +55,6 @@
     <a class="btn" href="/">Torna alla home</a>
     <a class="alt" href="/en/">Go to the English homepage →</a>
   </main>
+<script defer src="/js/pwa.js"></script>
 </body>
 </html>
