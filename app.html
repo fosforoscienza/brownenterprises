@@ -171,9 +171,19 @@
     letter-spacing:0.6px;
     color:#738496;
     font-weight:700;
-    padding:10px 8px 4px;
+    padding:10px 4px 4px 8px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
   }
   .sidebar-section-title:first-child{padding-top:2px}
+  .sidebar-section-add{
+    background:transparent;border:0;color:#9fadbc;
+    width:20px;height:20px;border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:background 0.15s,color 0.15s;
+  }
+  .sidebar-section-add:hover{background:#2c3338;color:#f4f5f7}
   .project-share{
     opacity:0;
     background:transparent;border:0;color:#9fadbc;
@@ -473,6 +483,70 @@
   }
   .btn-cancel:hover{background:#2c3338;color:#f4f5f7}
 
+  /* --- date sulle card --------------------------------------------------- */
+  .card-badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+    margin-top:7px;
+  }
+  .card-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:11px;
+    font-weight:600;
+    padding:2px 7px;
+    border-radius:4px;
+    background:#2c3338;
+    color:#9fadbc;
+    white-space:nowrap;
+  }
+  .card-badge svg{flex-shrink:0}
+  .card-badge.overdue{background:#412a2a;color:#f87168}
+  .card-badge.soon{background:#413a1f;color:#f5cd47}
+  .card-badge.done{background:#173328;color:#4bce97}
+  .date-row{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-top:8px;
+    flex-wrap:wrap;
+  }
+  .date-row .label{
+    font-size:11px;color:#9fadbc;text-transform:uppercase;
+    letter-spacing:0.5px;font-weight:700;
+    flex:0 0 100%;
+    margin-bottom:-2px;
+  }
+  input[type=date].date-input{
+    background:#22272b;
+    border:1px solid #38414b;
+    color:#f4f5f7;
+    border-radius:6px;
+    padding:5px 8px;
+    font-family:inherit;
+    font-size:12.5px;
+    outline:none;
+    color-scheme:dark;
+  }
+  input[type=date].date-input:focus{border-color:#579dff}
+  .date-clear{
+    background:transparent;border:0;color:#8c9bab;
+    font-size:11px;padding:4px 7px;border-radius:4px;
+  }
+  .date-clear:hover{background:#2c3338;color:#f4f5f7}
+  .board-warning{
+    margin:0 24px 12px;
+    background:#412a2a;
+    border:1px solid #5d3a3a;
+    color:#ffbdad;
+    font-size:12px;
+    line-height:1.45;
+    border-radius:8px;
+    padding:8px 12px;
+  }
+
   /* --- biblioteca ------------------------------------------------------- */
   .column.library{
     background:#0f1215;
@@ -661,7 +735,7 @@
     font-weight:700;
     margin-bottom:6px;
   }
-  .modal textarea,.modal input[type=text]{
+  .modal textarea,.modal input[type=text],.modal input[type=date]{
     width:100%;
     background:#1d2125;
     border:1px solid #38414b;
@@ -674,7 +748,8 @@
     margin-bottom:14px;
   }
   .modal textarea{resize:vertical;min-height:80px}
-  .modal textarea:focus,.modal input[type=text]:focus{border-color:#579dff}
+  .modal textarea:focus,.modal input[type=text]:focus,.modal input[type=date]:focus{border-color:#579dff}
+  .modal input[type=date]{color-scheme:dark;width:auto;min-width:180px}
   .modal .actions{
     display:flex;
     justify-content:flex-end;
@@ -1106,6 +1181,9 @@
     .card-action{background:rgba(0,0,0,0.35);width:28px;height:28px}
     .add-card{padding:10px 12px}
 
+    .board-warning{margin:0 14px 10px;font-size:11.5px}
+    input[type=date].date-input{padding:7px 9px;font-size:13px}
+
     /* Biblioteca */
     .lib-item{padding:10px}
     .lib-actions{opacity:1}
@@ -1251,10 +1329,7 @@
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-title">Progetti</span>
-      <button class="sidebar-add" id="add-project-btn" title="Nuovo progetto">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
+      <span class="sidebar-title">Spazio di lavoro</span>
     </div>
     <div class="projects" id="projects"></div>
     <div class="sidebar-footer">
@@ -1329,7 +1404,7 @@ function uid(prefix){
 /* =====================================================================
  * State
  * ===================================================================== */
-var state = { me: null, profiles: [], projects: [], activeProjectId: null, library: {}, libraryError: null };
+var state = { me: null, profiles: [], projects: [], activeProjectId: null, library: {}, libraryError: null, cardDatesError: null };
 
 function getActiveProject(){
   return state.projects.find(function(p){ return p.id === state.activeProjectId; }) || state.projects[0] || null;
@@ -1337,6 +1412,111 @@ function getActiveProject(){
 function profileName(userId){
   var p = state.profiles.find(function(x){ return x.id === userId; });
   return p ? p.display_name : "?";
+}
+
+/* Le colonne due_date/done_at potrebbero non essere ancora state migrate:
+   in quel caso si ricarica senza, e la UI delle date resta nascosta. */
+async function fetchCards(){
+  var full = await sb.from("be_cards")
+    .select("id, project_id, column_id, title, priority, position, due_date, done_at")
+    .order("position", { ascending: true });
+  if(!full.error){ state.cardDatesError = null; return full; }
+  var basic = await sb.from("be_cards")
+    .select("id, project_id, column_id, title, priority, position")
+    .order("position", { ascending: true });
+  if(!basic.error) state.cardDatesError = full.error.message;
+  return basic;
+}
+
+/* =====================================================================
+ * Date: scadenza (liste di lavoro) e completamento (lista Done)
+ * ===================================================================== */
+var DONE_COLUMN_NAMES = ["done","fatto","fatti","completato","completati","completed","finito","finiti","chiuso","chiusi"];
+
+function doneColumnId(proj){
+  var cols = (proj.columns || []).slice().sort(function(a,b){ return a.position - b.position; });
+  if(!cols.length) return null;
+  var byName = cols.find(function(c){
+    return DONE_COLUMN_NAMES.indexOf((c.name || "").trim().toLowerCase()) >= 0;
+  });
+  return byName ? byName.id : cols[cols.length - 1].id;
+}
+
+function todayISO(){
+  var d = new Date();
+  return d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+}
+
+function parseISODate(iso){
+  var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+}
+
+function formatDateIT(iso){
+  var d = parseISODate(iso);
+  if(!d) return "";
+  var opts = { day: "numeric", month: "short" };
+  if(d.getFullYear() !== new Date().getFullYear()) opts.year = "numeric";
+  return d.toLocaleDateString("it-IT", opts);
+}
+
+function daysUntil(iso){
+  var d = parseISODate(iso);
+  if(!d) return null;
+  var t = new Date(); t.setHours(0,0,0,0);
+  return Math.round((d - t) / 86400000);
+}
+
+function buildDateBadge(iso, isDone){
+  var $b = document.createElement("span");
+  $b.className = "card-badge";
+  var label = formatDateIT(iso);
+  var icon;
+  if(isDone){
+    $b.classList.add("done");
+    icon = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    $b.title = "Completata il " + label;
+  } else {
+    var n = daysUntil(iso);
+    if(n < 0){ $b.classList.add("overdue"); label = "Scaduta · " + label; }
+    else if(n === 0){ $b.classList.add("soon"); label = "Oggi"; }
+    else if(n === 1){ $b.classList.add("soon"); label = "Domani"; }
+    else if(n <= 3){ $b.classList.add("soon"); }
+    icon = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+    $b.title = "Scadenza: " + formatDateIT(iso);
+  }
+  $b.innerHTML = icon + "<span></span>";
+  $b.querySelector("span").textContent = label;
+  return $b;
+}
+
+/* Riga con input data, usata dal form di aggiunta e dalla modale */
+function buildDateField(value, isDone, inModal){
+  var wrap = document.createElement("div");
+  wrap.className = "date-row";
+  if(!inModal){
+    var lab = document.createElement("span");
+    lab.className = "label";
+    lab.textContent = isDone ? "Completata il" : "Scadenza";
+    wrap.appendChild(lab);
+  }
+  var input = document.createElement("input");
+  input.type = "date";
+  input.className = "date-input";
+  input.value = value || "";
+  wrap.appendChild(input);
+
+  var clear = document.createElement("button");
+  clear.type = "button";
+  clear.className = "date-clear";
+  clear.textContent = "Rimuovi";
+  clear.addEventListener("click", function(){ input.value = ""; });
+  wrap.appendChild(clear);
+
+  wrap.getValue = function(){ return input.value || null; };
+  return wrap;
 }
 
 async function loadEverything(){
@@ -1352,10 +1532,10 @@ async function loadEverything(){
 
   var results = await Promise.all([
     sb.from("be_profiles").select("id, display_name"),
-    sb.from("be_projects").select("id, name, owner_id, created_at").order("created_at", { ascending: true }),
+    sb.from("be_projects").select("id, name, owner_id, space, created_at").order("created_at", { ascending: true }),
     sb.from("be_project_shares").select("project_id, user_id"),
     sb.from("be_columns").select("id, project_id, name, position").order("position", { ascending: true }),
-    sb.from("be_cards").select("id, project_id, column_id, title, priority, position").order("position", { ascending: true })
+    fetchCards()
   ]);
 
   for (var i = 0; i < results.length; i++){
@@ -1382,7 +1562,10 @@ async function loadEverything(){
 
   (results[4].data || []).forEach(function(c){
     var col = columnById[c.column_id];
-    if(col) col.cards.push({ id: c.id, title: c.title, priority: c.priority, position: c.position });
+    if(col) col.cards.push({
+      id: c.id, title: c.title, priority: c.priority, position: c.position,
+      due_date: c.due_date || null, done_at: c.done_at || null
+    });
   });
 
   state.projects = (results[1].data || []).map(function(p){
@@ -1390,6 +1573,7 @@ async function loadEverything(){
       id: p.id,
       name: p.name,
       owner_id: p.owner_id,
+      space: p.space === "bandi" ? "bandi" : "progetti",
       isOwner: p.owner_id === state.me.id,
       shares: sharesByProject[p.id] || [],
       columns: columnsByProject[p.id] || []
@@ -1461,43 +1645,48 @@ function buildProjectItem(proj){
   return item;
 }
 
+function buildSidebarSectionHeader(title, space){
+  var h = document.createElement("div");
+  h.className = "sidebar-section-title";
+
+  var label = document.createElement("span");
+  label.textContent = title;
+  h.appendChild(label);
+
+  var add = document.createElement("button");
+  add.className = "sidebar-section-add";
+  add.title = "Nuovo · " + title;
+  add.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+  add.addEventListener("click", function(){ promptNewProject(space); });
+  h.appendChild(add);
+
+  return h;
+}
+
 function renderSidebar(){
   $projects.innerHTML = "";
-  if(!state.projects.length){
-    var empty = document.createElement("div");
-    empty.className = "empty-projects";
-    empty.textContent = "Nessun progetto. Aggiungine uno con +";
-    $projects.appendChild(empty);
-    return;
-  }
 
-  var mine = state.projects.filter(function(p){ return p.isOwner; });
-  var shared = state.projects.filter(function(p){ return !p.isOwner; });
+  var progetti = state.projects.filter(function(p){ return p.space === "progetti"; });
+  var bandi = state.projects.filter(function(p){ return p.space === "bandi"; });
 
-  var h1 = document.createElement("div");
-  h1.className = "sidebar-section-title";
-  h1.textContent = "I miei progetti";
-  $projects.appendChild(h1);
-  if(!mine.length){
+  $projects.appendChild(buildSidebarSectionHeader("Progetti", "progetti"));
+  if(!progetti.length){
     var e1 = document.createElement("div");
     e1.className = "empty-projects";
     e1.textContent = "Nessuno. Creane uno con +";
     $projects.appendChild(e1);
   } else {
-    mine.forEach(function(proj){ $projects.appendChild(buildProjectItem(proj)); });
+    progetti.forEach(function(proj){ $projects.appendChild(buildProjectItem(proj)); });
   }
 
-  var h2 = document.createElement("div");
-  h2.className = "sidebar-section-title";
-  h2.textContent = "Condivisi con me";
-  $projects.appendChild(h2);
-  if(!shared.length){
+  $projects.appendChild(buildSidebarSectionHeader("Bandi", "bandi"));
+  if(!bandi.length){
     var e2 = document.createElement("div");
     e2.className = "empty-projects";
-    e2.textContent = "Nessun progetto condiviso con te.";
+    e2.textContent = "Nessuno. Creane uno con +";
     $projects.appendChild(e2);
   } else {
-    shared.forEach(function(proj){ $projects.appendChild(buildProjectItem(proj)); });
+    bandi.forEach(function(proj){ $projects.appendChild(buildProjectItem(proj)); });
   }
 }
 
@@ -1606,11 +1795,22 @@ function renderBoard(){
   header.appendChild(meta);
   $board.appendChild(header);
 
+  if(state.cardDatesError){
+    var $warn = document.createElement("div");
+    $warn.className = "board-warning";
+    $warn.textContent = "Scadenze e date di completamento non attive: " + state.cardDatesError +
+      " — esegui sql/scadenze.sql sul database Supabase.";
+    $board.appendChild($warn);
+  }
+
   // Columns
   var content = document.createElement("div");
   content.className = "board-content";
 
+  var doneColId = doneColumnId(proj);
+
   cols.forEach(function(col){
+    var isDoneCol = col.id === doneColId;
     var $col = document.createElement("section");
     $col.className = "column";
     $col.dataset.columnId = col.id;
@@ -1628,7 +1828,7 @@ function renderBoard(){
     $cards.className = "cards";
     $cards.dataset.columnId = col.id;
     col.cards.slice().sort(function(a,b){ return a.position - b.position; }).forEach(function(card){
-      $cards.appendChild(buildCardEl(card, col.id));
+      $cards.appendChild(buildCardEl(card, col.id, isDoneCol));
     });
     $col.appendChild($cards);
 
@@ -1636,7 +1836,7 @@ function renderBoard(){
     $add.className = "add-card";
     $add.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Aggiungi una carta';
     $add.addEventListener("click", function(){
-      openAddCardForm($col, col.id);
+      openAddCardForm($col, col.id, isDoneCol);
     });
     $col.appendChild($add);
 
@@ -1671,7 +1871,7 @@ function renderBoard(){
   $board.appendChild(content);
 }
 
-function buildCardEl(card, columnId){
+function buildCardEl(card, columnId, isDoneCol){
   var $card = document.createElement("article");
   $card.className = "card";
   $card.draggable = true;
@@ -1689,6 +1889,14 @@ function buildCardEl(card, columnId){
   $t.textContent = card.title;
   $card.appendChild($t);
 
+  var dateValue = isDoneCol ? card.done_at : card.due_date;
+  if(!state.cardDatesError && dateValue){
+    var $badges = document.createElement("div");
+    $badges.className = "card-badges";
+    $badges.appendChild(buildDateBadge(dateValue, isDoneCol));
+    $card.appendChild($badges);
+  }
+
   var $actions = document.createElement("div");
   $actions.className = "card-actions";
   var $del = document.createElement("button");
@@ -1705,7 +1913,7 @@ function buildCardEl(card, columnId){
   // edit on click
   $card.addEventListener("click", function(e){
     if(e.target.closest(".card-action")) return;
-    openEditCardModal(card.id, columnId);
+    openEditCardModal(card.id, columnId, isDoneCol);
   });
 
   // dragging
@@ -1755,6 +1963,18 @@ async function moveCard(cardId, fromColId, toColId, beforeCardId){
   } else {
     toCol.cards.push(card);
   }
+
+  var doneColId = doneColumnId(proj);
+  var doneChanged = false;
+  if(!state.cardDatesError && fromCol.id !== toCol.id){
+    if(toCol.id === doneColId && !card.done_at){
+      card.done_at = todayISO();
+      doneChanged = true;
+    } else if(fromCol.id === doneColId && card.done_at){
+      card.done_at = null;
+      doneChanged = true;
+    }
+  }
   renderBoard();
 
   var updates = [];
@@ -1768,6 +1988,7 @@ async function moveCard(cardId, fromColId, toColId, beforeCardId){
     c.position = i;
     var payload = { position: i };
     if(c.id === cardId && fromCol.id !== toCol.id) payload.column_id = toColId;
+    if(c.id === cardId && doneChanged) payload.done_at = card.done_at;
     updates.push(sb.from("be_cards").update(payload).eq("id", c.id));
   });
   var results = await Promise.all(updates);
@@ -1789,33 +2010,50 @@ async function deleteCard(cardId, columnId){
   renderBoard();
 }
 
-async function addCard(columnId, title, priority){
+async function addCard(columnId, title, priority, dateValue, isDoneCol){
   var proj = getActiveProject(); if(!proj) return;
   var col = proj.columns.find(function(c){ return c.id === columnId; });
   if(!col) return;
-  var res = await sb.from("be_cards").insert({
+  var payload = {
     project_id: proj.id,
     column_id: columnId,
     title: title.trim(),
     priority: priority || null,
     position: col.cards.length,
     created_by: state.me.id
-  }).select().single();
+  };
+  if(!state.cardDatesError){
+    payload.due_date = isDoneCol ? null : (dateValue || null);
+    payload.done_at  = isDoneCol ? (dateValue || null) : null;
+  }
+  var res = await sb.from("be_cards").insert(payload).select().single();
   if(res.error){ alert("Errore: " + res.error.message); return; }
-  col.cards.push({ id: res.data.id, title: res.data.title, priority: res.data.priority, position: res.data.position });
+  col.cards.push({
+    id: res.data.id, title: res.data.title, priority: res.data.priority, position: res.data.position,
+    due_date: res.data.due_date || null, done_at: res.data.done_at || null
+  });
   renderBoard();
 }
 
-async function updateCard(cardId, columnId, title, priority){
+async function updateCard(cardId, columnId, title, priority, dateValue, isDoneCol){
   var proj = getActiveProject(); if(!proj) return;
   var col = proj.columns.find(function(c){ return c.id === columnId; });
   if(!col) return;
   var card = col.cards.find(function(c){ return c.id === cardId; });
   if(!card) return;
-  var res = await sb.from("be_cards").update({ title: title.trim(), priority: priority || null }).eq("id", cardId);
+  var payload = { title: title.trim(), priority: priority || null };
+  if(!state.cardDatesError){
+    if(isDoneCol) payload.done_at = dateValue || null;
+    else payload.due_date = dateValue || null;
+  }
+  var res = await sb.from("be_cards").update(payload).eq("id", cardId);
   if(res.error){ alert("Errore: " + res.error.message); return; }
-  card.title = title.trim();
-  card.priority = priority || null;
+  card.title = payload.title;
+  card.priority = payload.priority;
+  if(!state.cardDatesError){
+    if(isDoneCol) card.done_at = payload.done_at;
+    else card.due_date = payload.due_date;
+  }
   renderBoard();
 }
 
@@ -1835,16 +2073,17 @@ async function deleteProject(projectId){
   render();
 }
 
-function promptNewProject(){
+function promptNewProject(space){
+  var sp = space === "bandi" ? "bandi" : "progetti";
   showInputModal({
-    title: "Nuovo progetto",
-    label: "Nome del progetto",
+    title: sp === "bandi" ? "Nuovo bando" : "Nuovo progetto",
+    label: sp === "bandi" ? "Nome del bando" : "Nome del progetto",
     placeholder: "Es. Sito istituzionale",
     confirmText: "Crea",
     onConfirm: async function(name){
       var n = name.trim();
       if(!n) return;
-      var pRes = await sb.from("be_projects").insert({ owner_id: state.me.id, name: n }).select().single();
+      var pRes = await sb.from("be_projects").insert({ owner_id: state.me.id, name: n, space: sp }).select().single();
       if(pRes.error){ alert("Errore: " + pRes.error.message); return; }
       var project = pRes.data;
       var colsPayload = DEFAULT_COLUMNS.map(function(colName, i){
@@ -1857,6 +2096,7 @@ function promptNewProject(){
       });
       state.projects.push({
         id: project.id, name: project.name, owner_id: project.owner_id,
+        space: project.space === "bandi" ? "bandi" : "progetti",
         isOwner: true, shares: [], columns: columns
       });
       state.activeProjectId = project.id;
@@ -1868,7 +2108,7 @@ function promptNewProject(){
 /* =====================================================================
  * Inline add-card form
  * ===================================================================== */
-function openAddCardForm($col, columnId){
+function openAddCardForm($col, columnId, isDoneCol){
   // close any other open form
   document.querySelectorAll(".add-card-form").forEach(function(f){ f.remove(); });
   document.querySelectorAll(".add-card").forEach(function(b){ b.style.display = ""; });
@@ -1892,6 +2132,12 @@ function openAddCardForm($col, columnId){
     '</div>';
   $col.appendChild(form);
 
+  var $dateField = null;
+  if(!state.cardDatesError){
+    $dateField = buildDateField(isDoneCol ? todayISO() : "", isDoneCol, false);
+    form.insertBefore($dateField, form.querySelector(".actions"));
+  }
+
   var $ta      = form.querySelector("textarea");
   var $confirm = form.querySelector(".btn-primary");
   var $cancel  = form.querySelector(".btn-cancel");
@@ -1913,7 +2159,7 @@ function openAddCardForm($col, columnId){
   function commit(){
     var v = $ta.value.trim();
     if(!v){ $ta.focus(); return; }
-    addCard(columnId, v, priority);
+    addCard(columnId, v, priority, $dateField ? $dateField.getValue() : null, isDoneCol);
   }
   $confirm.addEventListener("click", commit);
   $cancel.addEventListener("click", close);
@@ -1927,7 +2173,7 @@ function openAddCardForm($col, columnId){
 /* =====================================================================
  * Edit card modal
  * ===================================================================== */
-function openEditCardModal(cardId, columnId){
+function openEditCardModal(cardId, columnId, isDoneCol){
   var proj = getActiveProject(); if(!proj) return;
   var col = proj.columns.find(function(c){ return c.id === columnId; });
   var card = col && col.cards.find(function(c){ return c.id === cardId; });
@@ -1946,6 +2192,7 @@ function openEditCardModal(cardId, columnId){
         '<button class="priority-pill" data-priority="yellow"><span class="dot yellow"></span>Media</button>' +
         '<button class="priority-pill" data-priority="green" ><span class="dot green"></span>Bassa</button>' +
       '</div>' +
+      '<div id="m-date-slot"></div>' +
       '<div class="actions">' +
         '<button class="btn-cancel" id="m-cancel">Annulla</button>' +
         '<button class="btn-primary" id="m-save">Salva</button>' +
@@ -1956,6 +2203,20 @@ function openEditCardModal(cardId, columnId){
   var $ta = backdrop.querySelector("#m-title");
   $ta.value = card.title;
   setTimeout(function(){ $ta.focus(); $ta.select(); }, 0);
+
+  var $dateField = null;
+  var $slot = backdrop.querySelector("#m-date-slot");
+  if(state.cardDatesError){
+    $slot.remove();
+  } else {
+    var lab = document.createElement("label");
+    lab.textContent = isDoneCol ? "Completata il" : "Scadenza";
+    $slot.appendChild(lab);
+    $dateField = buildDateField(isDoneCol ? card.done_at : card.due_date, isDoneCol, true);
+    $dateField.style.marginTop = "0";
+    $dateField.style.marginBottom = "14px";
+    $slot.appendChild($dateField);
+  }
 
   var priority = card.priority || "green";
   var $pills = backdrop.querySelectorAll(".priority-pill");
@@ -1972,7 +2233,7 @@ function openEditCardModal(cardId, columnId){
   function save(){
     var v = $ta.value.trim();
     if(!v) { $ta.focus(); return; }
-    updateCard(cardId, columnId, v, priority);
+    updateCard(cardId, columnId, v, priority, $dateField ? $dateField.getValue() : null, isDoneCol);
     close();
   }
   function onKey(e){
@@ -2510,7 +2771,6 @@ function render(){
   });
 });
 
-document.getElementById("add-project-btn").addEventListener("click", promptNewProject);
 document.getElementById("logout-btn").addEventListener("click", async function(){
   await sb.auth.signOut();
   window.location.href = "login.html";
