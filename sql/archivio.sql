@@ -1,6 +1,6 @@
 -- =====================================================================
 -- Brown Enterprises · area riservata
--- Biblioteca: documenti (file caricati) e link (Google Drive & co.)
+-- Archivio: file caricati e link (Google Drive & co.)
 -- Eseguire una sola volta nell'editor SQL di Supabase.
 -- =====================================================================
 
@@ -26,7 +26,7 @@ as $$
   );
 $$;
 
--- 2) Tabella degli elementi della Biblioteca
+-- 2) Tabella degli elementi dell'Archivio
 create table if not exists public.be_library_items (
   id           uuid primary key default gen_random_uuid(),
   project_id   uuid not null references public.be_projects(id) on delete cascade,
