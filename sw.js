@@ -3,196 +3,223 @@
  * "Canalizziamo le tue idee"
  *
  * Strategie:
- *  - Navigazioni (HTML)  -> network-first, fallback cache, fallback /offline.html
- *  - Asset statici       -> stale-while-revalidate (cache-first + refresh async)
- *  - Cross-origin        -> non intercettate (gtag/GA/CDN passano direttamente)
- *  - Solo richieste GET same-origin vengono gestite
+ *  - Navigazioni (HTML)  -> network-first con timeout, fallback cache,
+ *                           fallback /offline.html (o /en/offline.html)
+ *  - Asset statici       -> stale-while-revalidate, con revalidate che
+ *                           bypassa la HTTP cache (altrimenti dopo un deploy
+ *                           il CSS resta vecchio finche' non scade il max-age)
+ *  - Cross-origin        -> non intercettate (gtag/GA/Supabase passano diretti)
+ *  - Solo GET same-origin
+ *
+ * Note di progetto:
+ *  - il sito e' un mirror statico di WordPress/Elementor: gli asset non hanno
+ *    hash nel nome, quindi la cache e' versionata sulla build (vedi CACHE_VERSION)
+ *  - ogni scrittura in cache passa da event.waitUntil: senza, il browser puo'
+ *    terminare il worker appena risposto e abortire il salvataggio
  * ========================================================================= */
 
 'use strict';
 
-/* Versione cache: incrementare (be-v2, be-v3, ...) a ogni rilascio
- * per invalidare gli asset vecchi. */
-const CACHE = 'be-v1';
+/* La build sostituisce __BUILD__ con la SHA del commit (vedi vercel.json).
+ * In locale resta 'dev' e va benissimo. */
+const CACHE_VERSION = 'be-__BUILD__';
+const SHELL_CACHE = CACHE_VERSION + '-shell';
+const ASSET_CACHE = CACHE_VERSION + '-assets';
+const PAGE_CACHE = CACHE_VERSION + '-pages';
 
-/* App shell minimale e "sicuro": file core dell'applicazione.
- * NB: la cache viene popolata in modo resiliente (vedi precache),
- * quindi un singolo file mancante NON rompe l'installazione. */
+/* App shell: cio' che deve esserci offline anche alla primissima visita.
+ * Include il CSS critico, altrimenti offline la home appare senza stile —
+ * peggio della pagina offline curata. */
 const APP_SHELL = [
   '/',
-  '/index.html',
-  '/product/seven-wireless/',
+  '/en/',
   '/offline.html',
+  '/en/offline.html',
   '/manifest.webmanifest',
+  '/en/manifest.webmanifest',
+  '/css/pwa.css',
+  '/js/pwa.js',
+  '/favicon.ico',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
-  '/favicon.ico',
+  '/icons/apple-touch-icon.png',
+  // L'area riservata e' una scorciatoia del manifest: senza queste, aprirla
+  // offline finiva sulla pagina di errore invece che sul login.
+  '/login.html',
+  '/app.html',
+  '/js/be-config.js',
+  '/vendor/supabase-js.min.js',
 ];
 
-/* Pagina di fallback offline (deve far parte dell'app shell). */
-const OFFLINE_URL = '/offline.html';
+/* Fallback offline, per lingua. */
+const OFFLINE_IT = '/offline.html';
+const OFFLINE_EN = '/en/offline.html';
 
-/* Estensioni considerate "asset statici" -> stale-while-revalidate. */
+/* Quanto aspettare la rete su una navigazione prima di servire la cache.
+ * Serve contro il "lie-fi": connesso ma inutilizzabile. */
+const NAV_TIMEOUT_MS = 4000;
+
+/* Tetti alle cache, per non far crescere lo storage senza controllo
+ * (una galleria di immagini o un PDF pesante lo riempirebbero). */
+const LIMITS = { assets: 160, pages: 40 };
+
 const STATIC_ASSET_RE = /\.(?:css|js|mjs|json|webmanifest|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|map)$/i;
 
 /* =========================================================================
- * INSTALL — precache resiliente dell'app shell + skipWaiting
+ * INSTALL — precache resiliente
  * ========================================================================= */
 self.addEventListener('install', (event) => {
   event.waitUntil(precache());
-  // Attiva subito la nuova versione senza attendere la chiusura delle tab.
-  self.skipWaiting();
+  // NB: niente skipWaiting() qui. La nuova versione resta in attesa e la
+  // pagina propone "Aggiorna": cosi' una tab aperta non si ritrova gli asset
+  // cancellati sotto i piedi a meta' navigazione.
 });
 
-/**
- * Aggiunge ogni risorsa dell'app shell singolarmente: se una fallisce
- * (404, rete, ecc.) viene ignorata e l'install procede comunque.
- * Questo evita il comportamento "tutto o niente" di cache.addAll().
- */
 async function precache() {
-  const cache = await caches.open(CACHE);
+  const cache = await caches.open(SHELL_CACHE);
   await Promise.all(
     APP_SHELL.map(async (url) => {
       try {
-        // cache: 'reload' -> bypassa la HTTP cache del browser in fase di precache.
-        const request = new Request(url, { cache: 'reload' });
-        const response = await fetch(request);
-        // Cacheamo solo risposte valide (ok) per non salvare 404/500.
-        if (response && response.ok) {
-          await cache.put(url, response.clone());
-        }
+        const response = await fetch(new Request(url, { cache: 'reload' }));
+        if (response && response.ok) await cache.put(url, response.clone());
       } catch (err) {
-        // Risorsa non disponibile: la saltiamo senza interrompere l'install.
-        // (intenzionalmente silenzioso in produzione)
+        // Risorsa non disponibile: si salta, l'install procede comunque.
       }
     })
   );
 }
 
 /* =========================================================================
- * ACTIVATE — pulizia cache vecchie + clients.claim
+ * ACTIVATE — pulizia + navigation preload + claim
  * ========================================================================= */
 self.addEventListener('activate', (event) => {
   event.waitUntil(activate());
 });
 
 async function activate() {
-  // Elimina tutte le cache che non corrispondono alla versione corrente.
+  // Avvia la richiesta di rete in parallelo al boot del worker: su mobile
+  // toglie qualche centinaio di ms a ogni navigazione.
+  if (self.registration.navigationPreload) {
+    try { await self.registration.navigationPreload.enable(); } catch (e) {}
+  }
+
+  const keep = new Set([SHELL_CACHE, ASSET_CACHE, PAGE_CACHE]);
   const keys = await caches.keys();
-  await Promise.all(
-    keys.map((key) => (key === CACHE ? Promise.resolve() : caches.delete(key)))
-  );
-  // Prende il controllo dei client già aperti senza necessità di reload.
+  await Promise.all(keys.map((k) => (keep.has(k) ? Promise.resolve() : caches.delete(k))));
+
   await self.clients.claim();
 }
 
 /* =========================================================================
- * FETCH — routing delle richieste
+ * FETCH
  * ========================================================================= */
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
+  const request = event.request;
 
-  // 1) Gestiamo SOLO richieste GET.
   if (request.method !== 'GET') return;
-
-  // 2) Ignoriamo richieste con header Range (es. streaming video/audio):
-  //    le risposte parziali (206) non sono adatte alla cache.
+  // Le risposte parziali (206) non sono cacheabili.
   if (request.headers.has('range')) return;
 
   let url;
-  try {
-    url = new URL(request.url);
-  } catch (err) {
-    return; // URL non valido: lasciamo gestire al browser.
-  }
+  try { url = new URL(request.url); } catch (err) { return; }
 
-  // 3) Solo same-origin: cross-origin (Google Analytics, gtag, CDN, font
-  //    esterni, ecc.) NON viene intercettato e passa direttamente in rete.
+  // Cross-origin (GA, Supabase, CDN): non intercettiamo.
   if (url.origin !== self.location.origin) return;
-
-  // 4) Solo schemi http/https (ignora chrome-extension:, data:, ecc.).
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
 
-  // 5) Routing per tipo di richiesta.
   if (isNavigationRequest(request)) {
-    event.respondWith(handleNavigation(request));
+    event.respondWith(handleNavigation(event));
     return;
   }
-
   if (isStaticAsset(request, url)) {
-    event.respondWith(handleStaticAsset(request));
+    event.respondWith(handleStaticAsset(event));
     return;
   }
-
-  // Default: network-first leggero con fallback alla cache (se presente).
-  event.respondWith(networkWithCacheFallback(request));
+  event.respondWith(networkWithCacheFallback(event));
 });
 
-/* =========================================================================
- * Helper di classificazione richieste
- * ========================================================================= */
-
-/** Una richiesta è "di navigazione" se mode === 'navigate'
- *  oppure se accetta esplicitamente HTML (fallback per browser datati). */
+/* Solo il vero mode:'navigate'. Il vecchio fallback su Accept:text/html
+ * catturava anche fetch di dati e li trattava come pagine. */
 function isNavigationRequest(request) {
-  if (request.mode === 'navigate') return true;
-  const accept = request.headers.get('accept') || '';
-  return accept.includes('text/html');
+  return request.mode === 'navigate';
 }
 
-/** Identifica gli asset statici per destination o per estensione. */
 function isStaticAsset(request, url) {
   const dest = request.destination;
-  if (
-    dest === 'style' ||
-    dest === 'script' ||
-    dest === 'image' ||
-    dest === 'font' ||
-    dest === 'manifest'
-  ) {
-    return true;
-  }
+  if (dest === 'style' || dest === 'script' || dest === 'image' ||
+      dest === 'font' || dest === 'manifest') return true;
   return STATIC_ASSET_RE.test(url.pathname);
 }
 
-/* =========================================================================
- * Strategie
- * ========================================================================= */
+function offlineUrlFor(request) {
+  return new URL(request.url).pathname.indexOf('/en/') === 0 ? OFFLINE_EN : OFFLINE_IT;
+}
 
-/**
- * NAVIGAZIONI — Network-first:
- *  1. Prova la rete (e aggiorna la cache se la risposta è ok).
- *  2. Se la rete fallisce -> cerca la pagina in cache.
- *  3. Se non in cache -> restituisce /offline.html.
- *  4. Ultima spiaggia -> risposta sintetica 503.
- */
-async function handleNavigation(request) {
-  const cache = await caches.open(CACHE);
+/* Una risposta redirected non puo' essere restituita a una navigazione:
+ * il browser solleva un TypeError. La si ricostruisce. */
+async function safeForNavigation(response) {
+  if (!response || !response.redirected) return response;
+  const body = await response.blob();
+  return new Response(body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  });
+}
+
+function withTimeout(promise, ms) {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('timeout')), ms);
+    promise.then(
+      (v) => { clearTimeout(t); resolve(v); },
+      (e) => { clearTimeout(t); reject(e); }
+    );
+  });
+}
+
+/* =========================================================================
+ * NAVIGAZIONI — network-first con timeout
+ * ========================================================================= */
+async function handleNavigation(event) {
+  const request = event.request;
+  const cache = await caches.open(PAGE_CACHE);
 
   try {
-    const response = await fetch(request);
-    // Salviamo in cache solo risposte "buone" (ok = status 200-299,
-    // non opache: per same-origin non avremo risposte opache).
+    // navigationPreload: la richiesta e' gia' partita mentre il worker si avviava.
+    const preload = event.preloadResponse ? await event.preloadResponse : null;
+    const response = preload || (await withTimeout(fetch(request), NAV_TIMEOUT_MS));
+
     if (response && response.ok) {
-      cache.put(request, response.clone()).catch(() => {});
+      const copy = response.clone();
+      // waitUntil: la scrittura sopravvive alla risposta.
+      event.waitUntil(
+        cache.put(request, copy).then(() => trim(PAGE_CACHE, LIMITS.pages)).catch(() => {})
+      );
     }
-    return response;
+    return await safeForNavigation(response);
   } catch (err) {
-    // Offline o errore di rete: proviamo i fallback in cascata.
     const cached = await cache.match(request);
-    if (cached) return cached;
+    if (cached) return safeForNavigation(cached);
 
-    // Fallback: ignora la query string (es. start_url '/?utm_source=pwa' -> chiave '/').
-    const cachedNoSearch = await cache.match(request, { ignoreSearch: true });
-    if (cachedNoSearch) return cachedNoSearch;
+    const noSearch = await cache.match(request, { ignoreSearch: true });
+    if (noSearch) return safeForNavigation(noSearch);
 
-    const offline = await cache.match(OFFLINE_URL);
+    // start_url '/?utm_source=pwa' -> chiave '/' nell'app shell.
+    const shell = await caches.open(SHELL_CACHE);
+    const fromShell = await shell.match(request, { ignoreSearch: true });
+    if (fromShell) return safeForNavigation(fromShell);
+
+    const offline = await shell.match(offlineUrlFor(request));
     if (offline) return offline;
 
-    // Fallback finale se persino /offline.html non è in cache.
     return new Response(
-      '<!doctype html><meta charset="utf-8"><title>Offline</title>' +
-        '<h1>Sei offline</h1><p>Brown Enterprises</p>',
+      '<!doctype html><meta charset="utf-8">' +
+        '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' +
+        '<title>Offline · Brown Enterprises</title>' +
+        '<style>html,body{margin:0;height:100%;background:#0E1217;color:#fff;' +
+        'font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;' +
+        'display:grid;place-items:center;text-align:center;padding:24px}</style>' +
+        '<div><h1>Sei offline</h1><p>Brown Enterprises</p></div>',
       {
         status: 503,
         statusText: 'Service Unavailable',
@@ -202,53 +229,52 @@ async function handleNavigation(request) {
   }
 }
 
-/**
- * ASSET STATICI — Stale-While-Revalidate:
- *  - Restituisce subito la copia in cache (se presente).
- *  - In parallelo richiede la versione aggiornata e la salva per la
- *    prossima volta.
- *  - Se non c'è copia in cache, attende la rete.
- */
-async function handleStaticAsset(request) {
-  const cache = await caches.open(CACHE);
+/* =========================================================================
+ * ASSET STATICI — stale-while-revalidate
+ * ========================================================================= */
+async function handleStaticAsset(event) {
+  const request = event.request;
+  const cache = await caches.open(ASSET_CACHE);
   const cached = await cache.match(request);
 
-  const networkFetch = fetch(request)
+  // cache:'no-cache' forza la rivalidazione condizionale (If-None-Match):
+  // su asset invariati il server risponde 304, quindi costa pochi byte, ma
+  // dopo un deploy il file nuovo arriva subito invece di aspettare il max-age.
+  const revalidate = fetch(new Request(request, { cache: 'no-cache' }))
     .then((response) => {
-      // Cacheamo solo risposte valide e non opache (status === 200).
-      // Le opaque (cross-origin no-cors) sono già escluse a monte.
       if (response && response.status === 200 && response.type === 'basic') {
-        cache.put(request, response.clone()).catch(() => {});
+        return cache.put(request, response.clone())
+          .then(() => trim(ASSET_CACHE, LIMITS.assets))
+          .then(() => response)
+          .catch(() => response);
       }
       return response;
     })
     .catch(() => null);
 
-  // Se in cache -> serviamo subito; la rete aggiorna in background.
   if (cached) {
-    // Non attendiamo networkFetch: è il "revalidate" silenzioso.
+    // Serviamo subito la copia locale, ma teniamo vivo il worker finche'
+    // il refresh in background non ha finito di scrivere.
+    event.waitUntil(revalidate);
     return cached;
   }
 
-  // Niente in cache -> dipendiamo dalla rete.
-  const network = await networkFetch;
+  const network = await revalidate;
   if (network) return network;
-
-  // Asset non recuperabile e non in cache.
   return new Response('', { status: 504, statusText: 'Gateway Timeout' });
 }
 
-/**
- * DEFAULT — Network-first con fallback alla cache.
- * Usata per richieste GET same-origin che non sono né navigazioni
- * né asset statici riconosciuti.
- */
-async function networkWithCacheFallback(request) {
-  const cache = await caches.open(CACHE);
+/* =========================================================================
+ * DEFAULT — network-first con fallback cache
+ * ========================================================================= */
+async function networkWithCacheFallback(event) {
+  const request = event.request;
+  const cache = await caches.open(ASSET_CACHE);
   try {
     const response = await fetch(request);
     if (response && response.status === 200 && response.type === 'basic') {
-      cache.put(request, response.clone()).catch(() => {});
+      const copy = response.clone();
+      event.waitUntil(cache.put(request, copy).catch(() => {}));
     }
     return response;
   } catch (err) {
@@ -259,7 +285,17 @@ async function networkWithCacheFallback(request) {
 }
 
 /* =========================================================================
- * MESSAGE — attivazione manuale dal client (es. "Aggiorna ora")
+ * Tetto alle cache: elimina le voci piu' vecchie (FIFO sull'ordine di keys())
+ * ========================================================================= */
+async function trim(cacheName, max) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length <= max) return;
+  await Promise.all(keys.slice(0, keys.length - max).map((k) => cache.delete(k)));
+}
+
+/* =========================================================================
+ * MESSAGE — "Aggiorna" dalla pagina
  * ========================================================================= */
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {

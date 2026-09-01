@@ -1,11 +1,11 @@
 <!doctype html>
-<html data-be-bg="dark" lang="it-IT">
+<html data-be-bg="dark" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#0E1217" />
-  <title>Sei offline · Brown Enterprises</title>
+  <title>You are offline · Brown Enterprises</title>
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
   <style>
@@ -199,7 +199,7 @@
       .pulse { animation: none; }
     }
   </style>
-<link rel="manifest" href="/manifest.webmanifest">
+<link rel="manifest" href="/en/manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -209,10 +209,10 @@
 </head>
 <body>
   <main class="card" role="main">
-    <span class="badge"><span class="dot" aria-hidden="true"></span>Nessuna connessione</span>
+    <span class="badge"><span class="dot" aria-hidden="true"></span>No connection</span>
 
     <div class="logo" aria-hidden="true">
-      <!-- DeLorean stilizzata (riferimento al brand) -->
+      <!-- Stylised DeLorean (brand reference) -->
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M4 38h56l-5-9-12-4-8-7H22l-8 9-10 2v9z" stroke="#fff" stroke-width="2.4"
               stroke-linejoin="round" fill="rgba(255,255,255,0.06)"/>
@@ -222,28 +222,28 @@
       </svg>
     </div>
 
-    <h1>Sei offline</h1>
+    <h1>You are offline</h1>
     <p class="brand">Brown Enterprises</p>
 
     <p class="lead">
-      Sembra che la connessione a internet non sia disponibile.
-      Controlla la tua rete e riprova: la pagina tornerà online non appena
-      sarai di nuovo connesso.
+      It looks like your internet connection is unavailable.
+      Check your network and try again: the page will come back as soon as
+      you are connected.
     </p>
 
     <div class="actions">
-      <button class="btn" type="button" id="retry">Riprova</button>
+      <button class="btn" type="button" id="retry">Try again</button>
     </div>
 
-    <p class="hint" id="hint" hidden>Ancora nessuna connessione.</p>
+    <p class="hint" id="hint" hidden>Still no connection.</p>
 
     <!-- Le pagine gia' salvate: senza questo elenco la pagina offline e' un vicolo cieco. -->
-    <nav class="cached" id="cached" hidden aria-label="Pagine disponibili offline">
-      <p class="cached-title">Disponibili anche offline</p>
+    <nav class="cached" id="cached" hidden aria-label="Pages available offline">
+      <p class="cached-title">Also available offline</p>
       <ul id="cached-list"></ul>
     </nav>
 
-    <p class="tagline">&ldquo;Canalizziamo le tue idee&rdquo;</p>
+    <p class="tagline">&ldquo;We channel your ideas&rdquo;</p>
   </main>
 
   <script>
@@ -257,7 +257,7 @@
           // sondiamo la rete, cosi' il pulsante dice sempre qualcosa.
           btn.disabled = true;
           var was = btn.textContent;
-          btn.textContent = 'Controllo…';
+          btn.textContent = 'Checking…';
           fetch('/manifest.webmanifest', { method: 'HEAD', cache: 'no-store' })
             .then(function () { location.reload(); })
             .catch(function () {
@@ -273,7 +273,7 @@
         });
       }
 
-      // Ricarica quando la connessione torna: 'online' da solo mente spesso
+      // Reload when the connection is back: 'online' da solo mente spesso
       // (captive portal, iOS che tiene l'evento in sospeso), quindi verifichiamo.
       window.addEventListener('online', function () {
         fetch('/manifest.webmanifest', { method: 'HEAD', cache: 'no-store' })
@@ -283,13 +283,13 @@
 
       // Elenca le pagine gia' in cache, cosi' da qui si puo' andare da qualche parte.
       var TITLES = {
-        '/': 'Home',
-        '/index.html': 'Home',
-        '/en/': 'Home (English)',
-        '/en/index.html': 'Home (English)',
-        '/product/seven-wireless/': 'Seven Wireless',
-        '/en/product/seven-wireless/': 'Seven Wireless (English)',
-        '/login.html': 'Area riservata',
+        '/': 'Home (italiano)',
+        '/index.html': 'Home (italiano)',
+        '/en/': 'Home',
+        '/en/index.html': 'Home',
+        '/product/seven-wireless/': 'Seven Wireless (italiano)',
+        '/en/product/seven-wireless/': 'Seven Wireless',
+        '/login.html': 'Members area',
         '/app.html': 'Project manager',
         '/privacy-policy.html': 'Privacy Policy',
         '/cookie-policy.html': 'Cookie Policy'

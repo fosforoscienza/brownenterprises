@@ -1,0 +1,163 @@
+/* =========================================================================
+ * Brown Enterprises — correzioni PWA / mobile
+ *
+ * Foglio unico incluso da tutte le pagine. Non tocca il CSS di The7/Elementor
+ * (che e' rigenerabile e ne esistono piu' copie): agisce solo sugli elementi
+ * aggiunti a mano dal sito e, per l'header, solo quando la pagina gira come
+ * app installata — cosi' la vista nel browser resta identica a prima.
+ *
+ * Serve come foglio separato e non iniettato da JS: le safe area devono
+ * valere gia' al primo paint, altrimenti si vede la UI saltare.
+ * ========================================================================= */
+
+:root {
+  --be-t: env(safe-area-inset-top, 0px);
+  --be-r: env(safe-area-inset-right, 0px);
+  --be-b: env(safe-area-inset-bottom, 0px);
+  --be-l: env(safe-area-inset-left, 0px);
+}
+
+/* Il documento non ha sfondo: nel rimbalzo dello scroll iOS e nelle safe area
+   laterali si vedeva il bianco del browser. Le pagine dichiarano il proprio
+   colore con data-be-bg, per non indovinare qui il tema di ognuna. */
+html[data-be-bg="dark"] { background: #0E1217; }
+html[data-be-bg="light"] { background: #ffffff; }
+html[data-be-bg="soft"] { background: #f6f7f9; }
+
+/* Pull-to-refresh accidentale su Chrome Android mentre si scorre la board. */
+html, body { overscroll-behavior-y: contain; }
+
+/* Dissolvenza fra pagine invece del lampo bianco: e' il dettaglio che piu'
+   fa sembrare una PWA un browser mascherato. Va dichiarato sia sul documento
+   di partenza sia su quello di arrivo, ed e' per questo che sta nel foglio
+   comune. Chrome/Edge la applicano, Safari la ignora senza effetti. */
+@view-transition { navigation: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}
+
+/* --- ritorno indietro, solo dentro l'app installata -------------------- */
+
+/* Aggiunto da js/pwa.js. In standalone non c'e' la barra del browser: da una
+   sottopagina l'unico modo di tornare indietro era chiudere l'app. */
+#be-back {
+  position: fixed;
+  z-index: 99997;
+  top: calc(16px + var(--be-t));
+  left: calc(16px + var(--be-l));
+  width: 40px;
+  height: 40px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(14, 18, 23, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+#be-back:active { transform: scale(0.94); }
+
+html.be-standalone #be-back { display: inline-flex; }
+
+@media all and (display-mode: standalone), all and (display-mode: minimal-ui) {
+  #be-back { display: inline-flex; }
+}
+
+/* --- elementi flottanti aggiunti a mano ------------------------------- */
+
+#be-lang {
+  top: calc(16px + var(--be-t)) !important;
+  right: calc(16px + var(--be-r)) !important;
+}
+
+#brown-area-riservata {
+  bottom: calc(24px + var(--be-b)) !important;
+  right: calc(24px + var(--be-r)) !important;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Il consenso cookie finiva sotto la barra dei gesti. */
+#be-cookie {
+  bottom: calc(16px + var(--be-b)) !important;
+  left: calc(16px + var(--be-l)) !important;
+  right: calc(16px + var(--be-r)) !important;
+}
+
+#be-cookie button {
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Lo switcher lingua si sovrapponeva al logo sotto i ~340px. */
+@media (max-width: 340px) {
+  #be-lang a { min-width: 30px; padding: 0 7px; font-size: 12px; }
+}
+
+/* Mentre il consenso cookie e' aperto i bottoni flottanti gli finivano sopra.
+   Prima si tentava di nasconderli da JS, ma il banner viene costruito prima
+   che quei bottoni esistano: la classe sul documento e' l'unico aggancio
+   che vale in entrambi gli ordini. */
+html.be-cookie-open #brown-area-riservata,
+html.be-cookie-open .be-fab,
+html.be-toast-open #brown-area-riservata,
+html.be-toast-open .be-fab {
+  visibility: hidden;
+}
+
+/* La pagina "coming soon" di WooCommerce non ha margini laterali: su un
+   telefono titolo e testo arrivavano a filo dei due bordi (misurato: da 0
+   a 412px su un viewport di 412). */
+@media (max-width: 640px) {
+  .wp-block-woocommerce-coming-soon .wp-block-group,
+  .wp-block-woocommerce-coming-soon .wp-block-heading,
+  .wp-block-woocommerce-coming-soon p {
+    padding-left: max(20px, var(--be-l));
+    padding-right: max(20px, var(--be-r));
+  }
+}
+
+/* --- solo quando gira come app installata ----------------------------- */
+
+/* L'header di The7 e' fisso e non conosce il notch: gli si aggiunge lo
+   spazio dello status bar solo in standalone, dove serve davvero.
+   .be-standalone e' messa da js/pwa.js e copre gli iOS che non risolvono
+   la media query display-mode. */
+@media all and (display-mode: standalone), all and (display-mode: minimal-ui) {
+  .masthead,
+  .elementor-location-header {
+    padding-top: var(--be-t);
+  }
+}
+
+html.be-standalone .masthead,
+html.be-standalone .elementor-location-header {
+  padding-top: var(--be-t);
+}
+
+/* Pagine a fondo chiaro con status bar traslucida: una fascia scura sotto
+   l'orologio, altrimenti su iOS ora e batteria spariscono sul bianco. */
+html[data-be-bg="light"].be-standalone::before,
+html[data-be-bg="soft"].be-standalone::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--be-t);
+  background: #0E1217;
+  z-index: 2147483000;
+  pointer-events: none;
+}

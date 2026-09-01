@@ -1,21 +1,15 @@
 <!DOCTYPE html>
-<html lang="it">
+<html data-be-bg="dark" lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover">
 <title>Area Riservata · Mario Project Manager</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1217">
-<meta name="color-scheme" content="dark light">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Brown Enterprises">
-<link rel="manifest" href="/manifest.webmanifest">
+<meta name="color-scheme" content="dark">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <style>
   *,*::before,*::after{box-sizing:border-box}
   html,body{margin:0;padding:0;height:100%}
@@ -27,6 +21,7 @@
     align-items:center;
     justify-content:center;
     min-height:100vh;
+    min-height:100dvh; /* su iOS 100vh include la barra di Safari */
     padding:16px;
     padding-top:max(16px,env(safe-area-inset-top));
     padding-bottom:max(16px,env(safe-area-inset-bottom));
@@ -41,12 +36,6 @@
     padding:36px 32px;
     box-shadow:0 24px 60px rgba(0,0,0,0.5);
   }
-  @media (max-width:480px){
-    .login-card{padding:28px 22px;border-radius:14px}
-    .logo{margin-bottom:20px}
-    .logo img{height:42px}
-    h1{font-size:19px}
-  }
   .logo{
     display:flex;
     justify-content:center;
@@ -54,7 +43,7 @@
   }
   .logo img{
     height:48px;
-    filter:invert(1) brightness(2);
+    /* Il sorgente e' gia' bianco (fill:#fff): invertirlo lo rendeva nero. */
   }
   h1{
     font-size:20px;
@@ -155,7 +144,20 @@
     color:#b6c2cf;
     font-family:ui-monospace,Menlo,Monaco,Consolas,monospace;
   }
+  @media (max-width:480px){
+    .login-card{padding:28px 22px;border-radius:14px}
+    .logo{margin-bottom:20px}
+    .logo img{height:42px}
+    h1{font-size:19px}
+  }
 </style>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Progetti">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/pwa.css">
 </head>
 <body>
   <form class="login-card" id="login-form" autocomplete="off">
@@ -189,12 +191,28 @@
     err.classList.add("show");
   }
 
+  /* supabase-js non rigetta sugli errori di rete: li mette in res.error.
+     Senza distinguerli, offline l'utente si sentiva dire che la sua
+     password e' sbagliata. */
+  function isNetworkError(e){
+    if(!navigator.onLine) return true;
+    if(!e) return false;
+    if(e.status === 0) return true;
+    if(e.name === "AuthRetryableFetchError") return true;
+    return /fetch|network|load failed|failed to fetch/i.test(e.message || "");
+  }
+
   form.addEventListener("submit", function(e){
     e.preventDefault();
     err.classList.remove("show");
     var u = document.getElementById("username").value.trim();
     var p = document.getElementById("password").value;
     if(!u || !p) return;
+
+    if(!navigator.onLine){
+      setError("Sei offline: l'accesso richiede la connessione.");
+      return;
+    }
 
     $submit.disabled = true;
     $submit.textContent = "Accesso in corso…";
@@ -204,14 +222,21 @@
       password: p
     }).then(function(res){
       if(res.error){
+        if(isNetworkError(res.error)){
+          // La password inserita resta: non e' colpa sua.
+          setError("Nessuna connessione al server. Riprova quando torni online.");
+          return;
+        }
         setError("Credenziali non valide");
         document.getElementById("password").value = "";
         document.getElementById("password").focus();
         return;
       }
       window.location.href = "app.html";
-    }).catch(function(){
-      setError("Errore di connessione. Riprova.");
+    }).catch(function(e2){
+      setError(isNetworkError(e2)
+        ? "Nessuna connessione al server. Riprova quando torni online."
+        : "Errore imprevisto. Riprova.");
     }).finally(function(){
       $submit.disabled = false;
       $submit.textContent = "Accedi";
@@ -225,12 +250,7 @@
     }
   });
 </script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
-    });
-  }
-</script>
+
+<script defer src="/js/pwa.js"></script>
 </body>
 </html>

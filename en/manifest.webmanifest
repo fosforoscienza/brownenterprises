@@ -1,11 +1,11 @@
 {
-  "name": "Brown Enterprises — Canalizziamo le tue idee",
+  "name": "Brown Enterprises — We channel your ideas",
   "short_name": "Brown",
-  "description": "Comunicazione e divulgazione della scienza, della cultura e della tecnologia: edutainment, formazione e progetti su misura. Canalizziamo le tue idee.",
-  "lang": "it-IT",
+  "description": "Communicating science, culture and technology: edutainment, training and tailor-made projects. We channel your ideas.",
+  "lang": "en",
   "dir": "ltr",
-  "id": "/",
-  "start_url": "/?utm_source=pwa",
+  "id": "/en/",
+  "start_url": "/en/?utm_source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": [
@@ -60,9 +60,9 @@
   ],
   "shortcuts": [
     {
-      "name": "Area riservata",
-      "short_name": "Progetti",
-      "description": "Apri il project manager di Brown Enterprises",
+      "name": "Members area",
+      "short_name": "Projects",
+      "description": "Open the Brown Enterprises project manager",
       "url": "/app.html?utm_source=pwa_shortcut",
       "icons": [
         {
@@ -75,8 +75,8 @@
     {
       "name": "Seven Wireless",
       "short_name": "Seven",
-      "description": "Scopri le cuffie Seven Wireless",
-      "url": "/product/seven-wireless/?utm_source=pwa_shortcut",
+      "description": "Discover the Seven Wireless headphones",
+      "url": "/en/product/seven-wireless/?utm_source=pwa_shortcut",
       "icons": [
         {
           "src": "/icons/shortcut-seven-192.png",
@@ -92,28 +92,28 @@
       "sizes": "618x1236",
       "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "La home di Brown Enterprises su telefono"
+      "label": "The Brown Enterprises home on a phone"
     },
     {
       "src": "/screenshots/mobile-product.jpg",
       "sizes": "618x1236",
       "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "La pagina prodotto Seven Wireless"
+      "label": "The Seven Wireless product page"
     },
     {
       "src": "/screenshots/mobile-area-riservata.jpg",
       "sizes": "618x1236",
       "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "L'accesso all'area riservata"
+      "label": "Signing in to the members area"
     },
     {
       "src": "/icons/og-image.jpg",
       "sizes": "1200x630",
       "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "Brown Enterprises — Canalizziamo le tue idee"
+      "label": "Brown Enterprises — We channel your ideas"
     }
   ]
 }
