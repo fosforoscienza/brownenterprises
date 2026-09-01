@@ -184,6 +184,88 @@
     transition:background 0.15s,color 0.15s;
   }
   .sidebar-section-add:hover{background:#2c3338;color:#f4f5f7}
+  /* --- Label: gruppi di progetti creati da ogni utente ------------------ */
+  .label-group{
+    border-radius:6px;
+    margin-bottom:2px;
+    transition:box-shadow 0.12s,background 0.12s;
+  }
+  .label-group.drop-target{
+    background:#1c2b41;
+    box-shadow:inset 0 0 0 1px #579dff;
+  }
+  .label-head{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    padding:7px 4px 5px 4px;
+    border-radius:4px;
+    cursor:pointer;
+    user-select:none;
+    color:#738496;
+  }
+  .label-head:hover{background:#22272b}
+  .label-caret{
+    width:14px;height:14px;flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:transform 0.15s;
+  }
+  .label-group.collapsed .label-caret{transform:rotate(-90deg)}
+  .label-title{
+    flex:1;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    font-weight:700;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .label-count{
+    font-size:10px;font-weight:700;
+    background:#2c3338;color:#9fadbc;
+    border-radius:9px;padding:1px 6px;
+    flex-shrink:0;
+  }
+  .label-btn{
+    opacity:0;
+    background:transparent;border:0;color:#9fadbc;
+    width:20px;height:20px;border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    transition:opacity 0.12s,background 0.12s,color 0.12s;
+  }
+  .label-head:hover .label-btn{opacity:1}
+  .label-btn:hover{background:#2c3338;color:#f4f5f7}
+  .label-btn.danger:hover{background:#412a2a;color:#f87168}
+  .label-group.collapsed .label-body{display:none}
+  .label-empty{
+    color:#5c6b7a;
+    font-size:11px;
+    padding:4px 10px 8px;
+    line-height:1.4;
+  }
+  .project-item.dragging{opacity:0.4}
+  .project-move{
+    opacity:0;
+    background:transparent;border:0;color:#9fadbc;
+    width:22px;height:22px;border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:opacity 0.12s,background 0.12s,color 0.12s;
+  }
+  .project-item:hover .project-move{opacity:1}
+  .project-move:hover{background:#2c3338;color:#f4f5f7}
+  .sidebar-note{
+    margin:6px 4px 10px;
+    padding:8px 10px;
+    border-radius:6px;
+    background:#2b2318;
+    color:#f5cd47;
+    font-size:11px;
+    line-height:1.45;
+  }
+  .move-current{
+    font-size:12px;color:#9fadbc;
+    margin:-6px 0 12px;
+  }
   .project-share{
     opacity:0;
     background:transparent;border:0;color:#9fadbc;
@@ -1262,6 +1344,10 @@
     .project-icon{width:26px;height:26px;font-size:12px}
     .project-name{font-size:15px}
     .project-delete{opacity:1;width:30px;height:30px}
+    .project-move{opacity:1;width:30px;height:30px}
+    .project-share{opacity:1;width:30px;height:30px}
+    .label-head{padding:9px 4px 7px}
+    .label-btn{opacity:1;width:28px;height:28px}
 
     /* Top bar buttons */
     .topbar-btn{padding:7px 10px;border-radius:6px}
@@ -1411,6 +1497,9 @@
     .card-actions{opacity:1}
     .lib-actions{opacity:1}
     .project-delete{opacity:1}
+    .project-move{opacity:1}
+    .project-share{opacity:1}
+    .label-btn{opacity:1}
   }
 </style>
 </head>
@@ -1534,7 +1623,10 @@ var state = {
   view: "board",                                   /* "board" | "overview" */
   overviewFilter: { projectId: "", onlyDue: false },
   alerts: [], msgHighlight: [],
-  library: {}, libraryError: null, cardDatesError: null
+  library: {}, libraryError: null, cardDatesError: null,
+  labels: [],                                      /* le label dell'utente collegato */
+  projectLabels: {},                               /* project_id -> label_id (solo mie) */
+  labelsError: null
 };
 
 function getActiveProject(){
@@ -1714,8 +1806,223 @@ async function loadEverything(){
     state.activeProjectId = state.projects.length ? state.projects[0].id : null;
   }
 
-  await loadLibrary();
+  await Promise.all([loadLibrary(), loadLabels()]);
   return true;
+}
+
+/* =====================================================================
+ * Label della colonna di sinistra
+ *
+ * Ogni utente crea le proprie label e ci mette dentro i progetti che
+ * vede (propri o condivisi): label e assegnazioni sono private, quindi
+ * lo stesso progetto puo' stare sotto label diverse per persone diverse.
+ * Un progetto sta in una sola label per utente.
+ * ===================================================================== */
+var NO_LABEL = "__nolabel__";
+var LABELS_COLLAPSED_KEY = "be_labels_collapsed_v1";
+
+async function loadLabels(){
+  var res = await Promise.all([
+    sb.from("be_labels").select("id, name, position").order("position", { ascending: true }),
+    sb.from("be_project_labels").select("project_id, label_id")
+  ]);
+  var err = (res[0].error || res[1].error);
+  if(err){
+    state.labels = [];
+    state.projectLabels = {};
+    state.labelsError = err.message;
+    return;
+  }
+  state.labelsError = null;
+  state.labels = (res[0].data || []).map(function(l){
+    return { id: l.id, name: l.name, position: l.position };
+  });
+
+  var known = {};
+  state.labels.forEach(function(l){ known[l.id] = true; });
+  var map = {};
+  (res[1].data || []).forEach(function(r){
+    if(known[r.label_id]) map[r.project_id] = r.label_id;
+  });
+  state.projectLabels = map;
+}
+
+function labelsUnavailable(){
+  if(!state.labelsError) return false;
+  alert("Le label non sono ancora attive sul database.\n\n" + state.labelsError +
+        "\n\nEsegui lo script sql/label.sql nell'editor SQL di Supabase.");
+  return true;
+}
+
+function sortedLabels(){
+  return state.labels.slice().sort(function(a,b){
+    if(a.position !== b.position) return a.position - b.position;
+    return a.name.localeCompare(b.name, "it");
+  });
+}
+
+function labelName(labelId){
+  var l = state.labels.find(function(x){ return x.id === labelId; });
+  return l ? l.name : "";
+}
+
+function projectsInLabel(labelId){
+  return state.projects.filter(function(p){
+    var l = state.projectLabels[p.id] || null;
+    return labelId === NO_LABEL ? !l : l === labelId;
+  });
+}
+
+/* Gruppi chiusi: preferenza locale del browser, non del database */
+function readCollapsed(){
+  try {
+    var v = JSON.parse(localStorage.getItem(LABELS_COLLAPSED_KEY) || "[]");
+    return Array.isArray(v) ? v : [];
+  } catch(e){ return []; }
+}
+function isCollapsed(id){ return readCollapsed().indexOf(id) >= 0; }
+function toggleCollapsed(id){
+  var ids = readCollapsed(), i = ids.indexOf(id);
+  if(i >= 0) ids.splice(i, 1); else ids.push(id);
+  try { localStorage.setItem(LABELS_COLLAPSED_KEY, JSON.stringify(ids)); } catch(e){}
+}
+
+/* --- mutazioni ----------------------------------------------------------- */
+function promptNewLabel(onDone){
+  if(labelsUnavailable()) return;
+  showInputModal({
+    title: "Nuova label",
+    label: "Nome della label",
+    placeholder: "Es. Bandi, Clienti, Interni",
+    confirmText: "Crea",
+    onConfirm: async function(name){
+      var n = (name || "").trim();
+      if(!n) return;
+      if(state.labels.some(function(l){ return l.name.toLowerCase() === n.toLowerCase(); })){
+        alert("Hai già una label con questo nome.");
+        return;
+      }
+      var pos = state.labels.reduce(function(m, l){ return Math.max(m, l.position); }, -1) + 1;
+      var res = await sb.from("be_labels")
+        .insert({ user_id: state.me.id, name: n, position: pos })
+        .select().single();
+      if(res.error){ alert("Errore: " + res.error.message); return; }
+      var label = { id: res.data.id, name: res.data.name, position: res.data.position };
+      state.labels.push(label);
+      renderSidebar();
+      if(onDone) onDone(label);
+    }
+  });
+}
+
+function promptRenameLabel(label){
+  showInputModal({
+    title: "Rinomina label",
+    label: "Nome della label",
+    value: label.name,
+    confirmText: "Salva",
+    onConfirm: async function(name){
+      var n = (name || "").trim();
+      if(!n || n === label.name) return;
+      if(state.labels.some(function(l){
+        return l.id !== label.id && l.name.toLowerCase() === n.toLowerCase();
+      })){
+        alert("Hai già una label con questo nome.");
+        return;
+      }
+      var res = await sb.from("be_labels").update({ name: n }).eq("id", label.id);
+      if(res.error){ alert("Errore: " + res.error.message); return; }
+      label.name = n;
+      renderSidebar();
+    }
+  });
+}
+
+async function deleteLabel(label){
+  var n = projectsInLabel(label.id).length;
+  var msg = "Eliminare la label «" + label.name + "»?";
+  if(n){
+    msg += "\n\n" + (n === 1 ? "Il progetto contenuto non verrà eliminato: tornerà"
+                             : "I " + n + " progetti contenuti non verranno eliminati: torneranno") +
+           " in «Senza label».";
+  }
+  if(!confirm(msg)) return;
+  var res = await sb.from("be_labels").delete().eq("id", label.id);
+  if(res.error){ alert("Errore: " + res.error.message); return; }
+  state.labels = state.labels.filter(function(l){ return l.id !== label.id; });
+  Object.keys(state.projectLabels).forEach(function(pid){
+    if(state.projectLabels[pid] === label.id) delete state.projectLabels[pid];
+  });
+  renderSidebar();
+}
+
+/* labelId null = fuori da ogni label */
+async function setProjectLabel(projectId, labelId){
+  if(labelsUnavailable()) return;
+  if(!state.projects.some(function(p){ return p.id === projectId; })) return;
+  var current = state.projectLabels[projectId] || null;
+  if(current === (labelId || null)) return;
+
+  var res;
+  if(labelId){
+    res = await sb.from("be_project_labels").upsert(
+      { user_id: state.me.id, project_id: projectId, label_id: labelId },
+      { onConflict: "user_id,project_id" }
+    );
+  } else {
+    res = await sb.from("be_project_labels").delete()
+      .eq("user_id", state.me.id).eq("project_id", projectId);
+  }
+  if(res.error){ alert("Errore: " + res.error.message); return; }
+
+  if(labelId) state.projectLabels[projectId] = labelId;
+  else delete state.projectLabels[projectId];
+  renderSidebar();
+}
+
+/* --- modale «Sposta in…» -------------------------------------------------- */
+function openMoveProjectModal(proj){
+  if(labelsUnavailable()) return;
+  var current = state.projectLabels[proj.id] || null;
+
+  var backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.innerHTML =
+    '<div class="modal" role="dialog">' +
+      '<h2>Sposta &laquo;' + proj.name.replace(/</g,"&lt;") + '&raquo;</h2>' +
+      '<p class="move-current">Scegli la label in cui vederlo. Vale solo per te: gli altri mantengono la loro organizzazione.</p>' +
+      '<div class="share-list" id="move-list"></div>' +
+      '<div class="actions" style="justify-content:space-between">' +
+        '<button class="btn-cancel" id="m-new">+ Nuova label</button>' +
+        '<button class="btn-cancel" id="m-close">Chiudi</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(backdrop);
+
+  var $list = backdrop.querySelector("#move-list");
+  function row(id, name){
+    var $r = document.createElement("div");
+    $r.className = "share-row" + ((current || NO_LABEL) === id ? " checked" : "");
+    $r.innerHTML = '<div class="cal-cb"></div><div class="share-row-name"></div>';
+    $r.querySelector(".share-row-name").textContent = name;
+    $r.addEventListener("click", function(){
+      close();
+      setProjectLabel(proj.id, id === NO_LABEL ? null : id);
+    });
+    $list.appendChild($r);
+  }
+  row(NO_LABEL, "Senza label");
+  sortedLabels().forEach(function(l){ row(l.id, l.name); });
+
+  function close(){ backdrop.remove(); document.removeEventListener("keydown", onKey); }
+  function onKey(e){ if(e.key === "Escape") close(); }
+  document.addEventListener("keydown", onKey);
+  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+  backdrop.querySelector("#m-close").addEventListener("click", close);
+  backdrop.querySelector("#m-new").addEventListener("click", function(){
+    close();
+    promptNewLabel(function(label){ setProjectLabel(proj.id, label.id); });
+  });
 }
 
 /* =====================================================================
@@ -1744,6 +2051,31 @@ function buildProjectItem(proj){
 
   item.appendChild(ico);
   item.appendChild(name);
+
+  if(!state.labelsError){
+    var move = document.createElement("button");
+    move.className = "project-move";
+    move.title = "Sposta in una label";
+    move.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0l-8.2-8.2A2 2 0 0 1 2 11V4a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l8.2 8.2a2 2 0 0 1 0 2.6z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>';
+    move.addEventListener("click", function(e){
+      e.stopPropagation();
+      openMoveProjectModal(proj);
+    });
+    item.appendChild(move);
+
+    /* trascinamento del progetto sulle label */
+    item.draggable = true;
+    item.addEventListener("dragstart", function(e){
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/project-id", proj.id);
+      item.classList.add("dragging");
+    });
+    item.addEventListener("dragend", function(){
+      item.classList.remove("dragging");
+      document.querySelectorAll(".label-group.drop-target")
+        .forEach(function(g){ g.classList.remove("drop-target"); });
+    });
+  }
 
   if(proj.isOwner){
     var share = document.createElement("button");
@@ -1776,7 +2108,7 @@ function buildProjectItem(proj){
   return item;
 }
 
-function buildSidebarSectionHeader(title){
+function buildSidebarSectionHeader(title, onAdd, addTitle){
   var h = document.createElement("div");
   h.className = "sidebar-section-title";
 
@@ -1786,12 +2118,112 @@ function buildSidebarSectionHeader(title){
 
   var add = document.createElement("button");
   add.className = "sidebar-section-add";
-  add.title = "Nuovo progetto";
+  add.title = addTitle || "Nuovo progetto";
   add.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
-  add.addEventListener("click", function(){ promptNewProject(); });
+  add.addEventListener("click", onAdd || function(){ promptNewProject(); });
   h.appendChild(add);
 
   return h;
+}
+
+var ICON_CARET = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+var ICON_PLUS  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+var ICON_PEN   = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+var ICON_TRASH = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>';
+
+/* Un gruppo della colonna di sinistra: una label dell'utente,
+   oppure (label = null) i progetti che non ha ancora catalogato. */
+function buildLabelGroup(label){
+  var isNone   = !label;
+  var groupId  = isNone ? NO_LABEL : label.id;
+  var projects = projectsInLabel(groupId);
+
+  var group = document.createElement("div");
+  group.className = "label-group" + (isCollapsed(groupId) ? " collapsed" : "");
+  group.dataset.labelId = groupId;
+
+  var head = document.createElement("div");
+  head.className = "label-head";
+  head.title = isNone ? "Progetti non ancora assegnati a una label" : label.name;
+
+  var caret = document.createElement("span");
+  caret.className = "label-caret";
+  caret.innerHTML = ICON_CARET;
+
+  var title = document.createElement("span");
+  title.className = "label-title";
+  title.textContent = isNone ? "Senza label" : label.name;
+
+  var count = document.createElement("span");
+  count.className = "label-count";
+  count.textContent = projects.length;
+
+  head.appendChild(caret);
+  head.appendChild(title);
+  head.appendChild(count);
+
+  function action(html, tip, danger, fn){
+    var b = document.createElement("button");
+    b.className = "label-btn" + (danger ? " danger" : "");
+    b.title = tip;
+    b.innerHTML = html;
+    b.addEventListener("click", function(e){ e.stopPropagation(); fn(); });
+    head.appendChild(b);
+    return b;
+  }
+
+  action(ICON_PLUS, isNone ? "Nuovo progetto senza label" : "Nuovo progetto in « " + label.name + " »",
+    false, function(){ promptNewProject(isNone ? null : label.id); });
+  if(!isNone){
+    action(ICON_PEN,   "Rinomina label", false, function(){ promptRenameLabel(label); });
+    action(ICON_TRASH, "Elimina label",  true,  function(){ deleteLabel(label); });
+  }
+
+  head.addEventListener("click", function(){
+    toggleCollapsed(groupId);
+    group.classList.toggle("collapsed");
+  });
+
+  var body = document.createElement("div");
+  body.className = "label-body";
+  if(projects.length){
+    projects.forEach(function(p){ body.appendChild(buildProjectItem(p)); });
+  } else {
+    var empty = document.createElement("div");
+    empty.className = "label-empty";
+    empty.textContent = !isNone ? "Vuota — trascina qui un progetto o usa +."
+      : (state.projects.length ? "Tutti i progetti sono in una label."
+                              : "Nessun progetto. Creane uno con +.");
+    body.appendChild(empty);
+  }
+
+  group.appendChild(head);
+  group.appendChild(body);
+
+  /* destinazione del trascinamento */
+  function dragging(e){
+    var types = (e.dataTransfer && e.dataTransfer.types)
+      ? Array.prototype.slice.call(e.dataTransfer.types) : [];
+    return types.indexOf("text/project-id") >= 0;
+  }
+  group.addEventListener("dragover", function(e){
+    if(!dragging(e)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    group.classList.add("drop-target");
+  });
+  group.addEventListener("dragleave", function(e){
+    if(!group.contains(e.relatedTarget)) group.classList.remove("drop-target");
+  });
+  group.addEventListener("drop", function(e){
+    if(!dragging(e)) return;
+    e.preventDefault();
+    group.classList.remove("drop-target");
+    var pid = e.dataTransfer.getData("text/project-id");
+    if(pid) setProjectLabel(pid, isNone ? null : label.id);
+  });
+
+  return group;
 }
 
 /* Voce fissa in cima: To Do / In Progress / Done di tutti i progetti */
@@ -1815,17 +2247,41 @@ function renderSidebar(){
   $projects.innerHTML = "";
 
   $projects.appendChild(buildOverviewItem());
-  $projects.appendChild(buildSidebarSectionHeader("Progetti"));
 
-  if(!state.projects.length){
-    var empty = document.createElement("div");
-    empty.className = "empty-projects";
-    empty.textContent = "Nessuno. Creane uno con +";
-    $projects.appendChild(empty);
+  /* Migrazione sql/label.sql non ancora eseguita: lista piatta + avviso */
+  if(state.labelsError){
+    var note = document.createElement("div");
+    note.className = "sidebar-note";
+    note.textContent = "Label non attive: " + state.labelsError +
+      " — esegui sql/label.sql sul database Supabase.";
+    $projects.appendChild(note);
+    $projects.appendChild(buildSidebarSectionHeader("Progetti"));
+    if(!state.projects.length){
+      var flatEmpty = document.createElement("div");
+      flatEmpty.className = "empty-projects";
+      flatEmpty.textContent = "Nessuno. Creane uno con +";
+      $projects.appendChild(flatEmpty);
+      return;
+    }
+    state.projects.forEach(function(proj){ $projects.appendChild(buildProjectItem(proj)); });
     return;
   }
 
-  state.projects.forEach(function(proj){ $projects.appendChild(buildProjectItem(proj)); });
+  $projects.appendChild(buildSidebarSectionHeader("Label", function(){ promptNewLabel(); }, "Nuova label"));
+
+  var labels = sortedLabels();
+  labels.forEach(function(l){ $projects.appendChild(buildLabelGroup(l)); });
+
+  /* «Senza label» resta sempre visibile: e' la destinazione per togliere
+     un progetto da una label trascinandolo. */
+  $projects.appendChild(buildLabelGroup(null));
+
+  if(!labels.length && !state.projects.length){
+    var empty = document.createElement("div");
+    empty.className = "empty-projects";
+    empty.textContent = "Crea una label con + e mettici dentro i tuoi progetti.";
+    $projects.appendChild(empty);
+  }
 }
 
 function openShareModal(projectId){
@@ -2374,6 +2830,7 @@ async function deleteProject(projectId){
   if(res.error){ alert("Errore: " + res.error.message); return; }
   if(paths.length){ try { await sb.storage.from(LIBRARY_BUCKET).remove(paths); } catch(e){} }
   delete state.library[projectId];
+  delete state.projectLabels[projectId];
   state.projects = state.projects.filter(function(p){ return p.id !== projectId; });
   if(state.activeProjectId === projectId){
     state.activeProjectId = state.projects.length ? state.projects[0].id : null;
@@ -2381,9 +2838,10 @@ async function deleteProject(projectId){
   render();
 }
 
-function promptNewProject(){
+/* labelId facoltativo: il progetto nasce dentro quella label (solo per me) */
+function promptNewProject(labelId){
   showInputModal({
-    title: "Nuovo progetto",
+    title: labelId ? "Nuovo progetto in « " + labelName(labelId) + " »" : "Nuovo progetto",
     label: "Nome del progetto",
     placeholder: "Es. Sito istituzionale",
     confirmText: "Crea",
@@ -2405,6 +2863,12 @@ function promptNewProject(){
         id: project.id, name: project.name, owner_id: project.owner_id,
         isOwner: true, shares: [], columns: columns
       });
+      if(labelId && state.labels.some(function(l){ return l.id === labelId; })){
+        var lRes = await sb.from("be_project_labels")
+          .insert({ user_id: state.me.id, project_id: project.id, label_id: labelId });
+        if(lRes.error) alert("Progetto creato, ma non assegnato alla label: " + lRes.error.message);
+        else state.projectLabels[project.id] = labelId;
+      }
       state.activeProjectId = project.id;
       state.view = "board";
       render();
@@ -2576,10 +3040,11 @@ function showInputModal(opts){
   backdrop.querySelector("label").textContent = opts.label;
   var $i = backdrop.querySelector("#m-input");
   $i.placeholder = opts.placeholder || "";
+  $i.value = opts.value || "";
   var $c = backdrop.querySelector("#m-confirm");
   $c.textContent = opts.confirmText || "OK";
 
-  setTimeout(function(){ $i.focus(); }, 0);
+  setTimeout(function(){ $i.focus(); $i.select(); }, 0);
 
   function close(){ backdrop.remove(); document.removeEventListener("keydown", onKey); }
   function commit(){
@@ -3364,7 +3829,7 @@ document.getElementById("logout-btn").addEventListener("click", async function()
   if(sideDrawer){
     document.getElementById("projects").addEventListener("click", function(e){
       var item = e.target.closest(".project-item");
-      if(item && !e.target.closest(".project-delete") && MOBILE_QUERY.matches){
+      if(item && !e.target.closest("button") && MOBILE_QUERY.matches){
         sideDrawer.close();
       }
     });
