@@ -484,6 +484,15 @@ var dtShare = {"shareButtonText":{"facebook":"Condividi su Facebook","twitter":"
               "name": "Formazione",
               "description": "Progettazione e/o realizzazione di corsi di formazione in ambito scientifico, comunicativo, culturale, anche in collaborazione con altri enti, pubblici o privati."
             }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Coding",
+              "description": "Progettazione e sviluppo di software per la cultura tramite Brown Coding Enterprises: portali di festival, applicazioni web installabili (PWA), aree riservate, pannelli di gestione e piattaforme multilingua. Prodotti: SpesaDistesa, Fosforo.me, ECO App.",
+              "url": "https://www.brownenterprises.it/software/"
+            }
           }
         ]
       }
@@ -533,6 +542,38 @@ var dtShare = {"shareButtonText":{"facebook":"Condividi su Facebook","twitter":"
 .sub-nav .menu-item i.fab {
 	text-align: center;
 	width: 1.25em;
+}
+</style>
+<style id="be-coding-card">
+/* Quarta scheda dei servizi. Le altre tre hanno una fotografia sotto il
+   gradiente; per il software non ne esiste una che non sia uno stock, quindi
+   il fondo e' un gradiente sul blu del brand. Le regole stanno qui e non in
+   post-3218.css perche' quel foglio lo rigenera Elementor. */
+.elementor-3218 .elementor-element.be-coding-card{
+	--display:flex;--min-height:570px;--flex-direction:column;--container-widget-width:100%;
+	--container-widget-height:initial;--container-widget-flex-grow:0;--container-widget-align-self:initial;
+	--flex-wrap-mobile:wrap;--justify-content:space-evenly;--gap:30px 30px;--row-gap:30px;--column-gap:30px;
+	--overlay-opacity:0.33;--border-radius:20px 20px 20px 20px;
+	--padding-top:90px;--padding-bottom:90px;--padding-left:90px;--padding-right:90px;
+	background-color:#141a2b;
+	background-image:linear-gradient(115deg,#0E1217 0%,#243a86 62%,#405ED2 100%);
+}
+.elementor-3218 .elementor-element.be-coding-card::before{
+	background-color:transparent;--background-overlay:'';
+	background-image:linear-gradient(-90deg,#00000080 0%,#000000 100%);
+}
+.be-coding-link{
+	display:inline-block;margin-top:6px;color:#fff;font-weight:600;text-decoration:none;
+	border-bottom:1px solid rgba(255,255,255,.45);padding-bottom:2px;
+}
+.be-coding-link:hover{color:#fff;border-bottom-color:#fff}
+@media (max-width:1024px){
+	.elementor-3218 .elementor-element.be-coding-card{
+		--min-height:500px;--padding-top:60px;--padding-bottom:60px;--padding-left:60px;--padding-right:60px;}
+}
+@media (max-width:767px){
+	.elementor-3218 .elementor-element.be-coding-card{
+		--padding-top:60px;--padding-bottom:60px;--padding-left:30px;--padding-right:30px;}
 }
 </style>
 <style id="be-team-color">
@@ -587,6 +628,14 @@ var dtShare = {"shareButtonText":{"facebook":"Condividi su Facebook","twitter":"
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Puoi scrivere a info@brownenterprises.it oppure alla PEC brownsrls@pec.it, e visitare il sito www.brownenterprises.it. Indicando le tue esigenze nel messaggio puoi richiedere informazioni o un preventivo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Brown Enterprises sviluppa anche software?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sì. Brown Coding Enterprises è la divisione di Brown Enterprises che progetta e sviluppa software per la cultura: portali di festival, applicazioni web installabili, aree riservate e pannelli di gestione. Fra i prodotti realizzati ci sono SpesaDistesa (lista della spesa condivisa), Fosforo.me (piattaforma del festival della scienza di Senigallia) ed ECO App (biodiversità e didattica ambientale)."
       }
     },
     {
@@ -783,6 +832,17 @@ var dtShare = {"shareButtonText":{"facebook":"Condividi su Facebook","twitter":"
 				</div>
 				<div class="elementor-element elementor-element-e17f671 elementor-widget elementor-widget-text-editor" data-id="e17f671" data-element_type="widget" data-widget_type="text-editor.default">
 									<p>Progettazione e/o realizzazione di <b>corsi di formazione</b> in ambito scientifico, comunicativo, culturale, anche in collaborazione con altri enti, pubblici o privati</p>								</div>
+				</div>
+				</div>
+		<div class="elementor-element be-coding-card e-con-full e-flex e-con e-child" data-id="be-coding" data-element_type="container" data-settings="{&quot;background_background&quot;:&quot;classic&quot;,&quot;animation&quot;:&quot;none&quot;}">
+		<div class="elementor-element elementor-element-cfc3022 e-con-full e-flex elementor-invisible e-con e-child" data-element_type="container" data-settings="{&quot;animation&quot;:&quot;fadeInRight&quot;}">
+				<div class="elementor-element elementor-element-7680396 elementor-widget elementor-widget-the7-heading" data-element_type="widget" data-widget_type="the7-heading.default">
+				<div class="elementor-widget-container">
+					<h4 class="the7-heading-title elementor-size-default">Coding</h4>				</div>
+				</div>
+				<div class="elementor-element elementor-element-e17f671 elementor-widget elementor-widget-text-editor" data-element_type="widget" data-widget_type="text-editor.default">
+									<p>Progettazione e <b>sviluppo di software</b> per la cultura: portali di festival, <b>applicazioni web installabili</b>, aree riservate e pannelli di gestione. &Egrave; il lavoro di <b>Brown Coding Enterprises</b>, che ha gi&agrave; prodotto SpesaDistesa, Fosforo.me ed ECO App.</p>
+									<p><a class="be-coding-link" href="/software/">Scopri Brown Coding Enterprises &rarr;</a></p>								</div>
 				</div>
 				</div>
 					</div>

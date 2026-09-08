@@ -1,0 +1,369 @@
+/* =========================================================================
+ * Brown Coding Enterprises — sezione software
+ *
+ * Foglio unico per /software/ e /en/software/. Vive accanto a The7/Elementor
+ * senza toccarli: tutte le regole sono sotto .bce, e il tema resta libero di
+ * essere rigenerato senza portarsi dietro queste.
+ *
+ * La palette e' quella del sito (fondo #0E1217, titoli Montserrat, testo
+ * Inter, pillole per i bottoni). Cambia solo --bce-accent, che ogni pagina
+ * prodotto ridefinisce sul colore del proprio software: e' l'unico segnale
+ * che distingue una scheda dall'altra senza uscire dall'estetica di casa.
+ * ========================================================================= */
+
+.bce {
+  --bce-bg: #0E1217;
+  --bce-panel: rgba(255, 255, 255, 0.045);
+  --bce-panel-strong: rgba(255, 255, 255, 0.07);
+  --bce-line: rgba(255, 255, 255, 0.11);
+  --bce-title: #ffffff;
+  --bce-text: rgba(255, 255, 255, 0.68);
+  --bce-dim: rgba(255, 255, 255, 0.45);
+  --bce-accent: #405ED2;
+  --bce-accent-soft: rgba(64, 94, 210, 0.14);
+
+  background: var(--bce-bg);
+  color: var(--bce-text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bce--spesadistesa { --bce-accent: #4FA37A; --bce-accent-soft: rgba(79, 163, 122, 0.14); }
+.bce--fosforo      { --bce-accent: #38BDF8; --bce-accent-soft: rgba(56, 189, 248, 0.13); }
+.bce--eco          { --bce-accent: #3DAB8A; --bce-accent-soft: rgba(61, 171, 138, 0.14); }
+
+/* Il tema non applica border-box a tutto: senza questo il contenitore con
+   padding laterale diventa piu' largo dello schermo e su telefono i titoli
+   finiscono tagliati dall'overflow nascosto della hero. */
+.bce, .bce *, .bce *::before, .bce *::after { box-sizing: border-box; }
+
+/* --- impalcatura ------------------------------------------------------- */
+
+.bce section { padding: 88px 0; }
+.bce section + section { border-top: 1px solid var(--bce-line); }
+
+.bce-wrap {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 44px);
+}
+/* Le sezioni discorsive restano nello stesso contenitore delle altre e
+   accorciano solo la riga: centrare una colonna piu' stretta spezzerebbe il
+   filo verticale su cui si allineano tutti i titoli della pagina. */
+.bce-wrap--narrow > * { max-width: 800px; }
+.bce-cta .bce-wrap--narrow > * { margin-left: auto; margin-right: auto; }
+
+/* --- tipografia -------------------------------------------------------- */
+
+.bce h1, .bce h2, .bce h3, .bce h4 {
+  font-family: "Montserrat", system-ui, sans-serif;
+  color: var(--bce-title);
+  margin: 0;
+  line-height: 1.18;
+  letter-spacing: -0.012em;
+}
+.bce h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 800; }
+.bce h2 { font-size: clamp(1.7rem, 3.6vw, 2.5rem); font-weight: 700; }
+.bce h3 { font-size: 1.2rem; font-weight: 600; }
+.bce h4 { font-size: 1.02rem; font-weight: 600; }
+.bce p  { margin: 0 0 1.05em; }
+.bce p:last-child { margin-bottom: 0; }
+.bce b, .bce strong { color: rgba(255, 255, 255, 0.92); font-weight: 600; }
+
+.bce-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bce-accent);
+  margin-bottom: 22px;
+}
+.bce-eyebrow::before {
+  content: "";
+  width: 30px;
+  height: 1px;
+  background: var(--bce-accent);
+}
+
+.bce-lead {
+  font-size: clamp(1.05rem, 2vw, 1.28rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 34em;
+}
+
+.bce-sub {
+  margin-top: 22px;
+  max-width: 44em;
+}
+
+.bce a { color: var(--bce-accent); }
+.bce a:hover { color: #fff; }
+
+/* --- bottoni ----------------------------------------------------------- */
+
+.bce-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 34px;
+}
+.bce-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 50px;
+  padding: 0 26px;
+  border-radius: 100px;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background .18s, border-color .18s, color .18s, transform .18s;
+}
+.bce .bce-btn--solid { background: var(--bce-accent); color: #fff; }
+.bce .bce-btn--solid:hover { color: #fff; transform: translateY(-1px); filter: brightness(1.1); }
+.bce .bce-btn--ghost { border-color: var(--bce-line); color: rgba(255, 255, 255, 0.88); }
+.bce .bce-btn--ghost:hover { border-color: var(--bce-accent); color: #fff; }
+
+/* --- hero -------------------------------------------------------------- */
+
+.bce section.bce-hero {
+  position: relative;
+  padding: clamp(120px, 16vh, 170px) 0 clamp(70px, 10vh, 110px);
+  overflow: hidden;
+}
+.bce-hero::before {
+  content: "";
+  position: absolute;
+  inset: -30% 20% auto -10%;
+  height: 620px;
+  background: radial-gradient(ellipse at center, var(--bce-accent-soft), transparent 68%);
+  pointer-events: none;
+}
+.bce-hero .bce-wrap { position: relative; }
+
+.bce-hero--split .bce-wrap {
+  display: grid;
+  gap: clamp(36px, 6vw, 72px);
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .bce-hero--split .bce-wrap { grid-template-columns: 1.1fr 0.9fr; }
+}
+
+/* Telefono: cornice sottile invece di un mockup finto, cosi' lo screenshot
+   resta leggibile anche a 320px di larghezza. */
+.bce-phone {
+  width: min(280px, 74vw);
+  margin: 0 auto;
+  border: 8px solid rgba(255, 255, 255, 0.9);
+  border-radius: 34px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+}
+.bce-phone img { display: block; width: 100%; height: auto; }
+
+.bce-shots {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  margin-top: 44px;
+}
+.bce-shots figure { margin: 0; }
+.bce-shots figcaption {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.92rem;
+}
+.bce-shots figcaption b { display: block; font-family: "Montserrat", sans-serif; }
+
+.bce-figure {
+  margin: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--bce-line);
+}
+.bce-figure img { display: block; width: 100%; height: auto; }
+
+/* --- griglie ----------------------------------------------------------- */
+
+.bce-grid {
+  display: grid;
+  gap: 28px;
+  margin-top: 46px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.bce-grid--two { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+.bce-card {
+  background: var(--bce-panel);
+  border: 1px solid var(--bce-line);
+  border-radius: 20px;
+  padding: 30px;
+}
+.bce-card h3 { margin-bottom: 10px; }
+.bce-card p { font-size: 0.97rem; }
+
+.bce-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  background: var(--bce-accent);
+  color: #fff;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+/* --- schede prodotto sulla pagina indice ------------------------------- */
+
+.bce-products { display: grid; gap: 34px; margin-top: 52px; }
+
+.bce-product {
+  display: grid;
+  gap: clamp(24px, 4vw, 48px);
+  align-items: center;
+  background: var(--bce-panel);
+  border: 1px solid var(--bce-line);
+  border-radius: 24px;
+  padding: clamp(26px, 4vw, 46px);
+  transition: border-color .2s, background .2s;
+}
+.bce-product:hover { border-color: rgba(255, 255, 255, 0.22); background: var(--bce-panel-strong); }
+@media (min-width: 860px) {
+  .bce-product { grid-template-columns: 300px 1fr; }
+  .bce-product--flip { grid-template-columns: 1fr 300px; }
+  .bce-product--flip .bce-product-visual { order: 2; }
+}
+
+.bce-product-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 190px;
+  padding: 24px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--bce-line);
+}
+/* In un contenitore flex il browser applica max-width e max-height in due
+   passaggi e schiaccia le immagini alte: object-fit rimette le proporzioni. */
+.bce-product-visual > img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 230px;
+  object-fit: contain;
+}
+
+.bce-product .bce-tag {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 5px 13px;
+  border-radius: 999px;
+  background: var(--bce-accent-soft);
+  border: 1px solid var(--bce-accent);
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.bce-product h3 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin-bottom: 12px; }
+
+/* --- elenchi ----------------------------------------------------------- */
+
+/* Il tema rimette list-style sui li: va tolto anche li', o accanto al pallino
+   colorato ricompare quello nativo. */
+.bce-list, .bce-list li { list-style: none; }
+.bce-list { margin: 26px 0 0; padding: 0; max-width: 900px; }
+.bce-list li {
+  position: relative;
+  padding-left: 26px;
+  margin-bottom: 13px;
+  font-size: 0.99rem;
+}
+.bce-list li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--bce-accent);
+}
+
+.bce-facts {
+  display: grid;
+  gap: 18px;
+  margin-top: 42px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.bce-fact {
+  border-left: 2px solid var(--bce-accent);
+  padding-left: 18px;
+}
+.bce-fact b {
+  display: block;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--bce-title);
+  line-height: 1.2;
+}
+.bce-fact span { font-size: 0.88rem; color: var(--bce-dim); }
+
+.bce-note {
+  margin-top: 32px;
+  padding: 20px 24px;
+  border-radius: 16px;
+  border: 1px solid var(--bce-line);
+  background: rgba(0, 0, 0, 0.24);
+  font-size: 0.95rem;
+}
+
+.bce-tags { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 30px; }
+.bce-tags span {
+  padding: 7px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--bce-line);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* --- briciole e chiusura ----------------------------------------------- */
+
+.bce-crumb {
+  font-size: 0.86rem;
+  color: var(--bce-dim);
+  margin-bottom: 26px;
+}
+.bce .bce-crumb a { color: var(--bce-dim); text-decoration: none; }
+.bce .bce-crumb a:hover { color: #fff; }
+
+.bce-cta { text-align: center; }
+.bce-cta .bce-actions { justify-content: center; }
+
+/* Il tema mette il grigio su tutte le immagini di contenuto: gli screenshot
+   di un'app sono il contenuto, non una decorazione, e vanno a colori. */
+.bce img { filter: none !important; -webkit-filter: none !important; }
+
+@media (max-width: 767px) {
+  .bce { font-size: 16px; }
+  .bce section { padding: 62px 0; }
+  .bce section.bce-hero { padding: 104px 0 62px; }
+}

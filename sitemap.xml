@@ -42,4 +42,76 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://www.brownenterprises.it/software/</loc>
+    <xhtml:link rel="alternate" hreflang="it-IT" href="https://www.brownenterprises.it/software/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.brownenterprises.it/en/software/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.brownenterprises.it/software/"/>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.brownenterprises.it/en/software/</loc>
+    <xhtml:link rel="alternate" hreflang="it-IT" href="https://www.brownenterprises.it/software/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.brownenterprises.it/en/software/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.brownenterprises.it/software/"/>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.brownenterprises.it/software/spesadistesa/</loc>
+    <xhtml:link rel="alternate" hreflang="it-IT" href="https://www.brownenterprises.it/software/spesadistesa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.brownenterprises.it/en/software/spesadistesa/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.brownenterprises.it/software/spesadistesa/"/>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.brownenterprises.it/en/software/spesadistesa/</loc>
+    <xhtml:link rel="alternate" hreflang="it-IT" href="https://www.brownenterprises.it/software/spesadistesa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.brownenterprises.it/en/software/spesadistesa/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.brownenterprises.it/software/spesadistesa/"/>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.brownenterprises.it/software/fosforo/</loc>
+    <xhtml:link rel="alternate" hreflang="it-IT" href="https://www.brownenterprises.it/software/fosforo/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.brownenterprises.it/en/software/fosforo/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.brownenterprises.it/software/fosforo/"/>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.brownenterprises.it/en/software/fosforo/</loc>
+    <xhtml:link rel="alternate" hreflang="it-IT" href="https://www.brownenterprises.it/software/fosforo/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.brownenterprises.it/en/software/fosforo/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.brownenterprises.it/software/fosforo/"/>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.brownenterprises.it/software/eco-app/</loc>
+    <xhtml:link rel="alternate" hreflang="it-IT" href="https://www.brownenterprises.it/software/eco-app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.brownenterprises.it/en/software/eco-app/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.brownenterprises.it/software/eco-app/"/>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.brownenterprises.it/en/software/eco-app/</loc>
+    <xhtml:link rel="alternate" hreflang="it-IT" href="https://www.brownenterprises.it/software/eco-app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.brownenterprises.it/en/software/eco-app/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.brownenterprises.it/software/eco-app/"/>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>
