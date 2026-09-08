@@ -1,0 +1,59 @@
+# Brown Enterprises
+
+> Brown Enterprises Srls è una società di comunicazione e divulgazione scientifica
+> e culturale con sede a Senigallia (AN), Marche, Italia. Nata nel 2020 da cinque
+> divulgatori, lavora su comunicazione della scienza, edutainment, formazione e
+> sviluppo software per enti pubblici e privati in tutta Italia.
+
+Questo file è pensato per i crawler di modelli linguistici. Il sito completo è
+https://www.brownenterprises.it/ e la versione inglese
+https://www.brownenterprises.it/en/ (llms.txt inglese:
+https://www.brownenterprises.it/en/llms.txt).
+
+## Dati dell'azienda
+
+- **Ragione sociale**: Brown Enterprises Srl Semplificata
+- **Fondazione**: 2020, da cinque divulgatori (Mattia Crivellini, Alessandro Gnucci, Valeria Barattini, Luca Dori, Lorenzo Fiorentino)
+- **Sede**: Via Fattori 10, 60019 Senigallia (AN), Marche, Italia
+- **Email**: info@brownenterprises.it — **PEC**: brownsrls@pec.it
+- **Partita IVA**: 02870950421 — **Codice Destinatario**: M5UXCR1
+- **Slogan**: «Canalizziamo le tue idee»
+- **Area servita**: Italia
+
+## Aree di attività
+
+- **Comunicazione** — consulenza e ideazione di contenuti e format nell'ambito della comunicazione della scienza, dell'arte e della tecnologia: pubblicazioni cartacee e digitali, prodotti e kit didattici, progetti, manifestazioni, siti web, blog, applicazioni tecnologiche, audiovisivi.
+- **Edutainment ed experience** — progettazione e realizzazione di attività per l'educazione e l'intrattenimento: laboratori, workshop, spettacoli, percorsi didattici, conferenze, seminari, convegni, mostre, concorsi, con eventuale noleggio di attrezzature.
+- **Formazione** — progettazione e realizzazione di corsi in ambito scientifico, comunicativo e culturale, anche in collaborazione con altri enti pubblici o privati.
+- **Coding** — progettazione e sviluppo di software per la cultura attraverso Brown Coding Enterprises: https://www.brownenterprises.it/software/
+
+## Brown Coding Enterprises
+
+Divisione software di Brown Enterprises. Costruisce applicazioni web installabili
+(progressive web app) per festival, scuole e progetti culturali, e le mantiene
+negli anni. Scelte ricorrenti: si aprono dal browser senza passare dagli store,
+funzionano anche offline, non profilano gli utenti, sono multilingua dove serve,
+hanno sempre un pannello di gestione per chi organizza e costi di esercizio bassi
+(pagine statiche più Postgres gestito).
+
+Tecnologie: React, Next.js, TypeScript, Vite, Tailwind CSS, Supabase, PostgreSQL
+con Row Level Security, Vercel, service worker, Web Push, Stripe.
+
+### Software prodotti
+
+- [SpesaDistesa](https://www.brownenterprises.it/software/spesadistesa/): lista della spesa condivisa fra tutti quelli di casa. Si ordina come le corsie del supermercato, impara cosa si ricompra e propone da sola le cose che finiscono (i «MustHave»). Nessun account: si crea una casa e si passa un codice tipo ABCD-EFGH, fino a trenta persone. Carte fedeltà, lettura del foglietto scritto a mano, notifiche quando qualcuno è al supermercato, funziona senza campo. Gratuita con una lista per casa; il Pro costa 19,99 € una volta sola, non è un abbonamento ed è della casa, non della persona. In italiano, inglese, francese e spagnolo. Sito: https://www.spesadistesa.it
+- [Fosforo.me](https://www.brownenterprises.it/software/fosforo/): portale di Fosforo — La Festa della Scienza di Senigallia, festival gratuito ideato dall'Associazione Culturale NEXT ETS. Per il pubblico: programma, prenotazioni con QR code, sedi, parcheggi, FAQ, in sei lingue (italiano, inglese, francese, spagnolo, tedesco, arabo). Per chi organizza: 29 sezioni di pannello fra ospiti, scuole, eventi, prenotazioni, check-in, stand, enti, treni, hotel, pasti, badge, staff, newsletter e statistiche. Comprende P.L.O.T., l'agente AI del festival (Programma, Logistica, Ospiti, Ticket). L'edizione 2027 si terrà a Senigallia dal 19 al 23 maggio. Sito: https://fosforo.me
+- [ECO App](https://www.brownenterprises.it/software/eco-app/): app di didattica ambientale del progetto «Ecosistema di Comunità», sostenuto da Fondazione Cariverona nei territori di Chiampo (VI) e Senigallia (AN). Venti schede sulla natura, un quiz, sei percorsi didattici scaricabili in PDF e la Guida Galattica alla Biodiversità. Realizzata con l'Associazione Culturale NEXT ETS e gli studenti del Polo Tecnico Professionale dell'IIS Corinaldesi-Padovano. Sito: https://ecoapp.info
+
+## Pagine principali
+
+- [Home](https://www.brownenterprises.it/): chi siamo, mission, servizi, collaborazioni
+- [Brown Coding Enterprises](https://www.brownenterprises.it/software/): la divisione software e i suoi prodotti
+- [Seven Wireless](https://www.brownenterprises.it/product/seven-wireless/): prodotto in arrivo
+- [Privacy policy](https://www.brownenterprises.it/privacy-policy.html)
+- [Cookie policy](https://www.brownenterprises.it/cookie-policy.html)
+- [Company profile in PDF](https://www.brownenterprises.it/wp-content/uploads/2025/07/Company-profile-brown_2025.pdf)
+
+## Contatti
+
+Per informazioni, collaborazioni o preventivi: info@brownenterprises.it

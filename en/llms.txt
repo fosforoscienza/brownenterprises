@@ -1,0 +1,59 @@
+# Brown Enterprises
+
+> Brown Enterprises Srls is a science and cultural communication company based in
+> Senigallia (province of Ancona), Marche, Italy. Founded in 2020 by five science
+> communicators, it works on science communication, edutainment, training and
+> software development for public and private bodies across Italy.
+
+This file is written for language-model crawlers. The full site is
+https://www.brownenterprises.it/en/ and the Italian version
+https://www.brownenterprises.it/ (Italian llms.txt:
+https://www.brownenterprises.it/llms.txt).
+
+## Company details
+
+- **Legal name**: Brown Enterprises Srl Semplificata
+- **Founded**: 2020, by five science communicators (Mattia Crivellini, Alessandro Gnucci, Valeria Barattini, Luca Dori, Lorenzo Fiorentino)
+- **Address**: Via Fattori 10, 60019 Senigallia (AN), Marche, Italy
+- **Email**: info@brownenterprises.it — **Certified mail**: brownsrls@pec.it
+- **VAT**: 02870950421
+- **Tagline**: "We channel your ideas"
+- **Area served**: Italy
+
+## What it does
+
+- **Communication** — consultancy and content design in science, art and technology communication: print and digital publications, educational products and kits, projects, events, websites, blogs, technological applications, audiovisuals.
+- **Edutainment and experience** — design and delivery of educational and entertainment activities: workshops, shows, teaching programmes, conferences, seminars, exhibitions, competitions, with equipment hire where needed.
+- **Training** — design and delivery of courses in science, communication and culture, also in partnership with other public or private bodies.
+- **Coding** — software design and development for culture through Brown Coding Enterprises: https://www.brownenterprises.it/en/software/
+
+## Brown Coding Enterprises
+
+The software division of Brown Enterprises. It builds installable web
+applications (progressive web apps) for festivals, schools and cultural projects,
+and keeps them running for years. Recurring choices: they open in a browser
+without going through app stores, they work offline, they do not profile users,
+they are multilingual where it matters, they always include a management panel
+for the organisers, and they are cheap to keep running (static pages plus a
+managed Postgres).
+
+Technologies: React, Next.js, TypeScript, Vite, Tailwind CSS, Supabase,
+PostgreSQL with Row Level Security, Vercel, service workers, Web Push, Stripe.
+
+### Products
+
+- [SpesaDistesa](https://www.brownenterprises.it/en/software/spesadistesa/): a shopping list shared by everyone in the household. It sorts itself the way supermarket aisles are laid out, learns what you buy again and again, and brings back the things that run out (the "MustHaves"). No accounts: you create a home and share a code like ABCD-EFGH, up to thirty people. Loyalty cards, reading of handwritten notes, notifications when someone is at the shop, works without signal. Free with one list per home; Pro costs €19.99 once, is not a subscription and belongs to the home rather than the person. In Italian, English, French and Spanish. Site: https://www.spesadistesa.it
+- [Fosforo.me](https://www.brownenterprises.it/en/software/fosforo/): the portal of Fosforo — the free science festival of Senigallia, created by the cultural association NEXT ETS. For visitors: programme, QR-code bookings, venues, parking, FAQ, in six languages (Italian, English, French, Spanish, German, Arabic). For organisers: 29 panel sections covering guests, schools, events, bookings, check-in, stands, organisations, trains, hotels, meals, badges, staff, newsletter and statistics. It includes P.L.O.T., the festival's AI agent (Programme, Logistics, Guests, Tickets). The 2027 edition runs in Senigallia from 19 to 23 May. Site: https://fosforo.me
+- [ECO App](https://www.brownenterprises.it/en/software/eco-app/): the environmental education app of the "Ecosistema di Comunità" project, supported by Fondazione Cariverona in the areas of Chiampo (Vicenza) and Senigallia (Ancona). Twenty nature cards, a quiz, six downloadable teaching units as PDFs and the Guida Galattica alla Biodiversità. Built with the cultural association NEXT ETS and the students of the technical college of IIS Corinaldesi-Padovano. Site: https://ecoapp.info
+
+## Main pages
+
+- [Home](https://www.brownenterprises.it/en/): about us, mission, services, collaborations
+- [Brown Coding Enterprises](https://www.brownenterprises.it/en/software/): the software division and its products
+- [Seven Wireless](https://www.brownenterprises.it/en/product/seven-wireless/): product coming soon
+- [Privacy policy](https://www.brownenterprises.it/en/privacy-policy.html)
+- [Cookie policy](https://www.brownenterprises.it/en/cookie-policy.html)
+
+## Contact
+
+For information, partnerships or quotes: info@brownenterprises.it

@@ -37,3 +37,7 @@ User-agent: Applebot-Extended
 Allow: /
 
 Sitemap: https://www.brownenterprises.it/sitemap.xml
+
+# Sintesi in testo semplice per i motori generativi
+# https://www.brownenterprises.it/llms.txt
+# https://www.brownenterprises.it/en/llms.txt
