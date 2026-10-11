@@ -1960,7 +1960,8 @@ async function loadEverything(){
   state.me = {
     id: user.id,
     email: user.email,
-    display_name: (user.user_metadata && user.user_metadata.display_name) || user.email
+    display_name: (user.user_metadata && user.user_metadata.display_name) || user.email,
+    no_label_name: (user.user_metadata && user.user_metadata.no_label_name) || ""
   };
 
   var results = await Promise.all([
@@ -2030,6 +2031,13 @@ async function loadEverything(){
  * ===================================================================== */
 var NO_LABEL = "__nolabel__";
 var LABELS_COLLAPSED_KEY = "be_labels_collapsed_v1";
+
+/* Il gruppo dei progetti non catalogati non e' una riga di be_labels:
+   il nome scelto dall'utente vive nei suoi user_metadata, cosi' lo segue
+   su ogni dispositivo senza toccare lo schema. */
+function noLabelName(){
+  return (state.me && state.me.no_label_name) || "Senza label";
+}
 
 async function loadLabels(){
   var res = await Promise.all([
@@ -2150,6 +2158,28 @@ function promptRenameLabel(label){
   });
 }
 
+function promptRenameNoLabel(){
+  showInputModal({
+    title: "Rinomina «Senza label»",
+    label: "Nome del gruppo (vuoto per ripristinare «Senza label»)",
+    value: noLabelName(),
+    confirmText: "Salva",
+    onConfirm: async function(name){
+      var n = (name || "").trim();
+      if(n === "Senza label") n = "";
+      if(n === (state.me.no_label_name || "")) return;
+      if(n && state.labels.some(function(l){ return l.name.toLowerCase() === n.toLowerCase(); })){
+        notify("Hai già una label con questo nome.");
+        return;
+      }
+      var res = await sb.auth.updateUser({ data: { no_label_name: n || null } });
+      if(res.error){ notify(errorText(res.error)); return; }
+      state.me.no_label_name = n;
+      renderSidebar();
+    }
+  });
+}
+
 async function deleteLabel(label){
   /* Contati su tutte le aree: la label esiste al di sopra delle dashboard. */
   var n = state.projects.filter(function(p){
@@ -2159,7 +2189,7 @@ async function deleteLabel(label){
   if(n){
     msg += "\n\n" + (n === 1 ? "Il progetto contenuto non verrà eliminato: tornerà"
                              : "I " + n + " progetti contenuti non verranno eliminati: torneranno") +
-           " in «Senza label».";
+           " in «" + noLabelName() + "».";
   }
   if(!confirm(msg)) return;
   var res = await sb.from("be_labels").delete().eq("id", label.id);
@@ -2328,7 +2358,7 @@ function buildLabelGroup(label){
 
   var title = document.createElement("span");
   title.className = "label-title";
-  title.textContent = isNone ? "Senza label" : label.name;
+  title.textContent = isNone ? noLabelName() : label.name;
 
   var count = document.createElement("span");
   count.className = "label-count";
@@ -2350,7 +2380,9 @@ function buildLabelGroup(label){
 
   action(ICON_PLUS, isNone ? "Nuovo progetto senza label" : "Nuovo progetto in « " + label.name + " »",
     false, function(){ promptNewProject(isNone ? null : label.id); });
-  if(!isNone){
+  if(isNone){
+    action(ICON_PEN, "Rinomina gruppo", false, promptRenameNoLabel);
+  } else {
     action(ICON_PEN,   "Rinomina label", false, function(){ promptRenameLabel(label); });
     action(ICON_TRASH, "Elimina label",  true,  function(){ deleteLabel(label); });
   }
@@ -2480,7 +2512,7 @@ function openMoveProjectSheet(proj){
   var current = state.projectLabels[proj.id] || NO_LABEL;
   var labelRows = "";
   if(!state.labelsError){
-    [{ id: NO_LABEL, name: "Senza label" }].concat(sortedLabels()).forEach(function(l){
+    [{ id: NO_LABEL, name: noLabelName() }].concat(sortedLabels()).forEach(function(l){
       var on = current === l.id;
       labelRows += '<button type="button" class="move-opt' + (on ? " current" : "") +
         '" data-kind="label" data-value="' + l.id + '"' + (on ? " disabled" : "") + '>' +
