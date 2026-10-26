@@ -958,6 +958,71 @@
   }
   .col-select:focus{border-color:#579dff}
 
+  /* Modulo "Nuovo impegno" del calendario */
+  .cm-modal{max-width:560px;max-height:92vh;max-height:92dvh;overflow-y:auto}
+  .cm-modal [hidden]{display:none !important}
+  .cm-seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .cm-seg button{
+    flex:1 1 auto;
+    background:#1d2125;border:1px solid #38414b;color:#b6c2cf;
+    border-radius:6px;padding:8px 10px;
+    font-size:13px;font-weight:600;
+    transition:background 0.12s,border-color 0.12s,color 0.12s;
+  }
+  .cm-seg button:hover{border-color:#579dff;color:#f4f5f7}
+  .cm-seg button.on{background:#1c2b41;border-color:#579dff;color:#cce0ff}
+  .cm-people{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .cm-person{
+    --pc:#579dff;--pcbg:rgba(87,157,255,0.22);
+    background:#1d2125;border:1px solid #38414b;color:#b6c2cf;
+    border-radius:16px;padding:6px 12px 6px 10px;
+    font-size:13px;font-weight:600;
+    display:inline-flex;align-items:center;gap:7px;
+    transition:background 0.12s,border-color 0.12s,color 0.12s;
+  }
+  .cm-person .dot{width:9px;height:9px;border-radius:50%;background:var(--pc)}
+  .cm-person.on{background:var(--pcbg);border-color:var(--pc);color:#f4f5f7}
+  .cm-row{display:flex;gap:10px;flex-wrap:wrap}
+  .cm-row > div{flex:1 1 160px;min-width:0}
+  .modal .cm-row input[type=date]{width:100%;min-width:0}
+  .cm-time{display:flex;align-items:center;gap:4px;margin-bottom:14px;color:#9fadbc;font-weight:700}
+  .cm-time .col-select{margin:0;flex:1;min-width:0;padding:9px 8px}
+  .cm-time .col-select:disabled{opacity:0.45}
+  .modal label.cm-check{
+    display:flex;align-items:center;gap:8px;
+    text-transform:none;letter-spacing:0;
+    font-size:13px;font-weight:600;color:#b6c2cf;
+    cursor:pointer;margin-bottom:10px;
+  }
+  .cm-check input{width:16px;height:16px;accent-color:#579dff;margin:0}
+  .cm-days{display:flex;gap:4px;margin-bottom:12px}
+  .cm-days button{
+    flex:1;max-width:44px;height:34px;
+    background:#1d2125;border:1px solid #38414b;color:#b6c2cf;
+    border-radius:6px;font-weight:700;font-size:13px;
+  }
+  .cm-days button.on{background:#1c2b41;border-color:#579dff;color:#cce0ff}
+  .cm-series-note{font-size:12.5px;color:#9fadbc;margin:0 0 14px;line-height:1.45}
+  .cm-error{color:#f87168;font-size:13px;font-weight:600;min-height:18px;margin:0 0 6px}
+  .modal .cm-invalid{border-color:#f87168 !important}
+  .cm-ask-text{color:#b6c2cf;font-size:14px;line-height:1.5;margin:0 0 12px;white-space:pre-line}
+  .cm-ask-actions{flex-wrap:wrap}
+
+  /* Pannello Apple Calendar */
+  .ap-box{background:#1d2125;border:1px solid #38414b;border-radius:8px;padding:14px;margin-bottom:14px}
+  .ap-box h3{margin:0 0 6px;color:#f4f5f7;font-size:14px}
+  .ap-text{color:#9fadbc;font-size:13px;line-height:1.5;margin:0 0 10px}
+  .ap-text b{color:#cce0ff}
+  .ap-small{font-size:12px;margin:8px 0 0}
+  .ap-steps{color:#9fadbc;font-size:12.5px;line-height:1.5;margin:0 0 12px;padding-left:18px}
+  .ap-steps b{color:#cce0ff}
+  .ap-link{display:flex;gap:6px;align-items:flex-start}
+  .modal .ap-link input[type=text]{margin-bottom:8px;font-size:12px}
+  .modal .ap-box input[type=text]#ap-url{margin-bottom:10px}
+  .ap-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .ap-open{text-decoration:none;display:inline-block}
+  .ap-status{color:#9fadbc;font-size:12px;margin:10px 0 0}
+
   /* Pannello "Sposta progetto": l'alternativa al trascinamento. */
   .move-label{
     margin:0 0 8px;
@@ -1212,46 +1277,41 @@
     padding:0 4px;
     margin-bottom:4px;
   }
-  .cal-day-events{
-    display:flex;flex-direction:column;gap:2px;
-    overflow:hidden;
+  /* Una riga per persona (ordine fisso), due caselle: mattina | pomeriggio */
+  .cal-month-halves{display:flex;gap:4px;margin-top:2px;font-size:9px;font-weight:600;color:#738496;letter-spacing:0.3px;text-transform:none}
+  .cal-month-halves span{flex:1}
+  .cal-mgrid{display:grid;grid-template-columns:1fr 1fr;gap:2px;align-content:start}
+  .cal-mslot{
+    --pc:#579dff;--pcbg:rgba(87,157,255,0.22);
+    height:14px;border-radius:2px;
+    background:#191d21;
+    border-left:2px solid transparent;
+    color:#f4f5f7;font-size:9.5px;line-height:14px;
+    padding:0 3px;
+    overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
   }
-  .cal-event{
-    color:#f4f5f7;
-    font-size:11px;
-    padding:2px 6px;
-    border-radius:3px;
-    border-left:3px solid #579dff;
-    background:#22272b;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    line-height:1.3;
-    cursor:pointer;
-  }
-  .cal-event:hover{background:#2c3338}
-  .cal-event-more{
-    font-size:10px;color:#9fadbc;padding:1px 6px;
-    cursor:pointer;
-  }
-  .cal-event-more:hover{color:#cce0ff}
+  .cal-day-cell.other-month .cal-mslot{opacity:0.55}
+  .cal-mslot.full{background:var(--pcbg);border-left-color:var(--pc);cursor:pointer}
+  .cal-mslot.full:hover{filter:brightness(1.25)}
+  .cal-mslot.k-extra{background:repeating-linear-gradient(135deg,#323a41 0 4px,#22272b 4px 8px);color:#b6c2cf}
+  .cal-mslot.k-ferie{background:repeating-linear-gradient(45deg,var(--pcbg) 0 4px,transparent 4px 8px);font-weight:700}
+  .cal-mslot.tentative{outline:1px dashed var(--pc);outline-offset:-1px;font-style:italic}
 
-  /* Week view */
-  .cal-week{
-    flex:1;
+  /* Week view: la griglia del vecchio foglio "chi fa cosa". Una riga per
+     persona, sempre nello stesso ordine, divisa in mattina e pomeriggio:
+     le righe restano allineate su tutta la settimana. */
+  .cal-week{flex:1;overflow:auto;background:#1d2125}
+  .cal-wgrid{
     display:grid;
-    grid-template-columns:repeat(7,1fr);
-    overflow:hidden;
-    background:#101204;
+    grid-template-columns:112px repeat(7,minmax(118px,1fr));
+    min-width:938px;
   }
-  .cal-week-col{
-    background:#1d2125;
-    border-right:1px solid #2c3338;
-    display:flex;flex-direction:column;
-    overflow:hidden;
-  }
-  .cal-week-col:last-child{border-right:0}
+  .cal-wgrid > div{border-right:1px solid #2c3338;border-bottom:1px solid #2c3338;min-width:0}
+  .cal-wcorner{position:sticky;top:0;left:0;z-index:4;background:#1d2125}
   .cal-week-head{
-    padding:10px 12px;
-    border-bottom:1px solid #2c3338;
+    position:sticky;top:0;z-index:3;
+    background:#1d2125;
+    padding:8px 10px;
     cursor:pointer;
     transition:background 0.12s;
   }
@@ -1259,26 +1319,74 @@
   .cal-week-head.today{background:#1c2b41}
   .cal-week-head.today .cal-week-day-num{color:#579dff}
   .cal-week-day-name{font-size:11px;color:#9fadbc;text-transform:uppercase;letter-spacing:0.5px;font-weight:700}
-  .cal-week-day-num{font-size:20px;font-weight:700;color:#f4f5f7;margin-top:2px}
-  .cal-week-events{
-    flex:1;overflow-y:auto;
-    padding:8px;
-    display:flex;flex-direction:column;gap:6px;
+  .cal-week-day-num{font-size:18px;font-weight:700;color:#f4f5f7;margin-top:1px}
+  .cal-wband{
+    grid-column:1 / -1;
+    background:#161a1d;
+    padding:5px 0;
+    font-size:11px;font-weight:700;color:#9fadbc;
+    text-transform:uppercase;letter-spacing:0.6px;
   }
-
-  .cal-week-event{
-    background:#22272b;
-    border-left:3px solid #579dff;
+  .cal-wband span{position:sticky;left:10px;padding:0 10px}
+  .cal-wlabel{
+    position:sticky;left:0;z-index:2;
+    background:#1d2125;
     padding:6px 8px;
-    border-radius:4px;
+    display:flex;align-items:center;gap:7px;
+    font-size:12px;font-weight:600;color:#b6c2cf;
+  }
+  .cal-wlabel-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal-wcell{
+    padding:3px;min-height:30px;
+    display:flex;flex-direction:column;gap:3px;
     cursor:pointer;
     transition:background 0.12s;
   }
-  .cal-week-event:hover{background:#2c3338}
-  .cal-week-event-time{color:#9fadbc;font-size:10px;font-weight:700;margin-bottom:2px;letter-spacing:0.3px}
-  .cal-week-event-title{color:#f4f5f7;font-weight:600;line-height:1.3;font-size:12px;word-wrap:break-word}
-  .cal-week-event-person{color:#9fadbc;font-size:11px;margin-top:3px;display:flex;align-items:center;gap:5px}
+  .cal-wcell:hover{background:#22272b}
+  .cal-wcell.today{background:rgba(28,43,65,0.45)}
+  .cal-chip{
+    --pc:#579dff;--pcbg:rgba(87,157,255,0.22);
+    background:var(--pcbg);
+    border-left:3px solid var(--pc);
+    border-radius:3px;
+    padding:3px 6px;
+    color:#f4f5f7;font-size:11.5px;line-height:1.3;
+    word-wrap:break-word;overflow-wrap:anywhere;
+    cursor:pointer;
+  }
+  .cal-chip:hover{filter:brightness(1.2)}
+  .cal-chip-time{display:block;font-size:10px;font-weight:700;color:#9fadbc;letter-spacing:0.2px}
+  .cal-chip-proj{display:block;font-size:10px;color:#9fadbc;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal-chip.k-extra,.cal-day-event-card.k-extra{background:repeating-linear-gradient(135deg,#323a41 0 6px,#22272b 6px 12px);color:#b6c2cf}
+  .cal-chip.k-ferie,.cal-day-event-card.k-ferie{background:repeating-linear-gradient(45deg,var(--pcbg) 0 6px,transparent 6px 12px);font-weight:700}
+  .cal-chip.tentative{outline:1px dashed var(--pc);outline-offset:-1px;font-style:italic}
+  .cal-tag{
+    display:inline-block;
+    font-size:9px;font-weight:800;letter-spacing:0.4px;text-transform:uppercase;
+    padding:1px 5px;border-radius:3px;
+    background:#38414b;color:#cce0ff;
+    margin-right:4px;vertical-align:1px;font-style:normal;
+  }
+  .cal-tag.warn{background:#5c4a14;color:#f5cd47}
   .cal-person-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+
+  .cal-banner{
+    background:#3a2f12;color:#f5cd47;
+    border-bottom:1px solid #5c4a14;
+    padding:8px 16px;font-size:13px;line-height:1.4;
+    flex-shrink:0;
+  }
+  .cal-legend{margin-top:14px;padding-top:10px;border-top:1px solid #2c3338;display:flex;flex-direction:column;gap:6px}
+  .cal-legend h3{margin-bottom:2px}
+  .cal-legend > div{display:flex;align-items:center;gap:8px;padding:0 8px;font-size:12px;color:#9fadbc}
+  .cal-legend-sw{
+    --pc:#579dff;--pcbg:rgba(87,157,255,0.3);
+    width:22px;height:12px;border-radius:2px;flex-shrink:0;
+    background:var(--pcbg);border-left:3px solid var(--pc);
+  }
+  .cal-legend-sw.k-extra{background:repeating-linear-gradient(135deg,#4a545e 0 3px,#22272b 3px 6px)}
+  .cal-legend-sw.k-ferie{background:repeating-linear-gradient(45deg,var(--pcbg) 0 3px,transparent 3px 6px)}
+  .cal-legend-sw.tentative{outline:1px dashed var(--pc);outline-offset:-1px}
 
   /* Day view */
   .cal-day-view{
@@ -1299,17 +1407,36 @@
     text-transform:capitalize;
   }
   .cal-day-view-head.today h3 span.daynum{color:#579dff}
-  .cal-day-list{
-    flex:1;overflow-y:auto;
-    padding:18px 24px;
-    display:flex;flex-direction:column;gap:8px;
-    max-width:840px;margin:0 auto;
-    width:100%;
+  .cal-day-scroll{flex:1;overflow-y:auto;padding-bottom:24px}
+  .cal-dsec{max-width:900px;margin:0 auto;width:100%;padding:16px 24px 0}
+  .cal-dsec h4{
+    margin:0 0 6px;
+    font-size:11px;font-weight:700;color:#9fadbc;
+    text-transform:uppercase;letter-spacing:0.6px;
   }
+  .cal-drow{
+    display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:start;
+    padding:6px 0;border-bottom:1px solid #2c3338;
+  }
+  .cal-dname{display:flex;align-items:center;gap:8px;font-weight:600;color:#f4f5f7;font-size:13px;padding-top:9px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal-dcards{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .cal-dfree{
+    display:flex;justify-content:space-between;align-items:center;
+    width:100%;
+    background:transparent;border:1px dashed #2c3338;border-radius:6px;
+    color:#5c6c7e;font-size:12px;font-family:inherit;
+    padding:9px 12px;text-align:left;
+    transition:color 0.12s,border-color 0.12s;
+  }
+  .cal-dfree-add{opacity:0;transition:opacity 0.12s;font-weight:600}
+  .cal-dfree:hover{color:#cce0ff;border-color:#579dff}
+  .cal-dfree:hover .cal-dfree-add{opacity:1}
+  .cal-dnone{color:#738496;font-size:13px}
   .cal-day-event-card{
+    --pc:#579dff;--pcbg:rgba(87,157,255,0.22);
     background:#1d2125;
     border:1px solid #2c3338;
-    border-left:4px solid #579dff;
+    border-left:4px solid var(--pc);
     padding:12px 16px;
     border-radius:6px;
     cursor:pointer;
@@ -1317,6 +1444,8 @@
     transition:background 0.12s,border-color 0.12s;
   }
   .cal-day-event-card:hover{background:#22272b;border-color:#38414b}
+  .cal-day-event-card.tentative{border-style:dashed;border-left-style:solid}
+  .cal-day-event-card.tentative .cal-day-event-title{font-style:italic}
   .cal-day-event-time{
     color:#cce0ff;font-weight:700;font-size:13px;
     min-width:90px;flex-shrink:0;
@@ -1519,13 +1648,18 @@
     .cal-day-cell{padding:4px 3px 2px}
     .cal-day-num{font-size:11px;padding:0 2px;margin-bottom:2px}
     .cal-day-cell.today .cal-day-num{width:20px;height:20px;font-size:11px}
-    .cal-event{padding:1px 4px;font-size:10px;line-height:1.25;border-left-width:2px}
-    .cal-event-more{font-size:9px;padding:0 2px}
+    .cal-month-halves{display:none}
+    .cal-mslot{height:9px;font-size:0;padding:0;border-left-width:2px}
+    .cal-mgrid{gap:1px}
 
     /* Day view */
     .cal-day-view-head{padding:14px 14px}
     .cal-day-view-head h3{font-size:18px}
-    .cal-day-list{padding:12px 14px;gap:6px}
+    .cal-dsec{padding:12px 14px 0}
+    .cal-drow{grid-template-columns:86px 1fr;gap:8px}
+    .cal-dfree-add{opacity:1}
+    .cal-apple-btn span{display:none}
+    .cal-apple-btn{order:8}
     .cal-day-event-card{padding:11px 13px;gap:8px;flex-direction:column}
     .cal-day-event-time{min-width:0;font-size:12px}
     .cal-day-event-title{font-size:14px}
@@ -1538,10 +1672,8 @@
   }
 
   @media (max-width:560px){
-    .cal-week{grid-auto-flow:row;grid-template-columns:1fr}
-    .cal-week-col{border-right:0;border-bottom:1px solid #2c3338;min-height:80px}
-    .cal-week-head{padding:8px 12px}
-    .cal-week-day-num{font-size:18px}
+    .cal-wgrid{grid-template-columns:84px repeat(7,minmax(108px,1fr));min-width:840px}
+    .cal-wlabel{font-size:11px;padding:6px 6px}
   }
 
   @media (max-width:420px){
@@ -1549,6 +1681,7 @@
     .topbar-btn{padding:6px 8px;border-radius:5px}
     .cal-header{padding:8px 10px}
     .cal-add-btn{width:34px;height:34px;padding:0;justify-content:center}
+    .cal-add-btn span{display:none}
     .cal-add-btn svg{width:14px;height:14px}
     .cal-views button{padding:5px 8px}
     .cal-today-btn{padding:5px 8px}
@@ -1701,9 +1834,13 @@
     </div>
     <div class="cal-period" id="cal-period">—</div>
     <div class="cal-spacer"></div>
+    <button class="cal-today-btn cal-apple-btn" id="cal-apple-btn" type="button" title="Collega Apple Calendar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><polyline points="21 3 21 8 16 8"/><polyline points="3 21 3 16 8 16"/></svg>
+      <span>Apple Calendar</span>
+    </button>
     <button class="cal-add-btn" id="cal-add-btn">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      Nuovo impegno
+      <span>Nuovo impegno</span>
     </button>
     <button class="cal-close" id="cal-close" title="Chiudi">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -1961,7 +2098,8 @@ async function loadEverything(){
     id: user.id,
     email: user.email,
     display_name: (user.user_metadata && user.user_metadata.display_name) || user.email,
-    no_label_name: (user.user_metadata && user.user_metadata.no_label_name) || ""
+    no_label_name: (user.user_metadata && user.user_metadata.no_label_name) || "",
+    apple_ics_url: (user.user_metadata && user.user_metadata.apple_ics_url) || ""
   };
 
   var results = await Promise.all([
@@ -4253,8 +4391,10 @@ window.addEventListener("online", function(){
   var DAYS_SHORT = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
   var PALETTE = ["#f87168","#f5cd47","#4bce97","#579dff","#9f8fef","#f5a623","#94c748","#ec407a","#26a69a","#ff7043","#ab47bc","#42a5f5"];
 
-  // Sei utenti predefiniti del team con colori stabili
-  var KNOWN_PERSONS = ["Alessandro","Luca","Lorenzo","Valeria","Mattia","Camilla"];
+  // Ordine fisso delle caselle, uguale per tutti: Alessandro, poi Lollo,
+  // Doro e Vale, poi Mattia e Camilla. Un giorno in cui c'e' solo Doro
+  // lascia vuote le prime due caselle invece di compattarle.
+  var KNOWN_PERSONS = ["Alessandro","Lorenzo","Luca","Valeria","Mattia","Camilla"];
   var USER_COLORS = {
     "Alessandro": "#f87168",
     "Luca":       "#f5cd47",
@@ -4263,6 +4403,9 @@ window.addEventListener("online", function(){
     "Mattia":     "#9f8fef",
     "Camilla":    "#ec407a"
   };
+  // Chi non e' del team finisce nella riga "Altri", sempre in fondo
+  var OTHERS = "__altri__";
+  var OTHERS_COLOR = "#8c9bab";
 
   /* ---------- date helpers ---------- */
   function pad(n){ return n < 10 ? "0"+n : ""+n; }
@@ -4298,15 +4441,87 @@ window.addEventListener("online", function(){
     return PALETTE[Math.abs(hash) % PALETTE.length];
   }
 
-  /* ---------- seed data (Aprile/Maggio/Giugno 2026) ---------- */
+  /* ---------- seed data (Aprile/Maggio/Giugno 2026) ----------
+   * Il vecchio calendario partiva da qui. Serve ancora una volta sola:
+   * per riempire la tabella condivisa la prima volta (migrateLegacy). */
   var SEED_VERSION = 1;
   var SEED_EVENTS = [{"id":"e_fdf6dd85cf","date":"2026-04-01","time":"09:00","endTime":"13:00","title":"Vita da pacos video","person":"Alessandro","notes":"Mattina"},{"id":"e_fa186c2b0c","date":"2026-04-01","time":"09:00","endTime":"13:00","title":"tra borhi e natura - monterubbiano, montalto","person":"Luca","notes":"Mattina"},{"id":"e_622f7d3f50","date":"2026-04-01","time":"09:00","endTime":"13:00","title":"rientro Siracusa LOLLO","person":"Lorenzo","notes":"Mattina"},{"id":"e_53e93fb52b","date":"2026-04-01","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_b34985661d","date":"2026-04-01","time":"14:30","endTime":"18:30","title":"Vita da pacos stop Motion","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_40fe8348ba","date":"2026-04-01","time":"14:30","endTime":"18:30","title":"amandola","person":"Luca","notes":"Pomeriggio · notte fuori"},{"id":"e_3726310ea9","date":"2026-04-02","time":"09:00","endTime":"13:00","title":"riunione per tecnica fosforo","person":"Alessandro","notes":"Mattina"},{"id":"e_f77b609b10","date":"2026-04-02","time":"09:00","endTime":"13:00","title":"tra borghi e natura - sarnano, san ginesio","person":"Luca","notes":"Mattina"},{"id":"e_71ba5bb114","date":"2026-04-02","time":"14:30","endTime":"18:30","title":"no lollo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_8f1fc25980","date":"2026-04-07","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_5b175e0281","date":"2026-04-07","time":"14:30","endTime":"18:30","title":"caritas","person":"Valeria","notes":"Pomeriggio"},{"id":"e_1531ce4a51","date":"2026-04-08","time":"09:00","endTime":"13:00","title":"video futuro me ricercatori fagnani?","person":"Alessandro","notes":"Mattina"},{"id":"e_716f4fa80f","date":"2026-04-08","time":"09:00","endTime":"13:00","title":"viaggio per Roma DORO","person":"Luca","notes":"Mattina"},{"id":"e_d0086eeecd","date":"2026-04-08","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_9d8d63f23a","date":"2026-04-08","time":"14:30","endTime":"18:30","title":"Next bilancio Raika","person":"Valeria","notes":"Pomeriggio"},{"id":"e_f6950863fd","date":"2026-04-09","time":"09:00","endTime":"13:00","title":"Roma DORO","person":"Luca","notes":"Mattina"},{"id":"e_75494e6dbb","date":"2026-04-09","time":"09:00","endTime":"13:00","title":"no","person":"Lorenzo","notes":"Mattina"},{"id":"e_342505ce0c","date":"2026-04-09","time":"09:00","endTime":"13:00","title":"lavanda rend","person":"Valeria","notes":"Mattina"},{"id":"e_aed746585b","date":"2026-04-09","time":"14:30","endTime":"18:30","title":"Galilei 8","person":"Alessandro","notes":"Pomeriggio · Villa F.\nmedie+elem\n14.30-18.30\nrobot arena"},{"id":"e_9094b72351","date":"2026-04-09","time":"14:30","endTime":"18:30","title":"Rientro DORO","person":"Luca","notes":"Pomeriggio"},{"id":"e_c39940d9dc","date":"2026-04-09","time":"14:30","endTime":"18:30","title":"Tutor Villa F.","person":"Camilla","notes":"Pomeriggio · 14.30-18.30"},{"id":"e_ecc11932b9","date":"2026-04-10","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Alessandro","notes":"Mattina"},{"id":"e_1d401d5904","date":"2026-04-10","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Lorenzo","notes":"Mattina"},{"id":"e_72dd7b81aa","date":"2026-04-10","time":"14:30","endTime":"18:30","title":"cena fosforo","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_8018727925","date":"2026-04-10","time":"14:30","endTime":"18:30","title":"Galilei 9","person":"Luca","notes":"Pomeriggio · Borgo\n16.15-18.15\nclima"},{"id":"e_4a09bf83cc","date":"2026-04-10","time":"14:30","endTime":"18:30","title":"cena fosforo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_c2227fd10f","date":"2026-04-10","time":"14:30","endTime":"18:30","title":"cena fosforo","person":"Valeria","notes":"Pomeriggio"},{"id":"e_08dece49be","date":"2026-04-10","time":"14:30","endTime":"18:30","title":"cena fosforo","person":"Mattia","notes":"Pomeriggio"},{"id":"e_f6009e44ac","date":"2026-04-10","time":"14:30","endTime":"18:30","title":"Tutor Borgo","person":"Camilla","notes":"Pomeriggio · 16.15-18.15"},{"id":"e_23cdb1718d","date":"2026-04-11","time":"09:00","endTime":"13:00","title":"vale no","person":"Valeria","notes":"Mattina"},{"id":"e_cd66ace986","date":"2026-04-11","time":"14:30","endTime":"18:30","title":"Mercatino Conca","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_0060115d2c","date":"2026-04-11","time":"14:30","endTime":"18:30","title":"Mercatino Conca","person":"Luca","notes":"Pomeriggio"},{"id":"e_58f2320992","date":"2026-04-11","time":"14:30","endTime":"18:30","title":"Mercatino Conca","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_59d61bdcc2","date":"2026-04-11","time":"14:30","endTime":"18:30","title":"vale no","person":"Valeria","notes":"Pomeriggio"},{"id":"e_b4785ca24e","date":"2026-04-12","time":"09:00","endTime":"13:00","title":"vale no","person":"Valeria","notes":"Mattina"},{"id":"e_d020917fd0","date":"2026-04-13","time":"09:00","endTime":"13:00","title":"ore 10:00 comune piazza roma Elisabetta d'Amico","person":"Alessandro","notes":"Mattina"},{"id":"e_da7562d9a7","date":"2026-04-13","time":"09:00","endTime":"13:00","title":"tra borghi e natura","person":"Luca","notes":"Mattina"},{"id":"e_2003261cd1","date":"2026-04-13","time":"09:00","endTime":"13:00","title":"no lollo","person":"Lorenzo","notes":"Mattina"},{"id":"e_00070c0a85","date":"2026-04-13","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_2c092a801d","date":"2026-04-13","time":"14:30","endTime":"18:30","title":"tra borghi e natura","person":"Luca","notes":"Pomeriggio"},{"id":"e_6e280d0f0e","date":"2026-04-13","time":"14:30","endTime":"18:30","title":"Riprese band spunti di crescita ore 21 - band 1","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_39d9a8c8b1","date":"2026-04-13","time":"14:30","endTime":"18:30","title":"caritas","person":"Valeria","notes":"Pomeriggio"},{"id":"e_dfa014d843","date":"2026-04-14","time":"09:00","endTime":"13:00","title":"video da vita da pacos 9:30 12:30 pedagogista per eventi estivi baia flaminia","person":"Alessandro","notes":"Mattina"},{"id":"e_c602ac33c1","date":"2026-04-14","time":"09:00","endTime":"13:00","title":"tra borghi e natura","person":"Luca","notes":"Mattina"},{"id":"e_d42576e7f8","date":"2026-04-14","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_38983bc650","date":"2026-04-14","time":"14:30","endTime":"18:30","title":"BARI 17:30 Cassanoscienza","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_d175ab0774","date":"2026-04-14","time":"14:30","endTime":"18:30","title":"tra borghi e natura","person":"Luca","notes":"Pomeriggio"},{"id":"e_ff7104f218","date":"2026-04-14","time":"14:30","endTime":"18:30","title":"Galilei 10","person":"Lorenzo","notes":"Pomeriggio · Borgo\n16.15-18.15\ntop secret"},{"id":"e_36c4a6a65d","date":"2026-04-14","time":"14:30","endTime":"18:30","title":"caritas","person":"Valeria","notes":"Pomeriggio"},{"id":"e_57f4fe7f8f","date":"2026-04-14","time":"14:30","endTime":"18:30","title":"Tutor Borgo","person":"Camilla","notes":"Pomeriggio · 16.15-18.15"},{"id":"e_b441fb7ecf","date":"2026-04-15","time":"09:00","endTime":"13:00","title":"BARI Cassanoscienza","person":"Alessandro","notes":"Mattina"},{"id":"e_8c3b7d1ebc","date":"2026-04-15","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_61c4b7c1b3","date":"2026-04-15","time":"14:30","endTime":"18:30","title":"BARI Cassanoscienza","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_ce1f982eab","date":"2026-04-16","time":"09:00","endTime":"13:00","title":"BARI Cassanoscienza","person":"Alessandro","notes":"Mattina"},{"id":"e_6718d9d351","date":"2026-04-16","time":"14:30","endTime":"18:30","title":"BARI Cassanoscienza","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_5e5fa29003","date":"2026-04-16","time":"14:30","endTime":"18:30","title":"Galilei 9","person":"Luca","notes":"Pomeriggio · Villa F.\nmedie+elem\n14.30-18.30\nCrea il tuo videogioco 1"},{"id":"e_676f9ebb09","date":"2026-04-16","time":"14:30","endTime":"18:30","title":"corso AI a marotta 17:00 19:30","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_0985182389","date":"2026-04-16","time":"14:30","endTime":"18:30","title":"Tutor Villa F.","person":"Valeria","notes":"Pomeriggio · 14.30-18.30"},{"id":"e_be5ec46c41","date":"2026-04-17","time":"09:00","endTime":"13:00","title":"Corso liceo gita sonosfera","person":"Alessandro","notes":"Mattina"},{"id":"e_1e388737f9","date":"2026-04-17","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Lorenzo","notes":"Mattina"},{"id":"e_dcf812d5c6","date":"2026-04-17","time":"09:00","endTime":"13:00","title":"9:30 pleiadi eco check chiusura","person":"Valeria","notes":"Mattina"},{"id":"e_b4838991c1","date":"2026-04-17","time":"14:30","endTime":"18:30","title":"16:30 Pannolini Chiaravalle","person":"Valeria","notes":"Pomeriggio"},{"id":"e_644fdca1f6","date":"2026-04-18","time":"09:00","endTime":"13:00","title":"NO","person":"Lorenzo","notes":"Mattina"},{"id":"e_437ae7add6","date":"2026-04-18","time":"14:30","endTime":"18:30","title":"NO","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_7eb75fccb1","date":"2026-04-19","time":"09:00","endTime":"13:00","title":"NO","person":"Lorenzo","notes":"Mattina"},{"id":"e_56f81075ad","date":"2026-04-19","time":"14:30","endTime":"18:30","title":"NO","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_a8526c7286","date":"2026-04-20","time":"09:00","endTime":"13:00","title":"riprese video da Pacos","person":"Alessandro","notes":"Mattina"},{"id":"e_2c7447944c","date":"2026-04-20","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_5e66e52431","date":"2026-04-20","time":"09:00","endTime":"13:00","title":"no Cami per TESI","person":"Camilla","notes":"Mattina"},{"id":"e_31c7f142c3","date":"2026-04-20","time":"14:30","endTime":"18:30","title":"tavolo futuro me 15-17","person":"Valeria","notes":"Pomeriggio"},{"id":"e_616ae968f9","date":"2026-04-20","time":"14:30","endTime":"18:30","title":"no Cami per TESI","person":"Camilla","notes":"Pomeriggio"},{"id":"e_818fa84b94","date":"2026-04-21","time":"09:00","endTime":"13:00","title":"Riprese video da Pacos","person":"Alessandro","notes":"Mattina"},{"id":"e_e7d1a52cfd","date":"2026-04-21","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_69c685e8c2","date":"2026-04-21","time":"09:00","endTime":"13:00","title":"no Cami per TESI","person":"Camilla","notes":"Mattina"},{"id":"e_f26671a488","date":"2026-04-21","time":"14:30","endTime":"18:30","title":"Tutor Borgo","person":"Luca","notes":"Pomeriggio · 16.15-18.15"},{"id":"e_0c3c3f0729","date":"2026-04-21","time":"14:30","endTime":"18:30","title":"Galilei 11","person":"Lorenzo","notes":"Pomeriggio · Borgo\n16.15-18.15\ncrea il tuo videogioco 1"},{"id":"e_c2a44e6764","date":"2026-04-21","time":"14:30","endTime":"18:30","title":"caritas","person":"Valeria","notes":"Pomeriggio"},{"id":"e_906a1402cd","date":"2026-04-21","time":"14:30","endTime":"18:30","title":"CONFERENZA STAMPA TRAMA","person":"Mattia","notes":"Pomeriggio"},{"id":"e_280fc24f0e","date":"2026-04-21","time":"14:30","endTime":"18:30","title":"no Cami per TESI","person":"Camilla","notes":"Pomeriggio"},{"id":"e_4127bc7993","date":"2026-04-22","time":"09:00","endTime":"13:00","title":"11:00 riunione caritas futuro me","person":"Alessandro","notes":"Mattina"},{"id":"e_2c439a465f","date":"2026-04-22","time":"09:00","endTime":"13:00","title":"11:00 riunione caritas futuro me","person":"Valeria","notes":"Mattina"},{"id":"e_3c3bba9e1c","date":"2026-04-22","time":"09:00","endTime":"13:00","title":"no Cami per TESI","person":"Camilla","notes":"Mattina"},{"id":"e_15bdb83a99","date":"2026-04-22","time":"14:30","endTime":"18:30","title":"video pacos","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_ac8c60900f","date":"2026-04-22","time":"14:30","endTime":"18:30","title":"no Cami per TESI","person":"Camilla","notes":"Pomeriggio"},{"id":"e_82b51267c3","date":"2026-04-23","time":"09:00","endTime":"13:00","title":"video pacos","person":"Alessandro","notes":"Mattina"},{"id":"e_9b05e69ad8","date":"2026-04-23","time":"09:00","endTime":"13:00","title":"no Cami per TESI","person":"Camilla","notes":"Mattina"},{"id":"e_7dd4ef120e","date":"2026-04-23","time":"14:30","endTime":"18:30","title":"video pacos","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_f58e205108","date":"2026-04-23","time":"14:30","endTime":"18:30","title":"Tutor Villa F.","person":"Luca","notes":"Pomeriggio · 14.30-18.30"},{"id":"e_66f20f8bdc","date":"2026-04-23","time":"14:30","endTime":"18:30","title":"Galilei 10","person":"Lorenzo","notes":"Pomeriggio · Villa F.\nmedie+elem\n14.30-18.30\ncrea il tuo videogioco 2 / Riprese band spunti di crescita ore 21 - band 2"},{"id":"e_f89e515a06","date":"2026-04-23","time":"14:30","endTime":"18:30","title":"no Cami per TESI","person":"Camilla","notes":"Pomeriggio"},{"id":"e_24c04a0b1c","date":"2026-04-24","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Alessandro","notes":"Mattina"},{"id":"e_61ecef17ee","date":"2026-04-24","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Lorenzo","notes":"Mattina"},{"id":"e_98cf7ea194","date":"2026-04-24","time":"09:00","endTime":"13:00","title":"pleiadi check eco","person":"Valeria","notes":"Mattina"},{"id":"e_22a7c644bb","date":"2026-04-24","time":"09:00","endTime":"13:00","title":"no Cami per TESI","person":"Camilla","notes":"Mattina"},{"id":"e_9088f3e4fe","date":"2026-04-24","time":"14:30","endTime":"18:30","title":"Ale viaggio per Seridò","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_b03e2bb0b6","date":"2026-04-24","time":"14:30","endTime":"18:30","title":"no Cami per TESI","person":"Camilla","notes":"Pomeriggio"},{"id":"e_9030c32f70","date":"2026-04-25","time":"09:00","endTime":"13:00","title":"no Cami per TESI","person":"Camilla","notes":"Mattina"},{"id":"e_4cdd2ee25e","date":"2026-04-25","time":"14:30","endTime":"18:30","title":"no Cami per TESI","person":"Camilla","notes":"Pomeriggio"},{"id":"e_353cb78a5f","date":"2026-04-26","time":"09:00","endTime":"13:00","title":"no Cami per TESI","person":"Camilla","notes":"Mattina"},{"id":"e_9854487843","date":"2026-04-26","time":"14:30","endTime":"18:30","title":"no Cami per TESI","person":"Camilla","notes":"Pomeriggio"},{"id":"e_547cc90761","date":"2026-04-27","time":"09:00","endTime":"13:00","title":"call con mattia","person":"Lorenzo","notes":"Mattina"},{"id":"e_24d19e66ae","date":"2026-04-27","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_d9f0409d22","date":"2026-04-27","time":"09:00","endTime":"13:00","title":"call con lollo","person":"Mattia","notes":"Mattina"},{"id":"e_f9eb2784fa","date":"2026-04-27","time":"14:30","endTime":"18:30","title":"no Doro","person":"Luca","notes":"Pomeriggio"},{"id":"e_cb575eda02","date":"2026-04-27","time":"14:30","endTime":"18:30","title":"caritas","person":"Valeria","notes":"Pomeriggio"},{"id":"e_377ee97a5e","date":"2026-04-28","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_adc32e1487","date":"2026-04-28","time":"14:30","endTime":"18:30","title":"Tutor Borgo","person":"Alessandro","notes":"Pomeriggio · 16.15-18.15"},{"id":"e_7471e36837","date":"2026-04-28","time":"14:30","endTime":"18:30","title":"Galilei 12","person":"Luca","notes":"Pomeriggio · Borgo\n16.15-18.15\nCrea il tuo videogioco 2"},{"id":"e_150a737bc0","date":"2026-04-28","time":"14:30","endTime":"18:30","title":"Riprese band spunti di crescita ore 21 - band 3-4","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_c20cd2da84","date":"2026-04-28","time":"14:30","endTime":"18:30","title":"caritas","person":"Valeria","notes":"Pomeriggio"},{"id":"e_09a42ef0e9","date":"2026-04-29","time":"09:00","endTime":"13:00","title":"caritas","person":"Valeria","notes":"Mattina"},{"id":"e_1c856145ba","date":"2026-04-29","time":"14:30","endTime":"18:30","title":"NEXT 14:30 call bando CIB","person":"Valeria","notes":"Pomeriggio · 16:00 rlst Brown sede"},{"id":"e_b59abb2836","date":"2026-04-30","time":"14:30","endTime":"18:30","title":"Tutor Villa F.","person":"Alessandro","notes":"Pomeriggio · 14.30-18.30"},{"id":"e_8c35f7e339","date":"2026-04-30","time":"14:30","endTime":"18:30","title":"Galilei 11","person":"Luca","notes":"Pomeriggio · Villa F.\nmedie+elem\n14.30-18.30\nTop secret"},{"id":"e_002841b615","date":"2026-04-30","time":"14:30","endTime":"18:30","title":"corso cap cut a marotta 17:00 19:30","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_30451405c3","date":"2026-05-05","time":"14:30","endTime":"18:30","title":"Galilei 13","person":"Luca","notes":"Pomeriggio · 16.15-18.15\nStopmotion 1\nBorgo"},{"id":"e_734de76a21","date":"2026-05-07","time":"14:30","endTime":"18:30","title":"CENA FINALE Pacos con Play decide","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_b5d32d6b78","date":"2026-05-07","time":"14:30","endTime":"18:30","title":"Galilei 12","person":"Luca","notes":"Pomeriggio · 14.30-18.30\nRobot e microbit\nVilla F.   +   CENA FINALE Pacos con Play decide"},{"id":"e_6314ab5c22","date":"2026-05-07","time":"14:30","endTime":"18:30","title":"no dalle 13 alle 16    +   CENA FINALE Pacos con Play decide","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_d193e82098","date":"2026-05-07","time":"14:30","endTime":"18:30","title":"CENA FINALE Pacos con Play decide","person":"Valeria","notes":"Pomeriggio"},{"id":"e_8a16453825","date":"2026-05-07","time":"14:30","endTime":"18:30","title":"CENA FINALE Pacos con Play decide","person":"Camilla","notes":"Pomeriggio"},{"id":"e_0feb45736a","date":"2026-05-08","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Alessandro","notes":"Mattina"},{"id":"e_b983332812","date":"2026-05-08","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Lorenzo","notes":"Mattina"},{"id":"e_5ec5abb740","date":"2026-05-08","time":"14:30","endTime":"18:30","title":"no vale","person":"Valeria","notes":"Pomeriggio"},{"id":"e_88aa45d7c0","date":"2026-05-09","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_314f45c360","date":"2026-05-09","time":"14:30","endTime":"18:30","title":"no vale","person":"Valeria","notes":"Pomeriggio"},{"id":"e_a57dea1209","date":"2026-05-10","time":"14:30","endTime":"18:30","title":"no vale","person":"Valeria","notes":"Pomeriggio"},{"id":"e_be5d584617","date":"2026-05-11","time":"14:30","endTime":"18:30","title":"no orario pranzo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_4046508012","date":"2026-05-12","time":"14:30","endTime":"18:30","title":"Galilei 14","person":"Luca","notes":"Pomeriggio · 16.15-18.15\nStopmotion 2\nBorgo"},{"id":"e_ab2c5481a7","date":"2026-05-12","time":"14:30","endTime":"18:30","title":"possibile data ECO","person":"Valeria","notes":"Pomeriggio"},{"id":"e_a3ec655f3f","date":"2026-05-14","time":"14:30","endTime":"18:30","title":"Galilei 13","person":"Luca","notes":"Pomeriggio · 14.30-18.30\nStopmotion 1\nVilla F."},{"id":"e_be7aa9c75d","date":"2026-05-15","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Alessandro","notes":"Mattina"},{"id":"e_c17d0e7c7b","date":"2026-05-15","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Lorenzo","notes":"Mattina"},{"id":"e_b31809048b","date":"2026-05-17","time":"09:00","endTime":"13:00","title":"vale no","person":"Valeria","notes":"Mattina"},{"id":"e_fd2a9bd112","date":"2026-05-17","time":"14:30","endTime":"18:30","title":"vale no","person":"Valeria","notes":"Pomeriggio"},{"id":"e_34a18beb53","date":"2026-05-18","time":"09:00","endTime":"13:00","title":"fosforo","person":"Alessandro","notes":"Mattina"},{"id":"e_ba80630701","date":"2026-05-18","time":"09:00","endTime":"13:00","title":"fosforo","person":"Luca","notes":"Mattina"},{"id":"e_4bdbccd6af","date":"2026-05-18","time":"09:00","endTime":"13:00","title":"fosforo","person":"Lorenzo","notes":"Mattina"},{"id":"e_4e8e5b4edf","date":"2026-05-18","time":"09:00","endTime":"13:00","title":"fosforo","person":"Valeria","notes":"Mattina"},{"id":"e_22eb5389cd","date":"2026-05-18","time":"09:00","endTime":"13:00","title":"fosforo","person":"Mattia","notes":"Mattina"},{"id":"e_8da1a92bf8","date":"2026-05-18","time":"09:00","endTime":"13:00","title":"fosforo","person":"Camilla","notes":"Mattina"},{"id":"e_8026fa7273","date":"2026-05-18","time":"14:30","endTime":"18:30","title":"fosforo","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_5aa22b6a19","date":"2026-05-18","time":"14:30","endTime":"18:30","title":"fosforo","person":"Luca","notes":"Pomeriggio"},{"id":"e_4b4da0fe0b","date":"2026-05-18","time":"14:30","endTime":"18:30","title":"fosforo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_7e66a576d8","date":"2026-05-18","time":"14:30","endTime":"18:30","title":"fosforo","person":"Valeria","notes":"Pomeriggio"},{"id":"e_64db62942c","date":"2026-05-18","time":"14:30","endTime":"18:30","title":"fosforo","person":"Mattia","notes":"Pomeriggio"},{"id":"e_8497221be3","date":"2026-05-18","time":"14:30","endTime":"18:30","title":"fosforo","person":"Camilla","notes":"Pomeriggio"},{"id":"e_cd1179348f","date":"2026-05-19","time":"09:00","endTime":"13:00","title":"fosforo","person":"Alessandro","notes":"Mattina"},{"id":"e_21f9e15067","date":"2026-05-19","time":"09:00","endTime":"13:00","title":"fosforo","person":"Luca","notes":"Mattina"},{"id":"e_417c74157b","date":"2026-05-19","time":"09:00","endTime":"13:00","title":"fosforo","person":"Lorenzo","notes":"Mattina"},{"id":"e_20888643fe","date":"2026-05-19","time":"09:00","endTime":"13:00","title":"fosforo","person":"Valeria","notes":"Mattina"},{"id":"e_f27e688366","date":"2026-05-19","time":"09:00","endTime":"13:00","title":"fosforo","person":"Mattia","notes":"Mattina"},{"id":"e_8be1044ceb","date":"2026-05-19","time":"09:00","endTime":"13:00","title":"fosforo","person":"Camilla","notes":"Mattina"},{"id":"e_18af5748cb","date":"2026-05-19","time":"14:30","endTime":"18:30","title":"fosforo","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_b638ca0584","date":"2026-05-19","time":"14:30","endTime":"18:30","title":"fosforo","person":"Luca","notes":"Pomeriggio"},{"id":"e_4a0e7c2942","date":"2026-05-19","time":"14:30","endTime":"18:30","title":"fosforo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_8eb3d82824","date":"2026-05-19","time":"14:30","endTime":"18:30","title":"fosforo","person":"Valeria","notes":"Pomeriggio"},{"id":"e_b0adcffb34","date":"2026-05-19","time":"14:30","endTime":"18:30","title":"fosforo","person":"Mattia","notes":"Pomeriggio"},{"id":"e_9d8e468ce0","date":"2026-05-19","time":"14:30","endTime":"18:30","title":"fosforo","person":"Camilla","notes":"Pomeriggio"},{"id":"e_20fefcc961","date":"2026-05-20","time":"09:00","endTime":"13:00","title":"fosforo","person":"Alessandro","notes":"Mattina"},{"id":"e_4692c3ba88","date":"2026-05-20","time":"09:00","endTime":"13:00","title":"fosforo","person":"Luca","notes":"Mattina"},{"id":"e_8bc3bfa3b9","date":"2026-05-20","time":"09:00","endTime":"13:00","title":"fosforo","person":"Lorenzo","notes":"Mattina"},{"id":"e_2901d4cba2","date":"2026-05-20","time":"09:00","endTime":"13:00","title":"fosforo","person":"Valeria","notes":"Mattina"},{"id":"e_9625be59cd","date":"2026-05-20","time":"09:00","endTime":"13:00","title":"fosforo","person":"Mattia","notes":"Mattina"},{"id":"e_1f61a75bff","date":"2026-05-20","time":"09:00","endTime":"13:00","title":"fosforo","person":"Camilla","notes":"Mattina"},{"id":"e_f8ff69729a","date":"2026-05-20","time":"14:30","endTime":"18:30","title":"fosforo","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_3e4fe55bc0","date":"2026-05-20","time":"14:30","endTime":"18:30","title":"fosforo","person":"Luca","notes":"Pomeriggio"},{"id":"e_9790e6e2ae","date":"2026-05-20","time":"14:30","endTime":"18:30","title":"fosforo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_44761b4871","date":"2026-05-20","time":"14:30","endTime":"18:30","title":"fosforo","person":"Valeria","notes":"Pomeriggio"},{"id":"e_69fa8d60f9","date":"2026-05-20","time":"14:30","endTime":"18:30","title":"fosforo","person":"Mattia","notes":"Pomeriggio"},{"id":"e_c65a17ba6c","date":"2026-05-20","time":"14:30","endTime":"18:30","title":"fosforo","person":"Camilla","notes":"Pomeriggio"},{"id":"e_470b7d3b46","date":"2026-05-21","time":"09:00","endTime":"13:00","title":"fosforo","person":"Alessandro","notes":"Mattina"},{"id":"e_d9bd67c2f0","date":"2026-05-21","time":"09:00","endTime":"13:00","title":"fosforo","person":"Luca","notes":"Mattina"},{"id":"e_98e3dfc708","date":"2026-05-21","time":"09:00","endTime":"13:00","title":"fosforo","person":"Lorenzo","notes":"Mattina"},{"id":"e_e1930db644","date":"2026-05-21","time":"09:00","endTime":"13:00","title":"fosforo","person":"Valeria","notes":"Mattina"},{"id":"e_ce6f11876d","date":"2026-05-21","time":"09:00","endTime":"13:00","title":"fosforo","person":"Mattia","notes":"Mattina"},{"id":"e_f382098934","date":"2026-05-21","time":"09:00","endTime":"13:00","title":"fosforo","person":"Camilla","notes":"Mattina"},{"id":"e_50e519fbca","date":"2026-05-21","time":"14:30","endTime":"18:30","title":"fosforo","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_ad0f95afe1","date":"2026-05-21","time":"14:30","endTime":"18:30","title":"fosforo","person":"Luca","notes":"Pomeriggio"},{"id":"e_ddf2958705","date":"2026-05-21","time":"14:30","endTime":"18:30","title":"fosforo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_a22a64ea2b","date":"2026-05-21","time":"14:30","endTime":"18:30","title":"fosforo","person":"Valeria","notes":"Pomeriggio"},{"id":"e_a2ffa43bb8","date":"2026-05-21","time":"14:30","endTime":"18:30","title":"fosforo","person":"Mattia","notes":"Pomeriggio"},{"id":"e_25bc3a9993","date":"2026-05-21","time":"14:30","endTime":"18:30","title":"fosforo","person":"Camilla","notes":"Pomeriggio"},{"id":"e_6c5a05d507","date":"2026-05-22","time":"09:00","endTime":"13:00","title":"fosforo","person":"Alessandro","notes":"Mattina"},{"id":"e_ba479f0e9f","date":"2026-05-22","time":"09:00","endTime":"13:00","title":"fosforo","person":"Luca","notes":"Mattina"},{"id":"e_497f16006a","date":"2026-05-22","time":"09:00","endTime":"13:00","title":"fosforo","person":"Lorenzo","notes":"Mattina"},{"id":"e_bd932ab34f","date":"2026-05-22","time":"09:00","endTime":"13:00","title":"fosforo","person":"Valeria","notes":"Mattina"},{"id":"e_e22d80fd48","date":"2026-05-22","time":"09:00","endTime":"13:00","title":"fosforo","person":"Mattia","notes":"Mattina"},{"id":"e_6b534f5c72","date":"2026-05-22","time":"09:00","endTime":"13:00","title":"fosforo","person":"Camilla","notes":"Mattina"},{"id":"e_07264df0d0","date":"2026-05-22","time":"14:30","endTime":"18:30","title":"fosforo","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_6ec8267e63","date":"2026-05-22","time":"14:30","endTime":"18:30","title":"fosforo","person":"Luca","notes":"Pomeriggio"},{"id":"e_05adc35573","date":"2026-05-22","time":"14:30","endTime":"18:30","title":"fosforo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_fa1274d76e","date":"2026-05-22","time":"14:30","endTime":"18:30","title":"fosforo","person":"Valeria","notes":"Pomeriggio"},{"id":"e_b4a5cb3c60","date":"2026-05-22","time":"14:30","endTime":"18:30","title":"fosforo","person":"Mattia","notes":"Pomeriggio"},{"id":"e_534b81befd","date":"2026-05-22","time":"14:30","endTime":"18:30","title":"fosforo","person":"Camilla","notes":"Pomeriggio"},{"id":"e_fd67f64c4b","date":"2026-05-23","time":"09:00","endTime":"13:00","title":"fosforo","person":"Alessandro","notes":"Mattina"},{"id":"e_e5fdf78ae6","date":"2026-05-23","time":"09:00","endTime":"13:00","title":"fosforo","person":"Luca","notes":"Mattina"},{"id":"e_4f8c16fb21","date":"2026-05-23","time":"09:00","endTime":"13:00","title":"fosforo","person":"Lorenzo","notes":"Mattina"},{"id":"e_8eeb51887d","date":"2026-05-23","time":"09:00","endTime":"13:00","title":"fosforo","person":"Valeria","notes":"Mattina"},{"id":"e_b6275b4ff3","date":"2026-05-23","time":"09:00","endTime":"13:00","title":"fosforo","person":"Mattia","notes":"Mattina"},{"id":"e_e5c4657cab","date":"2026-05-23","time":"09:00","endTime":"13:00","title":"fosforo","person":"Camilla","notes":"Mattina"},{"id":"e_c0eb6559eb","date":"2026-05-23","time":"14:30","endTime":"18:30","title":"fosforo","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_44c4dcb2fb","date":"2026-05-23","time":"14:30","endTime":"18:30","title":"fosforo","person":"Luca","notes":"Pomeriggio"},{"id":"e_fe1dac6ca1","date":"2026-05-23","time":"14:30","endTime":"18:30","title":"fosforo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_cb23ac6021","date":"2026-05-23","time":"14:30","endTime":"18:30","title":"fosforo","person":"Valeria","notes":"Pomeriggio"},{"id":"e_acc95092a2","date":"2026-05-23","time":"14:30","endTime":"18:30","title":"fosforo","person":"Mattia","notes":"Pomeriggio"},{"id":"e_8485a40d45","date":"2026-05-23","time":"14:30","endTime":"18:30","title":"fosforo","person":"Camilla","notes":"Pomeriggio"},{"id":"e_cb4ba8cb53","date":"2026-05-24","time":"09:00","endTime":"13:00","title":"fosforo","person":"Alessandro","notes":"Mattina"},{"id":"e_5db06e95d2","date":"2026-05-24","time":"09:00","endTime":"13:00","title":"fosforo","person":"Luca","notes":"Mattina"},{"id":"e_9fe21f2f82","date":"2026-05-24","time":"09:00","endTime":"13:00","title":"fosforo","person":"Lorenzo","notes":"Mattina"},{"id":"e_f6ce183ee8","date":"2026-05-24","time":"09:00","endTime":"13:00","title":"fosforo","person":"Valeria","notes":"Mattina"},{"id":"e_fffe31806d","date":"2026-05-24","time":"09:00","endTime":"13:00","title":"fosforo","person":"Mattia","notes":"Mattina"},{"id":"e_1c6759e6b0","date":"2026-05-24","time":"09:00","endTime":"13:00","title":"fosforo","person":"Camilla","notes":"Mattina"},{"id":"e_f1a2412779","date":"2026-05-24","time":"14:30","endTime":"18:30","title":"fosforo","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_b82037d39d","date":"2026-05-24","time":"14:30","endTime":"18:30","title":"fosforo","person":"Luca","notes":"Pomeriggio"},{"id":"e_77555867cd","date":"2026-05-24","time":"14:30","endTime":"18:30","title":"fosforo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_4fed006b22","date":"2026-05-24","time":"14:30","endTime":"18:30","title":"fosforo","person":"Valeria","notes":"Pomeriggio"},{"id":"e_2aef81fa48","date":"2026-05-24","time":"14:30","endTime":"18:30","title":"fosforo","person":"Mattia","notes":"Pomeriggio"},{"id":"e_7052d6b3c2","date":"2026-05-24","time":"14:30","endTime":"18:30","title":"fosforo","person":"Camilla","notes":"Pomeriggio"},{"id":"e_787cf5c165","date":"2026-05-25","time":"09:00","endTime":"13:00","title":"fosforo","person":"Alessandro","notes":"Mattina"},{"id":"e_bc1cf773cb","date":"2026-05-25","time":"09:00","endTime":"13:00","title":"fosforo","person":"Luca","notes":"Mattina"},{"id":"e_a509fbe89c","date":"2026-05-25","time":"09:00","endTime":"13:00","title":"fosforo","person":"Lorenzo","notes":"Mattina"},{"id":"e_eaa2422d04","date":"2026-05-25","time":"09:00","endTime":"13:00","title":"fosforo","person":"Valeria","notes":"Mattina"},{"id":"e_d58442d964","date":"2026-05-25","time":"09:00","endTime":"13:00","title":"fosforo","person":"Mattia","notes":"Mattina"},{"id":"e_14422dd092","date":"2026-05-25","time":"09:00","endTime":"13:00","title":"fosforo","person":"Camilla","notes":"Mattina"},{"id":"e_cba61f6407","date":"2026-05-25","time":"14:30","endTime":"18:30","title":"fosforo","person":"Alessandro","notes":"Pomeriggio"},{"id":"e_eba085cd19","date":"2026-05-25","time":"14:30","endTime":"18:30","title":"fosforo","person":"Luca","notes":"Pomeriggio"},{"id":"e_7ef2aad76f","date":"2026-05-25","time":"14:30","endTime":"18:30","title":"fosforo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_e68da6fd5f","date":"2026-05-25","time":"14:30","endTime":"18:30","title":"fosforo","person":"Valeria","notes":"Pomeriggio"},{"id":"e_565bcb4361","date":"2026-05-25","time":"14:30","endTime":"18:30","title":"fosforo","person":"Mattia","notes":"Pomeriggio"},{"id":"e_1bd300ec40","date":"2026-05-25","time":"14:30","endTime":"18:30","title":"fosforo","person":"Camilla","notes":"Pomeriggio"},{"id":"e_a00de6c2ef","date":"2026-05-26","time":"14:30","endTime":"18:30","title":"Galilei 15","person":"Luca","notes":"Pomeriggio · 16.15-18.15\nGiochi e quizzone\nBorgo"},{"id":"e_e369ccda28","date":"2026-05-26","time":"14:30","endTime":"18:30","title":"no lollo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_3d0851a955","date":"2026-05-27","time":"09:00","endTime":"13:00","title":"plenaria futuro me","person":"Lorenzo","notes":"Mattina"},{"id":"e_1520614631","date":"2026-05-28","time":"09:00","endTime":"13:00","title":"plenaria futuro me","person":"Lorenzo","notes":"Mattina"},{"id":"e_21ebe71f98","date":"2026-05-28","time":"14:30","endTime":"18:30","title":"Galilei 14","person":"Luca","notes":"Pomeriggio · 14.30-18.30\nStopmotion 2\nVilla F."},{"id":"e_996978ecd3","date":"2026-05-29","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Alessandro","notes":"Mattina"},{"id":"e_5ec557ba00","date":"2026-05-29","time":"09:00","endTime":"13:00","title":"plenaria futuro me","person":"Luca","notes":"Mattina"},{"id":"e_039ff845f6","date":"2026-05-29","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Lorenzo","notes":"Mattina"},{"id":"e_778b90ebad","date":"2026-05-29","time":"14:30","endTime":"18:30","title":"No lollo","person":"Lorenzo","notes":"Pomeriggio"},{"id":"e_4acb2895e9","date":"2026-06-03","time":"09:00","endTime":"13:00","title":"plenaria futuro me","person":"Lorenzo","notes":"Mattina"},{"id":"e_751a63b599","date":"2026-06-04","time":"09:00","endTime":"13:00","title":"plenaria futuro me","person":"Lorenzo","notes":"Mattina"},{"id":"e_b06adabaf5","date":"2026-06-04","time":"14:30","endTime":"18:30","title":"Galilei 15","person":"Luca","notes":"Pomeriggio · 14.30-18.30\nGiochi e quizzone\nVilla F."},{"id":"e_296ad5ab87","date":"2026-06-04","time":"14:30","endTime":"18:30","title":"no vale","person":"Valeria","notes":"Pomeriggio"},{"id":"e_5364b4cf44","date":"2026-06-05","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Alessandro","notes":"Mattina"},{"id":"e_d8d663bd5a","date":"2026-06-05","time":"09:00","endTime":"13:00","title":"plenaria futuro me","person":"Luca","notes":"Mattina"},{"id":"e_0b8b03d4ff","date":"2026-06-05","time":"09:00","endTime":"13:00","title":"Corso liceo","person":"Lorenzo","notes":"Mattina"},{"id":"e_986d398441","date":"2026-06-05","time":"09:00","endTime":"13:00","title":"no vale","person":"Valeria","notes":"Mattina"},{"id":"e_1b4053ffe5","date":"2026-06-06","time":"09:00","endTime":"13:00","title":"no vale","person":"Valeria","notes":"Mattina"},{"id":"e_f1067e5042","date":"2026-06-07","time":"09:00","endTime":"13:00","title":"no vale","person":"Valeria","notes":"Mattina"},{"id":"e_687d8afe79","date":"2026-06-08","time":"09:00","endTime":"13:00","title":"zoo falconara corso formazione 9:00 -13:00","person":"Alessandro","notes":"Mattina"},{"id":"e_42e4582dcf","date":"2026-06-08","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Luca","notes":"Mattina"},{"id":"e_83ee63e47a","date":"2026-06-08","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Lorenzo","notes":"Mattina"},{"id":"e_bb8e4e6bc6","date":"2026-06-09","time":"09:00","endTime":"13:00","title":"zoo falconara corso formazione 9:00 -13:00 14:00-16:00","person":"Alessandro","notes":"Mattina"},{"id":"e_23567ea701","date":"2026-06-09","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Luca","notes":"Mattina"},{"id":"e_a916b93187","date":"2026-06-09","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Lorenzo","notes":"Mattina"},{"id":"e_004330ecc6","date":"2026-06-10","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Luca","notes":"Mattina"},{"id":"e_590061e671","date":"2026-06-10","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Lorenzo","notes":"Mattina"},{"id":"e_37aa6b2ff9","date":"2026-06-11","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Alessandro","notes":"Mattina"},{"id":"e_da1c0156e0","date":"2026-06-11","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Luca","notes":"Mattina"},{"id":"e_b8fd474312","date":"2026-06-11","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Lorenzo","notes":"Mattina"},{"id":"e_1096fb2c27","date":"2026-06-12","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Alessandro","notes":"Mattina"},{"id":"e_c8e97059d9","date":"2026-06-12","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Luca","notes":"Mattina"},{"id":"e_d2882c1340","date":"2026-06-12","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Lorenzo","notes":"Mattina"},{"id":"e_bfe860988a","date":"2026-06-13","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Alessandro","notes":"Mattina"},{"id":"e_249d3d4b93","date":"2026-06-13","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Luca","notes":"Mattina"},{"id":"e_7c92972ae4","date":"2026-06-13","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Lorenzo","notes":"Mattina"},{"id":"e_eb2c332e71","date":"2026-06-14","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Alessandro","notes":"Mattina"},{"id":"e_6b3cf7cc00","date":"2026-06-14","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Luca","notes":"Mattina"},{"id":"e_d1225ac127","date":"2026-06-14","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Lorenzo","notes":"Mattina"},{"id":"e_ca1e5ee7c3","date":"2026-06-15","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Alessandro","notes":"Mattina"},{"id":"e_3fc7a026cd","date":"2026-06-15","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Luca","notes":"Mattina"},{"id":"e_7975c389af","date":"2026-06-15","time":"09:00","endTime":"13:00","title":"FIASTRA","person":"Lorenzo","notes":"Mattina"},{"id":"e_bd8edfc2a6","date":"2026-06-17","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Alessandro","notes":"Mattina"},{"id":"e_34404832ed","date":"2026-06-17","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Luca","notes":"Mattina"},{"id":"e_0befd9d434","date":"2026-06-17","time":"09:00","endTime":"13:00","title":"Pannolini Serra dei conti","person":"Lorenzo","notes":"Mattina"},{"id":"e_8ff0ac523e","date":"2026-06-18","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Luca","notes":"Mattina"},{"id":"e_b9321e62f7","date":"2026-06-18","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Lorenzo","notes":"Mattina"},{"id":"e_47e695d26d","date":"2026-06-19","time":"09:00","endTime":"13:00","title":"Spettacolo suono forte dei marmi???","person":"Alessandro","notes":"Mattina"},{"id":"e_b2ca652c61","date":"2026-06-19","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Luca","notes":"Mattina"},{"id":"e_5117b734e8","date":"2026-06-19","time":"09:00","endTime":"13:00","title":"scuola Marta Russo di Osimo 3° elementare 5 ore 8:00 13:00","person":"Lorenzo","notes":"Mattina"},{"id":"e_3d4159e19d","date":"2026-06-19","time":"09:00","endTime":"13:00","title":"Spettacolo suono forte dei marmi???","person":"Valeria","notes":"Mattina"},{"id":"e_d14a3f4315","date":"2026-06-20","time":"09:00","endTime":"13:00","title":"Spettacolo suono forte dei marmi???","person":"Alessandro","notes":"Mattina"},{"id":"e_e0c407c46d","date":"2026-06-20","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_04a1e5ceb7","date":"2026-06-20","time":"09:00","endTime":"13:00","title":"Spettacolo suono forte dei marmi???","person":"Valeria","notes":"Mattina"},{"id":"e_c1d8db7e87","date":"2026-06-21","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_f9e78f49e6","date":"2026-06-22","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_23e9e7d5bd","date":"2026-06-23","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_add6114568","date":"2026-06-24","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_7584cad527","date":"2026-06-25","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_a25c8f5c50","date":"2026-06-26","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_aa8342cd45","date":"2026-06-27","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_096c99948e","date":"2026-06-28","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_5f40f9d3e8","date":"2026-06-29","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"},{"id":"e_c0c7cd7f81","date":"2026-06-30","time":"09:00","endTime":"13:00","title":"no Doro","person":"Luca","notes":"Mattina"}];
 
-  /* ---------- storage ---------- */
-  function loadCal(){
+  function hexA(hex, a){
+    var h = String(hex || "").replace("#", "");
+    if(h.length !== 6) return "rgba(87,157,255," + a + ")";
+    return "rgba(" + parseInt(h.slice(0,2),16) + "," + parseInt(h.slice(2,4),16) + "," + parseInt(h.slice(4,6),16) + "," + a + ")";
+  }
+  function isKnown(name){ return KNOWN_PERSONS.indexOf(name) >= 0; }
+  function canonicalPerson(name){
+    var t = String(name || "").trim();
+    for(var i=0;i<KNOWN_PERSONS.length;i++){
+      if(KNOWN_PERSONS[i].toLowerCase() === t.toLowerCase()) return KNOWN_PERSONS[i];
+    }
+    return t;
+  }
+  /* La persona del calendario che corrisponde a chi ha fatto login */
+  function myPerson(){
+    return canonicalPerson(state.me && state.me.display_name);
+  }
+
+  /* ---------- mezze giornate ---------- */
+  var HALVES = [{ key:"am", label:"Mattina" }, { key:"pm", label:"Pomeriggio" }];
+  var HALF_LABEL = { am:"Mattina", pm:"Pomeriggio", day:"Tutto il giorno" };
+  /* Dall'orario alla mezza giornata: si parte prima delle 13 = mattina;
+     se poi si va oltre le 14 occupa tutta la giornata. */
+  function autoHalf(start, end){
+    if(!start) return null;
+    if(start >= "13:00") return "pm";
+    if(end && end > "14:00") return "day";
+    return "am";
+  }
+
+  /* ---------- storage ----------
+   * Gli impegni stanno nella tabella condivisa be_cal_events. Se la tabella
+   * non c'e' ancora (sql/calendario.sql non eseguito) si resta nel browser
+   * come prima, con un avviso. */
+  var LEGACY_KEY   = "brown_calendar_data_v1";
+  var LOCAL_KEY    = "brown_calendar_data_v2";
+  var MIGRATED_KEY = "brown_calendar_migrated_v2";
+  var APPLE_SYNC_KEY = "brown_calendar_apple_sync_v1";
+  var DB_FIELDS = ["id","date","date_end","half","start_time","end_time","title","persons","kind",
+                   "status","project_id","project_name","notes","series_id","recur","source"];
+
+  var calEvents = [];
+  var mode = null;            // "remote" | "local"
+  var loadError = null;
+
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k, v); }catch(_){} }
+
+  /* Il vecchio formato (una persona, "Mattina"/"Pomeriggio" nelle note,
+     orari 9-13 / 14.30-18.30 messi d'ufficio) -> il nuovo */
+  function fromLegacy(e){
+    var notes = String(e.notes || "");
+    var half = null;
+    if(/^pomeriggio/i.test(notes)) half = "pm";
+    else if(/^mattina/i.test(notes)) half = "am";
+    notes = notes.replace(/^(mattina|pomeriggio)\s*(·\s*)?/i, "").trim();
+    var t = e.time || "", et = e.endTime || "";
+    var placeholder = (t === "09:00" && et === "13:00") || (t === "14:30" && et === "18:30");
+    if(placeholder){ t = ""; et = ""; }
+    return {
+      id: e.id, date: e.date, date_end: null,
+      half: half || autoHalf(t, et) || "am",
+      start_time: t || null, end_time: et || null,
+      title: e.title || "Impegno",
+      persons: e.person ? [canonicalPerson(e.person)] : [],
+      kind: "lavoro", status: "confermato",
+      project_id: null, project_name: null,
+      notes: notes || null, series_id: null, recur: null, source: "mario"
+    };
+  }
+  /* I dati del vecchio calendario nel browser, seme compreso */
+  function loadLegacy(){
     var data = null;
     try{
-      var raw = localStorage.getItem(CAL_KEY);
+      var raw = localStorage.getItem(LEGACY_KEY);
       if(raw){
         var p = JSON.parse(raw);
         if(p && Array.isArray(p.events)) data = p;
@@ -4314,31 +4529,145 @@ window.addEventListener("online", function(){
     }catch(_){}
     if(!data) data = { version:1, events:[], seedVersion:0 };
     if(typeof data.seedVersion !== "number") data.seedVersion = 0;
-
-    // Merge seed events whose deterministic IDs don't already exist locally
     if(data.seedVersion < SEED_VERSION){
       var have = {};
       data.events.forEach(function(e){ have[e.id] = 1; });
-      SEED_EVENTS.forEach(function(e){
-        if(!have[e.id]) data.events.push(JSON.parse(JSON.stringify(e)));
-      });
-      data.seedVersion = SEED_VERSION;
-      try{ localStorage.setItem(CAL_KEY, JSON.stringify(data)); }catch(_){}
+      SEED_EVENTS.forEach(function(e){ if(!have[e.id]) data.events.push(e); });
     }
-    return data;
+    return data.events.map(fromLegacy);
   }
-  function saveCal(){
-    try{ localStorage.setItem(CAL_KEY, JSON.stringify(calState)); }catch(_){}
+  function loadLocal(){
+    try{
+      var raw = localStorage.getItem(LOCAL_KEY);
+      if(raw){
+        var p = JSON.parse(raw);
+        if(p && Array.isArray(p.events)) return p.events;
+      }
+    }catch(_){}
+    return loadLegacy();
+  }
+  function saveLocal(){
+    lsSet(LOCAL_KEY, JSON.stringify({ version:2, events: calEvents }));
+  }
+  function isMissingTable(err){
+    if(!err) return false;
+    return err.code === "42P01" || err.code === "PGRST205" ||
+           /does not exist|could not find the table|schema cache/i.test(err.message || "");
+  }
+  function toDb(e){
+    var o = {};
+    DB_FIELDS.forEach(function(k){ o[k] = e[k] === undefined ? null : e[k]; });
+    if(!o.persons) o.persons = [];
+    if(!o.source) o.source = "mario";
+    return o;
+  }
+  function chunks(arr, n){
+    var out = [];
+    for(var i=0;i<arr.length;i+=n) out.push(arr.slice(i, i+n));
+    return out;
+  }
+
+  async function fetchRemote(){
+    var all = [];
+    for(var from = 0; ; from += 1000){
+      var res = await sb.from("be_cal_events").select(DB_FIELDS.join(","))
+        .order("date", { ascending: true }).order("id", { ascending: true })
+        .range(from, from + 999);
+      if(res.error) return { error: res.error };
+      all = all.concat(res.data || []);
+      if(!res.data || res.data.length < 1000) break;
+    }
+    return { data: all };
+  }
+
+  /* Il primo accesso dopo l'aggiornamento porta nel calendario condiviso
+     cio' che ognuno aveva nel browser. Il vecchio seme si carica una
+     volta sola, a tabella vuota: altrimenti chi entra per ultimo
+     resusciterebbe gli impegni che gli altri hanno cancellato. */
+  async function migrateLegacy(remoteCount){
+    if(lsGet(MIGRATED_KEY)) return false;
+    var seedIds = {};
+    SEED_EVENTS.forEach(function(e){ seedIds[e.id] = 1; });
+    var rows = loadLegacy().filter(function(e){
+      return remoteCount === 0 || !seedIds[e.id];
+    });
+    for(var i=0, parts = chunks(rows.map(toDb), 200); i<parts.length; i++){
+      var res = await sb.from("be_cal_events").upsert(parts[i], { onConflict:"id", ignoreDuplicates:true });
+      if(res.error){ notify(errorText(res.error, "Impegni del browser non caricati")); return false; }
+    }
+    lsSet(MIGRATED_KEY, "1");
+    return rows.length > 0;
+  }
+
+  async function loadEvents(){
+    var res = await fetchRemote();
+    if(res.error && isMissingTable(res.error)){
+      mode = "local"; loadError = null;
+      calEvents = loadLocal();
+      return;
+    }
+    if(res.error){
+      // offline o errore: si mostra l'ultima copia nota
+      mode = "remote";
+      loadError = res.error;
+      if(!calEvents.length){
+        try{ calEvents = JSON.parse(lsGet("brown_calendar_cache_v2") || "[]"); }catch(_){ calEvents = []; }
+      }
+      return;
+    }
+    mode = "remote"; loadError = null;
+    calEvents = res.data;
+    if(await migrateLegacy(calEvents.length)){
+      var again = await fetchRemote();
+      if(!again.error) calEvents = again.data;
+    }
+    lsSet("brown_calendar_cache_v2", JSON.stringify(calEvents));
+  }
+
+  function mergeLocal(rows){
+    var byId = {};
+    rows.forEach(function(r){ byId[r.id] = r; });
+    calEvents = calEvents.map(function(e){
+      if(byId[e.id]){ var r = byId[e.id]; delete byId[e.id]; return r; }
+      return e;
+    });
+    Object.keys(byId).forEach(function(k){ calEvents.push(byId[k]); });
+  }
+  async function saveRows(rows, failMsg){
+    if(!rows.length) return true;
+    rows = rows.map(toDb);
+    if(mode === "remote"){
+      for(var i=0, parts = chunks(rows, 200); i<parts.length; i++){
+        var res = await sb.from("be_cal_events").upsert(parts[i], { onConflict:"id" });
+        if(res.error){ notify(errorText(res.error, failMsg || "Impegno non salvato")); return false; }
+      }
+    }
+    mergeLocal(rows);
+    if(mode === "local") saveLocal();
+    return true;
+  }
+  async function deleteRows(ids, failMsg){
+    if(!ids.length) return true;
+    if(mode === "remote"){
+      for(var i=0, parts = chunks(ids, 200); i<parts.length; i++){
+        var res = await sb.from("be_cal_events").delete().in("id", parts[i]);
+        if(res.error){ notify(errorText(res.error, failMsg || "Impegno non eliminato")); return false; }
+      }
+    }
+    var gone = {};
+    ids.forEach(function(id){ gone[id] = 1; });
+    calEvents = calEvents.filter(function(e){ return !gone[e.id]; });
+    if(mode === "local") saveLocal();
+    return true;
   }
 
   /* ---------- state ---------- */
-  var calState = loadCal();
   var view = "week";          // 'day' | 'week' | 'month'
   var cursor = new Date();    // anchor date for current view
 
   /* ---------- person filter ---------- */
-  var FILTER_KEY = "brown_calendar_filter_v1";
-  var selectedPersons; // Set<string>; null until loaded
+  var FILTER_KEY = "brown_calendar_filter_v2";
+  var selectedPersons; // Set<string>; OTHERS = la riga "Altri"
   function loadFilter(){
     try{
       var raw = localStorage.getItem(FILTER_KEY);
@@ -4347,20 +4676,31 @@ window.addEventListener("online", function(){
         if(Array.isArray(arr)) return new Set(arr);
       }
     }catch(_){}
-    return new Set(KNOWN_PERSONS); // default: all six selected
+    return new Set(KNOWN_PERSONS.concat([OTHERS]));
   }
   function saveFilter(){
-    try{
-      var arr = []; selectedPersons.forEach(function(p){ arr.push(p); });
-      localStorage.setItem(FILTER_KEY, JSON.stringify(arr));
-    }catch(_){}
+    var arr = []; selectedPersons.forEach(function(p){ arr.push(p); });
+    lsSet(FILTER_KEY, JSON.stringify(arr));
   }
   selectedPersons = loadFilter();
 
-  function eventVisible(e){
-    if(!e.person) return true;     // events without a person are always shown
-    return selectedPersons.has(e.person);
+  /* Le righe da disegnare: le persone del team selezionate, nell'ordine
+     fisso, piu' "Altri" se selezionata e se nel periodo c'e' qualcuno
+     da fuori. */
+  function visibleRows(evsInRange){
+    var rows = KNOWN_PERSONS.filter(function(p){ return selectedPersons.has(p); });
+    if(selectedPersons.has(OTHERS) && evsInRange.some(hasOutsider)) rows.push(OTHERS);
+    return rows;
   }
+  function hasOutsider(e){
+    return !e.persons || !e.persons.length || e.persons.some(function(p){ return !isKnown(p); });
+  }
+  function outsiders(e){
+    if(!e.persons || !e.persons.length) return ["Senza persona"];
+    return e.persons.filter(function(p){ return !isKnown(p); });
+  }
+  function rowColor(row){ return row === OTHERS ? OTHERS_COLOR : personColor(row); }
+  function rowLabel(row){ return row === OTHERS ? "Altri" : row; }
 
   /* ---------- DOM refs ---------- */
   var $overlay = document.getElementById("cal-overlay");
@@ -4370,12 +4710,25 @@ window.addEventListener("online", function(){
   var $views   = $overlay.querySelectorAll(".cal-views button");
 
   /* ---------- open / close ---------- */
+  var loadingPromise = null;
+  function refresh(){
+    if(!loadingPromise){
+      loadingPromise = loadEvents().then(function(){
+        loadingPromise = null;
+        if($overlay.classList.contains("show")) render();
+        maybeAutoSyncApple();
+      });
+    }
+    return loadingPromise;
+  }
   function open(){
     cursor = new Date();
     $overlay.classList.add("show");
     $overlay.setAttribute("aria-hidden","false");
     document.body.style.overflow = "hidden";
-    render();
+    if(mode === null) $body.innerHTML = '<div class="cal-empty"><p>Carico il calendario…</p></div>';
+    else render();
+    refresh();
   }
   function close(){
     $overlay.classList.remove("show");
@@ -4398,53 +4751,69 @@ window.addEventListener("online", function(){
   function goToday(){ cursor = new Date(); render(); }
 
   /* ---------- event helpers ---------- */
-  function eventsForDate(dateStr){
-    return calState.events
-      .filter(function(e){ return e.date === dateStr && eventVisible(e); })
-      .sort(function(a,b){
-        var ta = a.time || "99:99";
-        var tb = b.time || "99:99";
-        return ta.localeCompare(tb);
-      });
+  function covers(e, dateStr){
+    return e.date <= dateStr && (e.date_end || e.date) >= dateStr;
+  }
+  function eventsInRange(fromStr, toStr){
+    return calEvents.filter(function(e){ return e.date <= toStr && (e.date_end || e.date) >= fromStr; });
+  }
+  function byTime(a, b){
+    var ka = (a.kind === "ferie" ? "0" : "1") + (a.start_time || "99:99");
+    var kb = (b.kind === "ferie" ? "0" : "1") + (b.start_time || "99:99");
+    return ka.localeCompare(kb);
+  }
+  /* Gli impegni di una casella: persona (o "Altri") x giorno x mezza giornata */
+  function slotEvents(evs, row, dateStr, half){
+    return evs.filter(function(e){
+      if(!covers(e, dateStr)) return false;
+      if(half && e.half !== half && e.half !== "day") return false;
+      if(row === OTHERS) return hasOutsider(e);
+      return e.persons && e.persons.indexOf(row) >= 0;
+    }).sort(byTime);
   }
   function fmtTimeRange(ev){
-    if(!ev.time) return "Tutto il giorno";
-    if(ev.endTime && ev.endTime !== ev.time) return ev.time + " – " + ev.endTime;
-    return ev.time;
+    if(!ev.start_time) return HALF_LABEL[ev.half] || "";
+    if(ev.end_time && ev.end_time !== ev.start_time) return ev.start_time + " – " + ev.end_time;
+    return ev.start_time;
+  }
+  function displayTitle(e){
+    var t = e.kind === "ferie" ? (e.title && e.title !== "Ferie" ? "Ferie · " + e.title : "Ferie") : e.title;
+    return e.status === "da_confermare" ? "? " + t + " ?" : t;
+  }
+  function chipClass(e){
+    return "k-" + (e.kind || "lavoro") + (e.status === "da_confermare" ? " tentative" : "") +
+           (e.source === "apple" ? " from-apple" : "");
+  }
+  function paintChip(el, e, row){
+    var c = row === OTHERS ? OTHERS_COLOR : personColor(row);
+    el.style.setProperty("--pc", c);
+    el.style.setProperty("--pcbg", hexA(c, 0.22));
+  }
+  function eventTooltip(e){
+    var bits = [displayTitle(e), fmtTimeRange(e)];
+    if(e.project_name) bits.push("Progetto: " + e.project_name);
+    if(e.persons && e.persons.length) bits.push(e.persons.join(", "));
+    if(e.kind === "extra") bits.push("Extra fosforo" + (e.source === "apple" ? " (da Apple Calendar)" : ""));
+    return bits.filter(Boolean).join("\n");
   }
 
   /* ---------- rendering ---------- */
-  function getAllPersons(){
-    // Known team first (in stable order), then any extra persons found in events
-    var seen = {};
-    var ordered = [];
-    KNOWN_PERSONS.forEach(function(p){ seen[p]=1; ordered.push(p); });
-    var extras = [];
-    calState.events.forEach(function(e){
-      if(e.person && !seen[e.person]){ seen[e.person]=1; extras.push(e.person); }
-    });
-    extras.sort(function(a,b){ return a.localeCompare(b); });
-    return ordered.concat(extras);
-  }
-
   function renderPersonSide(){
-    var people = getAllPersons();
+    var people = KNOWN_PERSONS.concat([OTHERS]);
     $side.innerHTML = "";
 
     var h = document.createElement("h3");
     h.textContent = "Persone";
     $side.appendChild(h);
 
-    // "Tutti" master toggle
     var allRow = document.createElement("div");
     allRow.className = "cal-person-row all";
-    var allOn = people.length > 0 && people.every(function(p){ return selectedPersons.has(p); });
+    var allOn = people.every(function(p){ return selectedPersons.has(p); });
     if(allOn) allRow.classList.add("checked");
-    allRow.innerHTML = '<div class="cal-cb"></div><div class="cal-person-name">Tutti</div>'+
-                       '<div class="cal-person-count">'+ people.length +'</div>';
+    allRow.innerHTML = '<div class="cal-cb"></div><div class="cal-person-name">Tutti</div>';
     allRow.addEventListener("click", function(){
-      if(allOn){ selectedPersons.clear(); }
-      else { people.forEach(function(p){ selectedPersons.add(p); }); }
+      if(allOn) selectedPersons.clear();
+      else people.forEach(function(p){ selectedPersons.add(p); });
       saveFilter();
       render();
     });
@@ -4454,16 +4823,21 @@ window.addEventListener("online", function(){
     divider.className = "cal-side-divider";
     $side.appendChild(divider);
 
-    // Per-person rows
+    var today = todayKey();
     people.forEach(function(p){
       var row = document.createElement("div");
       row.className = "cal-person-row";
       if(selectedPersons.has(p)) row.classList.add("checked");
-      row.style.setProperty("--pc", personColor(p));
-      var count = calState.events.reduce(function(n,e){ return n + (e.person === p ? 1 : 0); }, 0);
+      row.style.setProperty("--pc", rowColor(p));
+      var count = calEvents.reduce(function(n,e){
+        if((e.date_end || e.date) < today) return n;
+        var mine = p === OTHERS ? hasOutsider(e) : (e.persons && e.persons.indexOf(p) >= 0);
+        return n + (mine ? 1 : 0);
+      }, 0);
+      row.title = count + " impegni da oggi in poi";
       row.innerHTML =
         '<div class="cal-cb"></div>'+
-        '<div class="cal-person-name">'+ escapeHtml(p) +'</div>'+
+        '<div class="cal-person-name">'+ escapeHtml(p === OTHERS ? "Altri (fuori dal team)" : p) +'</div>'+
         '<div class="cal-person-count">'+ count +'</div>';
       row.addEventListener("click", function(e){
         if(e.shiftKey || e.metaKey || e.ctrlKey){
@@ -4480,7 +4854,6 @@ window.addEventListener("online", function(){
       $side.appendChild(row);
     });
 
-    // Quick-action buttons
     var actions = document.createElement("div");
     actions.className = "cal-side-actions";
     actions.innerHTML =
@@ -4495,18 +4868,55 @@ window.addEventListener("online", function(){
       saveFilter(); render();
     });
     $side.appendChild(actions);
+
+    var legend = document.createElement("div");
+    legend.className = "cal-legend";
+    legend.innerHTML =
+      '<h3>Legenda</h3>'+
+      '<div><span class="cal-legend-sw k-lavoro"></span>Lavoro</div>'+
+      '<div><span class="cal-legend-sw k-extra"></span>Extra fosforo (non disponibile)</div>'+
+      '<div><span class="cal-legend-sw k-ferie"></span>Ferie</div>'+
+      '<div><span class="cal-legend-sw k-lavoro tentative"></span>? Da confermare ?</div>';
+    $side.appendChild(legend);
+  }
+
+  function renderBanner(){
+    var msg = null;
+    if(mode === "local"){
+      msg = "Il calendario non è ancora condiviso: va eseguito sql/calendario.sql su Supabase. " +
+            "Nel frattempo gli impegni restano solo in questo browser.";
+    } else if(loadError){
+      msg = isNetworkError(loadError)
+        ? "Sei offline: vedi l'ultima copia scaricata, le modifiche non verranno salvate."
+        : "Calendario non aggiornato: " + (loadError.message || "errore imprevisto");
+    }
+    if(!msg) return;
+    var b = document.createElement("div");
+    b.className = "cal-banner";
+    b.textContent = msg;
+    $body.appendChild(b);
   }
 
   function render(){
     renderPersonSide();
+    $body.innerHTML = "";
+    renderBanner();
     if(view === "day")   renderDay();
     if(view === "week")  renderWeek();
     if(view === "month") renderMonth();
   }
 
+  /* Una casella vuota ma cliccabile: apre un impegno gia' compilato
+     con persona, giorno e mezza giornata */
+  function newFor(row, dateStr, half){
+    openEventModal(null, {
+      date: dateStr, half: half || "am",
+      persons: row && row !== OTHERS ? [row] : []
+    });
+  }
+
   function renderMonth(){
     $period.textContent = MONTHS[cursor.getMonth()] + " " + cursor.getFullYear();
-    $body.innerHTML = "";
 
     var wrap = document.createElement("div");
     wrap.className = "cal-month";
@@ -4515,7 +4925,7 @@ window.addEventListener("online", function(){
     head.className = "cal-month-headrow";
     DAYS_SHORT.forEach(function(d){
       var h = document.createElement("div");
-      h.textContent = d;
+      h.innerHTML = d + '<span class="cal-month-halves"><span>mattina</span><span>pom.</span></span>';
       head.appendChild(h);
     });
     wrap.appendChild(head);
@@ -4526,10 +4936,12 @@ window.addEventListener("online", function(){
     var firstOfMonth = startOfMonth(cursor);
     var gridStart = startOfWeek(firstOfMonth);
     var today = new Date();
+    var evs = eventsInRange(fmtDate(gridStart), fmtDate(addDays(gridStart, 41)));
+    var rows = visibleRows(evs);
 
-    // 6 rows × 7 cols = 42 cells
     for(var i=0;i<42;i++){
       var d = addDays(gridStart, i);
+      var ds = fmtDate(d);
       var cell = document.createElement("div");
       cell.className = "cal-day-cell";
       if(d.getMonth() !== cursor.getMonth()) cell.classList.add("other-month");
@@ -4540,29 +4952,34 @@ window.addEventListener("online", function(){
       num.textContent = d.getDate();
       cell.appendChild(num);
 
-      var evs = eventsForDate(fmtDate(d));
-      var evWrap = document.createElement("div");
-      evWrap.className = "cal-day-events";
-      var max = 3;
-      evs.slice(0, max).forEach(function(e){
-        var chip = document.createElement("div");
-        chip.className = "cal-event";
-        chip.style.borderLeftColor = personColor(e.person);
-        chip.textContent = (e.time ? e.time + " " : "") + e.title;
-        chip.addEventListener("click", function(ev){ ev.stopPropagation(); openEventModal(e); });
-        evWrap.appendChild(chip);
+      // Una riga per persona, sempre nello stesso ordine; a sinistra la
+      // mattina, a destra il pomeriggio. Le caselle vuote restano.
+      var mg = document.createElement("div");
+      mg.className = "cal-mgrid";
+      rows.forEach(function(row){
+        HALVES.forEach(function(h){
+          var se = slotEvents(evs, row, ds, h.key);
+          var slot = document.createElement("div");
+          slot.className = "cal-mslot";
+          if(se.length){
+            var e = se[0];
+            slot.className += " full " + chipClass(e);
+            paintChip(slot, e, row);
+            slot.textContent = (e.status === "da_confermare" ? "? " : "") +
+              (row === OTHERS ? outsiders(e).join(", ") + ": " : "") +
+              (e.kind === "ferie" ? "Ferie" : e.title) + (se.length > 1 ? " +" + (se.length - 1) : "");
+            slot.title = rowLabel(row) + " · " + h.label + "\n" + se.map(eventTooltip).join("\n\n");
+            slot.addEventListener("click", function(ev){ ev.stopPropagation(); openEventModal(e); });
+          } else {
+            slot.title = rowLabel(row) + " · " + h.label + ": libero";
+          }
+          mg.appendChild(slot);
+        });
       });
-      if(evs.length > max){
-        var more = document.createElement("div");
-        more.className = "cal-event-more";
-        more.textContent = "+ " + (evs.length - max) + " altri";
-        evWrap.appendChild(more);
-      }
-      cell.appendChild(evWrap);
+      cell.appendChild(mg);
 
       (function(date){
         cell.addEventListener("click", function(){
-          // single click on day cell → switch to day view
           cursor = date;
           setView("day");
         });
@@ -4577,137 +4994,201 @@ window.addEventListener("online", function(){
   function renderWeek(){
     var ws = startOfWeek(cursor);
     var we = addDays(ws, 6);
-    var sameMonth = ws.getMonth() === we.getMonth();
-    if(sameMonth){
+    if(ws.getMonth() === we.getMonth()){
       $period.textContent = ws.getDate() + " – " + we.getDate() + " " + MONTHS[ws.getMonth()] + " " + ws.getFullYear();
     } else {
       $period.textContent = ws.getDate() + " " + MONTHS[ws.getMonth()] + " – " + we.getDate() + " " + MONTHS[we.getMonth()] + " " + we.getFullYear();
     }
-    $body.innerHTML = "";
+
+    var evs = eventsInRange(fmtDate(ws), fmtDate(we));
+    var rows = visibleRows(evs);
+    var today = new Date();
 
     var wrap = document.createElement("div");
     wrap.className = "cal-week";
+    var grid = document.createElement("div");
+    grid.className = "cal-wgrid";
 
-    var today = new Date();
+    var corner = document.createElement("div");
+    corner.className = "cal-wcorner";
+    grid.appendChild(corner);
     for(var i=0;i<7;i++){
       var d = addDays(ws, i);
-      var col = document.createElement("div");
-      col.className = "cal-week-col";
-
       var head = document.createElement("div");
       head.className = "cal-week-head";
       if(isSameDay(d, today)) head.classList.add("today");
       head.innerHTML = '<div class="cal-week-day-name">'+ DAYS_SHORT[i] +'</div>'+
                        '<div class="cal-week-day-num">'+ d.getDate() +'</div>';
       (function(date){
-        head.addEventListener("click", function(){
-          cursor = date;
-          setView("day");
-        });
+        head.addEventListener("click", function(){ cursor = date; setView("day"); });
       })(new Date(d));
-      col.appendChild(head);
-
-      var list = document.createElement("div");
-      list.className = "cal-week-events";
-      var evs = eventsForDate(fmtDate(d));
-      if(!evs.length){
-        var ph = document.createElement("button");
-        ph.className = "add-card";
-        ph.style.margin = "0";
-        ph.style.fontSize = "12px";
-        ph.style.padding = "6px 8px";
-        ph.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Aggiungi';
-        (function(date){
-          ph.addEventListener("click", function(ev){ ev.stopPropagation(); openEventModal(null, fmtDate(date)); });
-        })(new Date(d));
-        list.appendChild(ph);
-      }
-      evs.forEach(function(e){
-        var item = document.createElement("div");
-        item.className = "cal-week-event";
-        item.style.borderLeftColor = personColor(e.person);
-        var html = "";
-        html += '<div class="cal-week-event-time">'+ escapeHtml(fmtTimeRange(e)) +'</div>';
-        html += '<div class="cal-week-event-title">'+ escapeHtml(e.title) +'</div>';
-        if(e.person){
-          html += '<div class="cal-week-event-person"><span class="cal-person-dot" style="background:'+ personColor(e.person) +'"></span>'+ escapeHtml(e.person) +'</div>';
-        }
-        item.innerHTML = html;
-        item.addEventListener("click", function(){ openEventModal(e); });
-        list.appendChild(item);
-      });
-      col.appendChild(list);
-
-      wrap.appendChild(col);
+      grid.appendChild(head);
     }
+
+    if(!rows.length){
+      var none = document.createElement("div");
+      none.className = "cal-wband";
+      none.innerHTML = "<span>Nessuna persona selezionata</span>";
+      grid.appendChild(none);
+    }
+
+    HALVES.forEach(function(h){
+      if(!rows.length) return;
+      var band = document.createElement("div");
+      band.className = "cal-wband";
+      band.innerHTML = "<span>" + h.label + "</span>";
+      grid.appendChild(band);
+
+      rows.forEach(function(row){
+        var label = document.createElement("div");
+        label.className = "cal-wlabel";
+        label.innerHTML = '<span class="cal-person-dot" style="background:'+ rowColor(row) +'"></span>' +
+                          '<span class="cal-wlabel-name">' + escapeHtml(rowLabel(row)) + '</span>';
+        grid.appendChild(label);
+
+        for(var i=0;i<7;i++){
+          var d = addDays(ws, i);
+          var ds = fmtDate(d);
+          var cell = document.createElement("div");
+          cell.className = "cal-wcell";
+          if(isSameDay(d, today)) cell.classList.add("today");
+          var se = slotEvents(evs, row, ds, h.key);
+          se.forEach(function(e){
+            var chip = document.createElement("div");
+            chip.className = "cal-chip " + chipClass(e);
+            paintChip(chip, e, row);
+            var html = "";
+            if(e.start_time) html += '<span class="cal-chip-time">' + escapeHtml(fmtTimeRange(e)) + '</span>';
+            if(e.kind === "extra") html += '<span class="cal-tag">Extra</span>';
+            if(row === OTHERS) html += '<b>' + escapeHtml(outsiders(e).join(", ")) + ':</b> ';
+            html += escapeHtml(displayTitle(e));
+            if(e.project_name) html += '<span class="cal-chip-proj">' + escapeHtml(e.project_name) + '</span>';
+            chip.innerHTML = html;
+            chip.title = eventTooltip(e);
+            chip.addEventListener("click", function(ev){ ev.stopPropagation(); openEventModal(e); });
+            cell.appendChild(chip);
+          });
+          cell.title = se.length ? "" : rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
+          (function(row, ds, half){
+            cell.addEventListener("click", function(){ newFor(row, ds, half); });
+          })(row, ds, h.key);
+          grid.appendChild(cell);
+        }
+      });
+    });
+
+    wrap.appendChild(grid);
     $body.appendChild(wrap);
   }
 
   function renderDay(){
     $period.textContent = cursor.getDate() + " " + MONTHS[cursor.getMonth()] + " " + cursor.getFullYear();
-    $body.innerHTML = "";
+    var ds = fmtDate(cursor);
 
     var wrap = document.createElement("div");
     wrap.className = "cal-day-view";
 
     var head = document.createElement("div");
     head.className = "cal-day-view-head";
-    var today = new Date();
-    if(isSameDay(cursor, today)) head.classList.add("today");
+    if(isSameDay(cursor, new Date())) head.classList.add("today");
     head.innerHTML = '<h3>'+ DAYS_LONG[(cursor.getDay()+6)%7] +' <span class="daynum">'+ cursor.getDate() +'</span> '+ MONTHS[cursor.getMonth()] +'</h3>';
     wrap.appendChild(head);
 
     var list = document.createElement("div");
-    list.className = "cal-day-list";
+    list.className = "cal-day-scroll";
 
-    var evs = eventsForDate(fmtDate(cursor));
-    if(!evs.length){
-      var empty = document.createElement("div");
-      empty.className = "cal-empty";
-      empty.innerHTML = '<h3>Nessun impegno</h3><p>Non ci sono impegni per questa giornata.</p>';
-      var btn = document.createElement("button");
-      btn.className = "cal-add-btn";
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Aggiungi impegno';
-      btn.addEventListener("click", function(){ openEventModal(null, fmtDate(cursor)); });
-      empty.appendChild(btn);
-      list.appendChild(empty);
-    } else {
-      evs.forEach(function(e){
-        var card = document.createElement("div");
-        card.className = "cal-day-event-card";
-        card.style.borderLeftColor = personColor(e.person);
+    var evs = eventsInRange(ds, ds);
+    var rows = visibleRows(evs);
 
-        var t = document.createElement("div");
-        t.className = "cal-day-event-time" + (e.time ? "" : " notime");
-        t.textContent = fmtTimeRange(e);
+    HALVES.forEach(function(h){
+      var sec = document.createElement("section");
+      sec.className = "cal-dsec";
+      var t = document.createElement("h4");
+      t.textContent = h.label;
+      sec.appendChild(t);
 
-        var body = document.createElement("div");
-        body.className = "cal-day-event-body";
-        var title = document.createElement("div");
-        title.className = "cal-day-event-title";
-        title.textContent = e.title;
-        body.appendChild(title);
-        if(e.person){
-          var meta = document.createElement("div");
-          meta.className = "cal-day-event-meta";
-          meta.innerHTML = '<span class="cal-person-dot" style="background:'+ personColor(e.person) +'"></span>'+ escapeHtml(e.person);
-          body.appendChild(meta);
+      rows.forEach(function(row){
+        var r = document.createElement("div");
+        r.className = "cal-drow";
+        var name = document.createElement("div");
+        name.className = "cal-dname";
+        name.innerHTML = '<span class="cal-person-dot" style="background:'+ rowColor(row) +'"></span>' + escapeHtml(rowLabel(row));
+        r.appendChild(name);
+
+        var cards = document.createElement("div");
+        cards.className = "cal-dcards";
+        var se = slotEvents(evs, row, ds, h.key);
+        if(!se.length){
+          var free = document.createElement("button");
+          free.type = "button";
+          free.className = "cal-dfree";
+          free.innerHTML = '<span>Libero</span><span class="cal-dfree-add">+ aggiungi</span>';
+          free.addEventListener("click", function(){ newFor(row, ds, h.key); });
+          cards.appendChild(free);
         }
-        if(e.notes){
-          var n = document.createElement("div");
-          n.className = "cal-day-event-notes";
-          n.textContent = e.notes;
-          body.appendChild(n);
-        }
-
-        card.appendChild(t);
-        card.appendChild(body);
-        card.addEventListener("click", function(){ openEventModal(e); });
-        list.appendChild(card);
+        se.forEach(function(e){ cards.appendChild(dayCard(e, row)); });
+        r.appendChild(cards);
+        sec.appendChild(r);
       });
-    }
+      if(!rows.length){
+        var none = document.createElement("p");
+        none.className = "cal-dnone";
+        none.textContent = "Nessuna persona selezionata.";
+        sec.appendChild(none);
+      }
+      list.appendChild(sec);
+    });
+
     wrap.appendChild(list);
     $body.appendChild(wrap);
+  }
+
+  function dayCard(e, row){
+    var card = document.createElement("div");
+    card.className = "cal-day-event-card " + chipClass(e);
+    paintChip(card, e, row);
+
+    var t = document.createElement("div");
+    t.className = "cal-day-event-time" + (e.start_time ? "" : " notime");
+    t.textContent = fmtTimeRange(e);
+
+    var body = document.createElement("div");
+    body.className = "cal-day-event-body";
+    var title = document.createElement("div");
+    title.className = "cal-day-event-title";
+    title.textContent = (row === OTHERS ? outsiders(e).join(", ") + ": " : "") + displayTitle(e);
+    body.appendChild(title);
+
+    var meta = document.createElement("div");
+    meta.className = "cal-day-event-meta";
+    var bits = [];
+    if(e.kind === "extra") bits.push('<span class="cal-tag">Extra fosforo</span>');
+    if(e.kind === "ferie") bits.push('<span class="cal-tag">Ferie</span>');
+    if(e.status === "da_confermare") bits.push('<span class="cal-tag warn">Da confermare</span>');
+    if(e.source === "apple") bits.push('<span class="cal-tag">Da Apple Calendar</span>');
+    if(e.project_name) bits.push('<span>Progetto: ' + escapeHtml(e.project_name) + '</span>');
+    if(e.persons && e.persons.length > 1) bits.push('<span>Con: ' + escapeHtml(e.persons.join(", ")) + '</span>');
+    if(e.date_end && e.date_end !== e.date){
+      bits.push('<span>Dal ' + escapeHtml(fmtShort(e.date)) + ' al ' + escapeHtml(fmtShort(e.date_end)) + '</span>');
+    }
+    if(e.series_id) bits.push('<span>Ricorrente</span>');
+    meta.innerHTML = bits.join("");
+    if(bits.length) body.appendChild(meta);
+
+    if(e.notes){
+      var n = document.createElement("div");
+      n.className = "cal-day-event-notes";
+      n.textContent = e.notes;
+      body.appendChild(n);
+    }
+    card.appendChild(t);
+    card.appendChild(body);
+    card.addEventListener("click", function(){ openEventModal(e); });
+    return card;
+  }
+  function fmtShort(s){
+    var d = parseDate(s);
+    return d.getDate() + " " + MONTHS[d.getMonth()];
   }
 
   function escapeHtml(s){
@@ -4716,49 +5197,149 @@ window.addEventListener("online", function(){
     });
   }
 
+  /* ---------- piccole finestre di scelta ---------- */
+  function askChoice(title, text, choices){
+    return new Promise(function(resolve){
+      var bd = document.createElement("div");
+      bd.className = "modal-backdrop";
+      bd.style.zIndex = "110";
+      bd.innerHTML =
+        '<div class="modal" role="dialog" aria-modal="true" style="max-width:400px">' +
+          '<h2></h2><p class="cm-ask-text"></p><div class="actions cm-ask-actions"></div>' +
+        '</div>';
+      bd.querySelector("h2").textContent = title;
+      bd.querySelector("p").textContent = text;
+      var $a = bd.querySelector(".cm-ask-actions");
+      function done(v){ bd.remove(); document.removeEventListener("keydown", onKey, true); resolve(v); }
+      function onKey(e){ if(e.key === "Escape"){ e.stopPropagation(); done(null); } }
+      choices.forEach(function(c){
+        var b = document.createElement("button");
+        b.className = c.primary ? "btn-primary" : "btn-cancel";
+        if(c.danger) b.style.color = "#f87168";
+        b.textContent = c.label;
+        b.addEventListener("click", function(){ done(c.value); });
+        $a.appendChild(b);
+      });
+      bd.addEventListener("click", function(e){ if(e.target === bd) done(null); });
+      document.addEventListener("keydown", onKey, true);
+      document.body.appendChild(bd);
+    });
+  }
+
   /* ---------- event modal ---------- */
-  function openEventModal(existing, defaultDate){
+  var WEEKDAY_LETTERS = ["L","M","M","G","V","S","D"];
+  function isoDow(d){ return ((d.getDay() + 6) % 7) + 1; }   // 1 = lunedi'
+
+  function hourOptions(){
+    var o = '<option value="">--</option>';
+    for(var h=0; h<24; h++) o += '<option value="'+ pad(h) +'">'+ pad(h) +'</option>';
+    return o;
+  }
+  function minuteOptions(){
+    var o = "";
+    for(var m=0; m<60; m+=5) o += '<option value="'+ pad(m) +'">'+ pad(m) +'</option>';
+    return o;
+  }
+  function projectOptions(current){
+    var projs = (state.projects || []).slice().sort(function(a,b){ return a.name.localeCompare(b.name, "it"); });
+    var o = '<option value="">— Scegli il progetto —</option>';
+    var found = false;
+    projs.forEach(function(p){
+      if(current && current.project_id === p.id) found = true;
+      o += '<option value="'+ escapeHtml(p.id) +'">'+ escapeHtml(p.name) +'</option>';
+    });
+    // un progetto di qualcun altro, che chi modifica non vede: resta com'era
+    if(current && current.project_id && !found){
+      o += '<option value="'+ escapeHtml(current.project_id) +'">'+ escapeHtml(current.project_name || "Progetto") +'</option>';
+    }
+    o += '<option value="__altro__">Altro (specificare)…</option>';
+    return o;
+  }
+
+  function openEventModal(existing, preset){
+    if(existing && existing.source === "apple") return openAppleEventInfo(existing);
     var isEdit = !!existing;
-    var data = existing ? Object.assign({}, existing) : {
+    preset = preset || {};
+    var me = myPerson();
+    var data = existing ? JSON.parse(JSON.stringify(existing)) : {
       id: null,
-      date: defaultDate || fmtDate(cursor),
-      time: "",
-      endTime: "",
+      date: preset.date || fmtDate(cursor),
+      date_end: null,
+      half: preset.half || "am",
+      start_time: null, end_time: null,
       title: "",
-      person: "",
-      notes: ""
+      persons: preset.persons && preset.persons.length ? preset.persons.slice()
+             : (isKnown(me) ? [me] : []),
+      kind: "lavoro", status: "confermato",
+      project_id: null, project_name: null,
+      notes: null, series_id: null, recur: null, source: "mario"
     };
 
     var bd = document.createElement("div");
     bd.className = "modal-backdrop";
     bd.innerHTML =
-      '<div class="modal" role="dialog" style="max-width:480px">' +
+      '<div class="modal cm-modal" role="dialog" aria-modal="true">' +
         '<h2>'+ (isEdit ? "Modifica impegno" : "Nuovo impegno") +'</h2>' +
 
-        '<label>Titolo</label>' +
-        '<input type="text" id="cm-title" placeholder="Cosa va fatto" maxlength="200">' +
-
-        '<label>Persona</label>' +
-        '<input type="text" id="cm-person" placeholder="Chi se ne occupa" list="cm-persons" maxlength="80">' +
-        '<datalist id="cm-persons"></datalist>' +
-
-        '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
-          '<div style="flex:1 1 180px;min-width:0">' +
-            '<label>Data</label>' +
-            '<input type="date" id="cm-date">' +
-          '</div>' +
-          '<div style="flex:1 1 110px;min-width:0">' +
-            '<label>Inizio</label>' +
-            '<input type="time" id="cm-time">' +
-          '</div>' +
-          '<div style="flex:1 1 110px;min-width:0">' +
-            '<label>Fine</label>' +
-            '<input type="time" id="cm-end">' +
-          '</div>' +
+        '<div class="cm-seg" id="cm-kind" role="radiogroup" aria-label="Tipo di impegno">' +
+          '<button type="button" data-v="lavoro">Lavoro</button>' +
+          '<button type="button" data-v="extra">Extra fosforo</button>' +
+          '<button type="button" data-v="ferie">Ferie</button>' +
         '</div>' +
 
-        '<label>Note (opzionale)</label>' +
+        '<label for="cm-title" id="cm-title-label">Titolo</label>' +
+        '<input type="text" id="cm-title" placeholder="Cosa va fatto" maxlength="200">' +
+
+        '<div id="cm-project-box">' +
+          '<label for="cm-project">Progetto *</label>' +
+          '<select id="cm-project" class="col-select"></select>' +
+          '<input type="text" id="cm-project-other" placeholder="Specifica a cosa si riferisce" maxlength="120" hidden>' +
+        '</div>' +
+
+        '<label>Persone *</label>' +
+        '<div class="cm-people" id="cm-people"></div>' +
+        '<input type="text" id="cm-outsiders" placeholder="Altri, fuori dal team (nomi separati da virgola)" maxlength="200">' +
+
+        '<div class="cm-row">' +
+          '<div><label for="cm-date" id="cm-date-label">Data</label><input type="date" id="cm-date"></div>' +
+          '<div id="cm-end-box"><label for="cm-date-end">Al</label><input type="date" id="cm-date-end"></div>' +
+        '</div>' +
+
+        '<label>Mezza giornata</label>' +
+        '<div class="cm-seg" id="cm-half" role="radiogroup" aria-label="Mezza giornata">' +
+          '<button type="button" data-v="am">Mattina</button>' +
+          '<button type="button" data-v="pm">Pomeriggio</button>' +
+          '<button type="button" data-v="day">Tutto il giorno</button>' +
+        '</div>' +
+
+        '<div class="cm-row" id="cm-times">' +
+          '<div><label for="cm-sh">Inizio</label><div class="cm-time">' +
+            '<select id="cm-sh" class="col-select" aria-label="Ora di inizio">'+ hourOptions() +'</select><span>:</span>' +
+            '<select id="cm-sm" class="col-select" aria-label="Minuti di inizio">'+ minuteOptions() +'</select></div></div>' +
+          '<div><label for="cm-eh">Fine</label><div class="cm-time">' +
+            '<select id="cm-eh" class="col-select" aria-label="Ora di fine">'+ hourOptions() +'</select><span>:</span>' +
+            '<select id="cm-em" class="col-select" aria-label="Minuti di fine">'+ minuteOptions() +'</select></div></div>' +
+        '</div>' +
+
+        '<div id="cm-recur-box">' +
+          '<label class="cm-check"><input type="checkbox" id="cm-recur"> Si ripete ogni settimana</label>' +
+          '<div id="cm-recur-fields" hidden>' +
+            '<div class="cm-days" id="cm-days"></div>' +
+            '<div class="cm-row"><div><label for="cm-recur-to">Fino al</label><input type="date" id="cm-recur-to"></div></div>' +
+          '</div>' +
+          '<p class="cm-series-note" id="cm-series-note" hidden></p>' +
+        '</div>' +
+
+        '<label>Stato</label>' +
+        '<div class="cm-seg" id="cm-status" role="radiogroup" aria-label="Stato">' +
+          '<button type="button" data-v="confermato">✓ Confermato</button>' +
+          '<button type="button" data-v="da_confermare">? Da confermare ?</button>' +
+        '</div>' +
+
+        '<label for="cm-notes">Note (opzionale)</label>' +
         '<textarea id="cm-notes" placeholder="Dettagli aggiuntivi" style="min-height:60px"></textarea>' +
+
+        '<div class="cm-error" id="cm-error" role="alert"></div>' +
 
         '<div class="actions" style="justify-content:space-between">' +
           '<div>' +
@@ -4772,66 +5353,274 @@ window.addEventListener("online", function(){
       '</div>';
     document.body.appendChild(bd);
 
-    var $title = bd.querySelector("#cm-title");
-    var $person= bd.querySelector("#cm-person");
-    var $date  = bd.querySelector("#cm-date");
-    var $time  = bd.querySelector("#cm-time");
-    var $end   = bd.querySelector("#cm-end");
-    var $notes = bd.querySelector("#cm-notes");
-    var $list  = bd.querySelector("#cm-persons");
+    function $(id){ return bd.querySelector("#" + id); }
+    var $title = $("cm-title"), $project = $("cm-project"), $projOther = $("cm-project-other");
+    var $date = $("cm-date"), $dateEnd = $("cm-date-end");
+    var $sh = $("cm-sh"), $sm = $("cm-sm"), $eh = $("cm-eh"), $em = $("cm-em");
+    var $recur = $("cm-recur"), $recurTo = $("cm-recur-to"), $notes = $("cm-notes"), $err = $("cm-error");
+    var $outsiders = $("cm-outsiders");
 
-    // populate person suggestions: known team members first, then anything else seen
-    var seen = {};
-    KNOWN_PERSONS.forEach(function(p){ seen[p] = 1; });
-    calState.events.forEach(function(e){ if(e.person) seen[e.person] = 1; });
-    Object.keys(seen).sort(function(a,b){
-      var ai = KNOWN_PERSONS.indexOf(a), bi = KNOWN_PERSONS.indexOf(b);
-      if(ai !== -1 || bi !== -1){
-        if(ai === -1) return 1;
-        if(bi === -1) return -1;
-        return ai - bi;
-      }
-      return a.localeCompare(b);
-    }).forEach(function(name){
-      var o = document.createElement("option");
-      o.value = name;
-      $list.appendChild(o);
+    /* --- valori iniziali --- */
+    var kind = data.kind || "lavoro";
+    var half = data.half || "am";
+    var status = data.status || "confermato";
+    var persons = (data.persons || []).filter(isKnown);
+    var recurDays = new Set();
+
+    $title.value = data.title || "";
+    $project.innerHTML = projectOptions(data);
+    if(data.project_id) $project.value = data.project_id;
+    else if(data.project_name){ $project.value = "__altro__"; $projOther.value = data.project_name; }
+    $outsiders.value = (data.persons || []).filter(function(p){ return !isKnown(p); }).join(", ");
+    $date.value = data.date;
+    $dateEnd.value = data.date_end || data.date;
+    function setTime($h, $m, v){
+      if(v){ $h.value = v.slice(0,2); $m.value = v.slice(3,5); }
+      else { $h.value = ""; $m.value = "00"; }
+    }
+    setTime($sh, $sm, data.start_time);
+    setTime($eh, $em, data.end_time);
+    $notes.value = data.notes || "";
+    recurDays.add(isoDow(parseDate(data.date)));
+    $recurTo.value = fmtDate(addDays(parseDate(data.date), 7 * 8));
+
+    if(data.series_id){
+      $("cm-recur").closest(".cm-check").hidden = true;
+      var r = data.recur || {};
+      var dn = (r.days || []).map(function(n){ return DAYS_SHORT[n-1]; }).join(", ");
+      $("cm-series-note").hidden = false;
+      $("cm-series-note").textContent = "Fa parte di una serie" + (dn ? " (ogni " + dn + ")" : "") +
+        (r.to ? " fino al " + fmtShort(r.to) : "") + ". Salvando potrai scegliere se cambiare solo questo o tutta la serie.";
+    }
+
+    /* --- persone --- */
+    var $people = $("cm-people");
+    KNOWN_PERSONS.forEach(function(p){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "cm-person";
+      b.dataset.p = p;
+      b.style.setProperty("--pc", personColor(p));
+      b.style.setProperty("--pcbg", hexA(personColor(p), 0.22));
+      b.setAttribute("aria-pressed", "false");
+      b.innerHTML = '<span class="dot"></span>' + escapeHtml(p) + (p === me ? " (tu)" : "");
+      b.addEventListener("click", function(){
+        var i = persons.indexOf(p);
+        if(i >= 0) persons.splice(i, 1); else persons.push(p);
+        sync();
+      });
+      $people.appendChild(b);
     });
 
-    $title.value  = data.title;
-    $person.value = data.person || "";
-    $date.value   = data.date;
-    $time.value   = data.time || "";
-    $end.value    = data.endTime || "";
-    $notes.value  = data.notes || "";
+    /* --- giorni della ricorrenza --- */
+    var $days = $("cm-days");
+    WEEKDAY_LETTERS.forEach(function(l, i){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = l;
+      b.title = DAYS_LONG[i];
+      b.dataset.d = i + 1;
+      b.addEventListener("click", function(){
+        var n = i + 1;
+        if(recurDays.has(n)) recurDays.delete(n); else recurDays.add(n);
+        sync();
+      });
+      $days.appendChild(b);
+    });
+
+    function bindSeg(id, get, set){
+      bd.querySelectorAll("#" + id + " button").forEach(function(b){
+        b.addEventListener("click", function(){ set(b.dataset.v); sync(); });
+      });
+    }
+    bindSeg("cm-kind", null, function(v){
+      if(v === "ferie" && kind !== "ferie") half = "day";
+      kind = v;
+    });
+    bindSeg("cm-half", null, function(v){ half = v; });
+    bindSeg("cm-status", null, function(v){ status = v; });
+
+    function timeOf($h, $m){ return $h.value ? $h.value + ":" + $m.value : ""; }
+    function onTime(){
+      var st = timeOf($sh, $sm), et = timeOf($eh, $em);
+      // se si sceglie solo l'ora d'inizio, la fine si propone un'ora dopo
+      if(st && !$eh.value && this === $sh){
+        $eh.value = pad(Math.min(23, +$sh.value + 1)); $em.value = $sm.value;
+        et = timeOf($eh, $em);
+      }
+      var h = autoHalf(st, et);
+      if(h) half = h;
+      sync();
+    }
+    [$sh, $sm, $eh, $em].forEach(function(s){ s.addEventListener("change", onTime); });
+    $project.addEventListener("change", function(){
+      sync();
+      if($project.value === "__altro__") $projOther.focus();
+    });
+    $recur.addEventListener("change", sync);
+    $date.addEventListener("change", function(){
+      if($dateEnd.value < $date.value) $dateEnd.value = $date.value;
+      if(!data.series_id && recurDays.size <= 1){
+        recurDays.clear();
+        if($date.value) recurDays.add(isoDow(parseDate($date.value)));
+      }
+      sync();
+    });
+
+    /* --- aspetto in base alle scelte --- */
+    function sync(){
+      bd.querySelectorAll("#cm-kind button").forEach(function(b){ b.classList.toggle("on", b.dataset.v === kind); b.setAttribute("aria-pressed", b.dataset.v === kind); });
+      bd.querySelectorAll("#cm-half button").forEach(function(b){ b.classList.toggle("on", b.dataset.v === half); b.setAttribute("aria-pressed", b.dataset.v === half); });
+      bd.querySelectorAll("#cm-status button").forEach(function(b){ b.classList.toggle("on", b.dataset.v === status); b.setAttribute("aria-pressed", b.dataset.v === status); });
+      $people.querySelectorAll(".cm-person").forEach(function(b){
+        var on = persons.indexOf(b.dataset.p) >= 0;
+        b.classList.toggle("on", on); b.setAttribute("aria-pressed", on);
+      });
+      $days.querySelectorAll("button").forEach(function(b){ b.classList.toggle("on", recurDays.has(+b.dataset.d)); });
+
+      var ferie = kind === "ferie";
+      $("cm-project-box").hidden = kind !== "lavoro";
+      $projOther.hidden = $project.value !== "__altro__";
+      $("cm-end-box").hidden = !ferie;
+      $("cm-date-label").textContent = ferie ? "Dal" : "Data";
+      $("cm-times").hidden = ferie;
+      $("cm-recur-box").hidden = ferie;
+      $("cm-recur-fields").hidden = !$recur.checked;
+      $("cm-title-label").textContent = ferie ? "Titolo (facoltativo)" : "Titolo *";
+      $title.placeholder = ferie ? "Ferie" : (kind === "extra" ? "Es. dentista, impegno personale" : "Cosa va fatto");
+      [$sm, $em].forEach(function($m){ $m.disabled = !($m === $sm ? $sh : $eh).value; });
+    }
+    sync();
     setTimeout(function(){ $title.focus(); $title.select(); }, 0);
 
-    function teardown(){ bd.remove(); document.removeEventListener("keydown", onKey); }
-    function save(){
-      var v = $title.value.trim();
-      if(!v){ $title.focus(); return; }
-      data.title  = v;
-      data.person = $person.value.trim();
-      data.date   = $date.value || fmtDate(new Date());
-      data.time   = $time.value || "";
-      data.endTime= $end.value  || "";
-      data.notes  = $notes.value.trim();
+    function fail(msg, $field){
+      $err.textContent = msg;
+      bd.querySelectorAll(".cm-invalid").forEach(function(x){ x.classList.remove("cm-invalid"); });
+      if($field){ $field.classList.add("cm-invalid"); $field.focus(); }
+      return null;
+    }
 
-      if(isEdit){
-        var idx = calState.events.findIndex(function(x){ return x.id === data.id; });
-        if(idx >= 0) calState.events[idx] = data;
-      } else {
-        data.id = "e_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3);
-        calState.events.push(data);
+    /* Legge e controlla il modulo: null se qualcosa manca */
+    function collect(){
+      var out = {
+        kind: kind, half: half, status: status,
+        title: $title.value.trim(),
+        notes: $notes.value.trim() || null,
+        date: $date.value,
+        date_end: null,
+        start_time: null, end_time: null,
+        project_id: null, project_name: null
+      };
+      var extra = $outsiders.value.split(",").map(function(s){ return s.trim(); }).filter(Boolean)
+        .map(canonicalPerson).filter(function(p){ return persons.indexOf(p) < 0; });
+      out.persons = KNOWN_PERSONS.filter(function(p){ return persons.indexOf(p) >= 0; }).concat(extra);
+
+      if(kind === "ferie" && !out.title) out.title = "Ferie";
+      if(!out.title) return fail("Scrivi un titolo.", $title);
+      if(kind === "lavoro"){
+        var pv = $project.value;
+        if(!pv) return fail("Scegli a quale progetto si riferisce: senza progetto l'impegno non si salva.", $project);
+        if(pv === "__altro__"){
+          var other = $projOther.value.trim();
+          if(!other) return fail("Hai scelto «Altro»: specifica a cosa si riferisce.", $projOther);
+          out.project_name = other;
+        } else {
+          out.project_id = pv;
+          var p = (state.projects || []).find(function(x){ return x.id === pv; });
+          out.project_name = p ? p.name : (data.project_name || null);
+        }
       }
-      saveCal();
+      if(!out.persons.length) return fail("Scegli almeno una persona.", $outsiders);
+      if(!out.date) return fail("Scegli la data.", $date);
+      if(kind === "ferie"){
+        var de = $dateEnd.value || out.date;
+        if(de < out.date) return fail("La data di fine viene prima di quella d'inizio.", $dateEnd);
+        out.date_end = de !== out.date ? de : null;
+      } else {
+        out.start_time = timeOf($sh, $sm) || null;
+        out.end_time = timeOf($eh, $em) || null;
+        if(!out.start_time && out.end_time) return fail("Manca l'ora d'inizio.", $sh);
+        if(out.start_time && out.end_time && out.end_time <= out.start_time) return fail("La fine viene prima dell'inizio.", $eh);
+      }
+      return out;
+    }
+
+    /* Le date della ricorrenza, dalla data scelta a "fino al" */
+    function recurrenceDates(from, to){
+      if(!recurDays.size) return fail("Scegli almeno un giorno della settimana.", $days.querySelector("button"));
+      if(!to || to < from) return fail("La data «fino al» viene prima dell'inizio.", $recurTo);
+      var out = [];
+      for(var d = parseDate(from); fmtDate(d) <= to; d = addDays(d, 1)){
+        if(recurDays.has(isoDow(d))) out.push(fmtDate(d));
+        if(out.length > 400) return fail("Troppe ripetizioni: al massimo un anno.", $recurTo);
+      }
+      if(!out.length) return fail("Nessun giorno scelto cade in quel periodo.", $recurTo);
+      return out;
+    }
+
+    function teardown(){ bd.remove(); document.removeEventListener("keydown", onKey); }
+    var saving = false;
+    async function save(){
+      if(saving) return;
+      var v = collect();
+      if(!v) return;
+      $err.textContent = "";
+
+      var rows = [], removeIds = [];
+      if(!isEdit || !data.series_id){
+        if(kind !== "ferie" && $recur.checked){
+          var dates = recurrenceDates(v.date, $recurTo.value);
+          if(!dates) return;
+          var sid = uid("s");
+          var recur = { days: Array.from(recurDays).sort(), from: dates[0], to: $recurTo.value };
+          dates.forEach(function(ds){
+            rows.push(Object.assign({}, v, { id: uid("e"), date: ds, series_id: sid, recur: recur, source: "mario" }));
+          });
+          if(isEdit) removeIds.push(data.id);
+        } else {
+          rows.push(Object.assign({}, data, v, { id: data.id || uid("e"), series_id: null, recur: null }));
+        }
+      } else {
+        var scope = await askChoice("Impegno ricorrente", "Vuoi cambiare solo questo impegno o tutti quelli della serie?", [
+          { label: "Annulla", value: null },
+          { label: "Tutta la serie", value: "all" },
+          { label: "Solo questo", value: "one", primary: true }
+        ]);
+        if(!scope) return;
+        if(scope === "one"){
+          rows.push(Object.assign({}, data, v));
+        } else {
+          // tutta la serie: stessi campi, ognuno resta nel suo giorno
+          var shared = Object.assign({}, v);
+          delete shared.date; delete shared.date_end;
+          calEvents.filter(function(e){ return e.series_id === data.series_id; }).forEach(function(e){
+            rows.push(Object.assign({}, e, shared, e.id === data.id ? { date: v.date } : {}));
+          });
+        }
+      }
+
+      saving = true;
+      $("cm-save").disabled = true;
+      var ok = await saveRows(rows) && await deleteRows(removeIds);
+      saving = false;
+      $("cm-save").disabled = false;
+      if(!ok) return;
       teardown();
       render();
+      if(rows.length > 1) notify(rows.length + " impegni creati.", { warn: false, autoHide: 3000 });
     }
-    function del(){
-      if(!confirm("Eliminare questo impegno?")) return;
-      calState.events = calState.events.filter(function(x){ return x.id !== data.id; });
-      saveCal();
+    async function del(){
+      var ids = [data.id];
+      if(data.series_id){
+        var scope = await askChoice("Elimina impegno ricorrente", "Vuoi eliminare solo questo impegno o tutta la serie?", [
+          { label: "Annulla", value: null },
+          { label: "Tutta la serie", value: "all", danger: true },
+          { label: "Solo questo", value: "one", primary: true }
+        ]);
+        if(!scope) return;
+        if(scope === "all") ids = calEvents.filter(function(e){ return e.series_id === data.series_id; }).map(function(e){ return e.id; });
+      } else if(!confirm("Eliminare questo impegno?")) return;
+      if(!(await deleteRows(ids))) return;
       teardown();
       render();
     }
@@ -4842,10 +5631,289 @@ window.addEventListener("online", function(){
     document.addEventListener("keydown", onKey);
 
     bd.addEventListener("click", function(e){ if(e.target === bd) teardown(); });
-    bd.querySelector("#cm-cancel").addEventListener("click", teardown);
-    bd.querySelector("#cm-save").addEventListener("click", save);
-    var $del = bd.querySelector("#cm-delete");
+    $("cm-cancel").addEventListener("click", teardown);
+    $("cm-save").addEventListener("click", save);
+    var $del = $("cm-delete");
     if($del) $del.addEventListener("click", del);
+  }
+
+  /* Gli impegni arrivati da Apple si cambiano da Apple: qui solo lettura */
+  function openAppleEventInfo(e){
+    askChoice(displayTitle(e),
+      fmtShort(e.date) + (e.date_end ? " – " + fmtShort(e.date_end) : "") + " · " + fmtTimeRange(e) +
+      "\nExtra fosforo di " + (e.persons || []).join(", ") +
+      ", importato da Apple Calendar: si modifica da lì.",
+      [{ label: "Chiudi", value: null, primary: true }]);
+  }
+
+  /* =====================================================================
+   * Apple Calendar
+   *  - da Mario ad Apple: un link di abbonamento (api/cal-feed.js);
+   *  - da Apple a Mario: il link del calendario pubblico iCloud, letto da
+   *    api/apple-ics.js e salvato come impegni "Extra fosforo".
+   * ===================================================================== */
+  var FEED_BASE = "webcal://www.brownenterprises.it/api/cal-feed?t=";
+
+  function randomToken(){
+    var a = new Uint8Array(24);
+    crypto.getRandomValues(a);
+    return Array.from(a, function(b){ return ("0" + b.toString(16)).slice(-2); }).join("");
+  }
+  /* Hash corto e stabile per gli id degli impegni importati */
+  function hash53(str){
+    var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for(var i=0; i<str.length; i++){
+      var ch = str.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+  }
+
+  async function getFeed(create){
+    var res = await sb.from("be_cal_feeds").select("person, token").eq("user_id", state.me.id).maybeSingle();
+    if(res.error) return { error: res.error };
+    if(res.data && res.data.person !== myPerson() && !create){
+      var up = await sb.from("be_cal_feeds").update({ person: myPerson() }).eq("user_id", state.me.id);
+      if(up.error) return { error: up.error };
+      res.data.person = myPerson();
+    }
+    if(!create) return { data: res.data };
+    var row = { user_id: state.me.id, person: myPerson(), token: randomToken() };
+    var ins = await sb.from("be_cal_feeds").upsert(row, { onConflict: "user_id" });
+    if(ins.error) return { error: ins.error };
+    return { data: row };
+  }
+
+  function appleSyncInfo(){
+    try{ return JSON.parse(lsGet(APPLE_SYNC_KEY) || "{}")[state.me.id] || null; }catch(_){ return null; }
+  }
+  function setAppleSyncInfo(info){
+    var all = {};
+    try{ all = JSON.parse(lsGet(APPLE_SYNC_KEY) || "{}"); }catch(_){}
+    all[state.me.id] = info;
+    lsSet(APPLE_SYNC_KEY, JSON.stringify(all));
+  }
+
+  var appleSyncing = null;
+  async function syncApple(){
+    var url = state.me && state.me.apple_ics_url;
+    if(!url) return { skipped: true };
+    if(mode !== "remote" || loadError) return { error: "il calendario condiviso non è disponibile" };
+    if(appleSyncing) return appleSyncing;
+    appleSyncing = (async function(){
+      var me = myPerson();
+      var sess = await sb.auth.getSession();
+      var token = sess && sess.data && sess.data.session && sess.data.session.access_token;
+      if(!token) return { error: "sessione scaduta, rientra" };
+      var j;
+      try{
+        var r = await fetch("/api/apple-ics", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+          body: JSON.stringify({ url: url })
+        });
+        j = await r.json().catch(function(){ return {}; });
+        if(!r.ok) return { error: j.error || ("errore " + r.status) };
+      }catch(_){
+        return { error: "non riesco a raggiungere il server" };
+      }
+
+      var fresh = (j.events || []).map(function(ev){
+        return {
+          id: "ap_" + hash53(me + "|" + ev.key),
+          date: ev.date, date_end: ev.dateEnd || null,
+          half: ev.allDay || ev.dateEnd ? "day" : (autoHalf(ev.start, ev.end) || "day"),
+          start_time: ev.allDay ? null : ev.start, end_time: ev.allDay ? null : ev.end,
+          title: ev.title || "Impegno", persons: [me],
+          kind: "extra", status: ev.tentative ? "da_confermare" : "confermato",
+          project_id: null, project_name: null, notes: null,
+          series_id: null, recur: null, source: "apple"
+        };
+      });
+      var freshIds = {};
+      fresh.forEach(function(r){ freshIds[r.id] = 1; });
+      var old = calEvents.filter(function(e){
+        return e.source === "apple" && e.persons && e.persons[0] === me && (e.date_end || e.date) >= j.from;
+      });
+      var oldById = {};
+      old.forEach(function(e){ oldById[e.id] = e; });
+      var changed = fresh.filter(function(r){
+        return !oldById[r.id] || JSON.stringify(toDb(oldById[r.id])) !== JSON.stringify(toDb(r));
+      });
+      var gone = old.filter(function(e){ return !freshIds[e.id]; }).map(function(e){ return e.id; });
+
+      var ok = await saveRows(changed, "Impegni Apple non salvati") && await deleteRows(gone, "Impegni Apple non aggiornati");
+      if(!ok) return { error: "salvataggio non riuscito" };
+      var info = { at: Date.now(), count: fresh.length };
+      setAppleSyncInfo(info);
+      return info;
+    })();
+    var out = await appleSyncing;
+    appleSyncing = null;
+    return out;
+  }
+
+  function maybeAutoSyncApple(){
+    if(!state.me || !state.me.apple_ics_url || mode !== "remote" || loadError) return;
+    var info = appleSyncInfo();
+    if(info && Date.now() - info.at < 10 * 60 * 1000) return;
+    syncApple().then(function(res){
+      if(res && res.error) notify("Apple Calendar non sincronizzato: " + res.error);
+      else if($overlay.classList.contains("show")) render();
+    });
+  }
+
+  function openApplePanel(){
+    var me = myPerson();
+    var bd = document.createElement("div");
+    bd.className = "modal-backdrop";
+    bd.innerHTML =
+      '<div class="modal cm-modal" role="dialog" aria-modal="true" aria-labelledby="ap-h">' +
+        '<h2 id="ap-h">Apple Calendar</h2>' +
+        '<div class="ap-box">' +
+          '<h3>Da Mario al tuo Apple Calendar</h3>' +
+          '<p class="ap-text">I tuoi impegni (quelli dove compare <b></b>) in un calendario a cui Apple si abbona: si aggiorna da solo.</p>' +
+          '<div id="ap-feed"><p class="ap-text">Carico…</p></div>' +
+        '</div>' +
+        '<div class="ap-box">' +
+          '<h3>Dal tuo Apple Calendar a Mario</h3>' +
+          '<p class="ap-text">I tuoi impegni personali arrivano qui come <b>Extra fosforo</b>, così gli altri vedono che non sei disponibile.</p>' +
+          '<ol class="ap-steps">' +
+            '<li>Su Mac apri <b>Calendario</b>, clic destro sul calendario da condividere → <b>Condividi calendario…</b> e spunta <b>Calendario pubblico</b>. Su iPhone: Calendario → Calendari → (i) → <b>Calendario pubblico</b>.</li>' +
+            '<li>Copia il link (inizia con webcal://) e incollalo qui sotto.</li>' +
+          '</ol>' +
+          '<input type="text" id="ap-url" placeholder="webcal://p00-caldav.icloud.com/published/2/…" autocomplete="off" spellcheck="false">' +
+          '<div class="ap-actions">' +
+            '<button class="btn-primary" id="ap-save" type="button">Salva e sincronizza</button>' +
+            '<button class="btn-cancel" id="ap-sync" type="button">Sincronizza ora</button>' +
+            '<button class="btn-cancel" id="ap-unlink" type="button" style="color:#f87168">Scollega</button>' +
+          '</div>' +
+          '<p class="ap-status" id="ap-status"></p>' +
+        '</div>' +
+        '<div class="actions"><button class="btn-cancel" id="ap-close" type="button">Chiudi</button></div>' +
+      '</div>';
+    bd.querySelector(".ap-text b").textContent = me;
+    document.body.appendChild(bd);
+
+    var $feed = bd.querySelector("#ap-feed"), $url = bd.querySelector("#ap-url"), $status = bd.querySelector("#ap-status");
+    $url.value = (state.me && state.me.apple_ics_url) || "";
+
+    function teardown(){ bd.remove(); document.removeEventListener("keydown", onKey); }
+    function onKey(e){ if(e.key === "Escape") teardown(); }
+    document.addEventListener("keydown", onKey);
+    bd.addEventListener("click", function(e){ if(e.target === bd) teardown(); });
+    bd.querySelector("#ap-close").addEventListener("click", teardown);
+
+    function showStatus(){
+      var info = appleSyncInfo();
+      if(!state.me.apple_ics_url){ $status.textContent = "Nessun calendario Apple collegato."; return; }
+      $status.textContent = info
+        ? "Ultima sincronizzazione: " + new Date(info.at).toLocaleString("it-IT") + " · " + info.count + " impegni."
+        : "Collegato, non ancora sincronizzato.";
+    }
+    showStatus();
+
+    var unavailable = mode !== "remote" || loadError;
+    if(unavailable){
+      $feed.innerHTML = '<p class="ap-text">Disponibile quando il calendario è condiviso su Supabase (sql/calendario.sql).</p>';
+      ["ap-save","ap-sync","ap-unlink"].forEach(function(id){ bd.querySelector("#" + id).disabled = true; });
+    }
+
+    function drawFeed(row){
+      $feed.innerHTML = "";
+      if(!row){
+        var mk = document.createElement("button");
+        mk.className = "btn-primary"; mk.type = "button";
+        mk.textContent = "Crea il link di abbonamento";
+        mk.addEventListener("click", async function(){
+          mk.disabled = true;
+          var r = await getFeed(true);
+          if(r.error){ mk.disabled = false; notify(errorText(r.error, "Link non creato")); return; }
+          drawFeed(r.data);
+        });
+        $feed.appendChild(mk);
+        return;
+      }
+      var link = FEED_BASE + row.token;
+      $feed.innerHTML =
+        '<div class="ap-link"><input type="text" readonly id="ap-feed-url"><button class="btn-cancel" type="button" id="ap-copy">Copia</button></div>' +
+        '<div class="ap-actions">' +
+          '<a class="btn-primary ap-open" id="ap-open">Aggiungi ad Apple Calendar</a>' +
+          '<button class="btn-cancel" type="button" id="ap-regen">Rigenera link</button>' +
+        '</div>' +
+        '<p class="ap-text ap-small">Il link è personale: chi lo ha vede i tuoi impegni. «Rigenera» spegne quello vecchio.</p>';
+      $feed.querySelector("#ap-feed-url").value = link;
+      $feed.querySelector("#ap-open").href = link;
+      $feed.querySelector("#ap-copy").addEventListener("click", function(){
+        var $i = $feed.querySelector("#ap-feed-url");
+        $i.select();
+        (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject())
+          .catch(function(){ document.execCommand("copy"); })
+          .then(function(){ notify("Link copiato.", { warn: false, autoHide: 2500 }); });
+      });
+      $feed.querySelector("#ap-regen").addEventListener("click", async function(){
+        if(!confirm("Il vecchio link smetterà di funzionare. Continuare?")) return;
+        var r = await getFeed(true);
+        if(r.error){ notify(errorText(r.error, "Link non rigenerato")); return; }
+        drawFeed(r.data);
+      });
+    }
+    if(!unavailable){
+      getFeed(false).then(function(r){
+        if(r.error){
+          $feed.innerHTML = "";
+          var p = document.createElement("p");
+          p.className = "ap-text";
+          p.textContent = isMissingTable(r.error)
+            ? "Manca la tabella be_cal_feeds: va eseguito sql/calendario.sql."
+            : errorText(r.error, "Link non disponibile");
+          $feed.appendChild(p);
+          return;
+        }
+        drawFeed(r.data);
+      });
+    }
+
+    async function saveUrl(v){
+      var res = await sb.auth.updateUser({ data: { apple_ics_url: v || null } });
+      if(res.error){ notify(errorText(res.error, "Collegamento non salvato")); return false; }
+      state.me.apple_ics_url = v || "";
+      return true;
+    }
+    async function runSync(){
+      $status.textContent = "Sincronizzo…";
+      var res = await syncApple();
+      if(res && res.error) $status.textContent = "Non riuscito: " + res.error;
+      else { showStatus(); render(); }
+    }
+    bd.querySelector("#ap-save").addEventListener("click", async function(){
+      var v = $url.value.trim();
+      if(!/^(webcals?|https):\/\/[^/]*icloud\.com\//i.test(v)){
+        $status.textContent = "Serve il link di un calendario pubblico iCloud (webcal://…icloud.com/…).";
+        $url.focus();
+        return;
+      }
+      if(await saveUrl(v)){ setAppleSyncInfo(null); runSync(); }
+    });
+    bd.querySelector("#ap-sync").addEventListener("click", function(){
+      if(!state.me.apple_ics_url){ $status.textContent = "Prima incolla e salva il link."; return; }
+      runSync();
+    });
+    bd.querySelector("#ap-unlink").addEventListener("click", async function(){
+      if(!state.me.apple_ics_url) return;
+      if(!confirm("Scollegare Apple Calendar? Gli impegni importati da Apple spariranno da Mario.")) return;
+      if(!(await saveUrl(""))) return;
+      var ids = calEvents.filter(function(e){ return e.source === "apple" && e.persons && e.persons[0] === me; })
+                         .map(function(e){ return e.id; });
+      await deleteRows(ids, "Impegni Apple non rimossi");
+      setAppleSyncInfo(null);
+      $url.value = "";
+      showStatus();
+      render();
+    });
   }
 
   /* ---------- wire up ---------- */
@@ -4854,13 +5922,15 @@ window.addEventListener("online", function(){
   document.getElementById("cal-prev").addEventListener("click", function(){ shift(-1); });
   document.getElementById("cal-next").addEventListener("click", function(){ shift(1); });
   document.getElementById("cal-today-btn").addEventListener("click", goToday);
-  document.getElementById("cal-add-btn").addEventListener("click", function(){ openEventModal(null, fmtDate(cursor)); });
+  document.getElementById("cal-apple-btn").addEventListener("click", openApplePanel);
+  document.getElementById("cal-add-btn").addEventListener("click", function(){ openEventModal(null, { date: fmtDate(cursor) }); });
   $views.forEach(function(b){
     b.addEventListener("click", function(){ setView(b.dataset.view); });
   });
   document.addEventListener("keydown", function(e){
     if(!$overlay.classList.contains("show")) return;
-    if(e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if(document.querySelector(".modal-backdrop")) return;
+    if(e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
     if(e.key === "Escape") close();
     if(e.key === "ArrowLeft") shift(-1);
     if(e.key === "ArrowRight") shift(1);
