@@ -1460,6 +1460,11 @@
   }
   .cal-search-info .btn-cancel{color:#85b8ff}
 
+  /* Stella "vista predefinita" accanto ai pulsanti delle viste */
+  .cal-default-btn{display:inline-flex;align-items:center;gap:6px}
+  .cal-default-btn.on{color:#f5cd47;border-color:#5c4a14;background:#2a2414;cursor:default}
+  .cal-default-btn.on svg{fill:currentColor}
+
   /* Barra di ricerca nell'intestazione */
   .cal-search{
     position:relative;
@@ -1782,6 +1787,8 @@
     .cal-drow{grid-template-columns:86px 1fr;gap:8px}
     .cal-dfree-add{opacity:1}
     .cal-apple-btn span{display:none}
+    .cal-default-btn span{display:none}
+    .cal-default-btn{order:7;padding:6px 8px}
     .cal-apple-btn{order:8}
     .cal-day-event-card{padding:11px 13px;gap:8px;flex-direction:column}
     .cal-day-event-time{min-width:0;font-size:12px}
@@ -1947,6 +1954,10 @@
       <button data-view="week">Settimana</button>
       <button data-view="month">Mese</button>
     </div>
+    <button class="cal-today-btn cal-default-btn" id="cal-default-btn" type="button" aria-pressed="false">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span>Rendi predefinita</span>
+    </button>
     <button class="cal-today-btn" id="cal-today-btn">Oggi</button>
     <div class="cal-nav">
       <button class="cal-nav-btn" id="cal-prev" title="Precedente">
@@ -2230,7 +2241,8 @@ async function loadEverything(){
     email: user.email,
     display_name: (user.user_metadata && user.user_metadata.display_name) || user.email,
     no_label_name: (user.user_metadata && user.user_metadata.no_label_name) || "",
-    apple_ics_url: (user.user_metadata && user.user_metadata.apple_ics_url) || ""
+    apple_ics_url: (user.user_metadata && user.user_metadata.apple_ics_url) || "",
+    cal_default_view: (user.user_metadata && user.user_metadata.cal_default_view) || ""
   };
 
   var results = await Promise.all([
@@ -4854,6 +4866,9 @@ window.addEventListener("online", function(){
   }
   function open(){
     cursor = new Date();
+    view = defaultView();
+    $views.forEach(function(b){ b.classList.toggle("active", b.dataset.view === view); });
+    syncDefaultBtn();
     agenda.from = agenda.to = agenda.lastTop = null;
     agenda.jumpTo = todayKey();
     $overlay.classList.add("show");
@@ -4874,7 +4889,43 @@ window.addEventListener("online", function(){
     if(v === "agenda" && view !== "agenda") agenda.jumpTo = fmtDate(cursor);
     view = v;
     $views.forEach(function(b){ b.classList.toggle("active", b.dataset.view === v); });
+    syncDefaultBtn();
     render();
+  }
+
+  /* ---------- vista predefinita ----------
+   * Ognuno sceglie con quale vista si apre "Chi fa cosa". La scelta sta
+   * negli user_metadata (come il nome di "Senza label"): segue l'account
+   * su ogni dispositivo senza toccare lo schema. */
+  var VIEWS = ["agenda", "day", "week", "month"];
+  var VIEW_LABEL = { agenda: "Agenda", day: "Giorno", week: "Settimana", month: "Mese" };
+  function defaultView(){
+    var v = state.me && state.me.cal_default_view;
+    return VIEWS.indexOf(v) >= 0 ? v : "agenda";
+  }
+  function syncDefaultBtn(){
+    var $b = document.getElementById("cal-default-btn");
+    var on = view === defaultView();
+    $b.classList.toggle("on", on);
+    $b.setAttribute("aria-pressed", on ? "true" : "false");
+    $b.querySelector("span").textContent = on ? "Predefinita" : "Rendi predefinita";
+    $b.title = on
+      ? "«" + VIEW_LABEL[view] + "» è la vista con cui si apre Chi fa cosa"
+      : "Apri sempre Chi fa cosa in «" + VIEW_LABEL[view] + "»";
+  }
+  async function makeDefaultView(){
+    if(!state.me || view === defaultView()) return;
+    var prev = state.me.cal_default_view, v = view;
+    state.me.cal_default_view = v;
+    syncDefaultBtn();
+    var res = await sb.auth.updateUser({ data: { cal_default_view: v } });
+    if(res.error){
+      state.me.cal_default_view = prev;
+      syncDefaultBtn();
+      notify(errorText(res.error, "Vista predefinita non salvata"));
+      return;
+    }
+    notify("«" + VIEW_LABEL[v] + "» è ora la vista predefinita.", { warn: false, autoHide: 2500 });
   }
   function shift(direction){
     if(view === "agenda"){
@@ -6478,6 +6529,7 @@ window.addEventListener("online", function(){
   document.getElementById("cal-next").addEventListener("click", function(){ shift(1); });
   document.getElementById("cal-today-btn").addEventListener("click", goToday);
   document.getElementById("cal-apple-btn").addEventListener("click", openApplePanel);
+  document.getElementById("cal-default-btn").addEventListener("click", makeDefaultView);
   document.getElementById("cal-search").addEventListener("input", onSearchInput);
   document.getElementById("cal-search").addEventListener("keydown", function(e){
     if(e.key === "Escape"){ e.stopPropagation(); if(this.value) clearSearch(); else this.blur(); }
