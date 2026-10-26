@@ -232,7 +232,7 @@
         document.getElementById("password").focus();
         return;
       }
-      window.location.href = "app.html";
+      window.location.href = "app.html" + nextHash();
     }).catch(function(e2){
       setError(isNetworkError(e2)
         ? "Nessuna connessione al server. Riprova quando torni online."
@@ -243,10 +243,15 @@
     });
   });
 
+  // Dopo il login si torna alla sezione da cui si veniva (es. #chi-fa-cosa)
+  function nextHash(){
+    return /^#[a-z0-9-]+$/.test(location.hash) ? location.hash : "";
+  }
+
   // Se già autenticato, salta direttamente all'app.
   window.beClient.auth.getSession().then(function(res){
     if(res.data && res.data.session){
-      window.location.replace("app.html");
+      window.location.replace("app.html" + nextHash());
     }
   });
 </script>
