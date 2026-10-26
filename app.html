@@ -2232,7 +2232,8 @@ async function loadEverything(){
     // locale: rimandare al login qui significava accusare l'utente di non
     // essere autenticato solo perche' manca la rete.
     if(isNetworkError(sessionRes.error)){ showOfflinePanel(); return false; }
-    window.location.replace("login.html");
+    // l'indirizzo di una sezione (#chi-fa-cosa) sopravvive al login
+    window.location.replace("login.html" + (/^#[a-z0-9-]+$/.test(location.hash) ? location.hash : ""));
     return false;
   }
   var user = session.user;
@@ -4445,6 +4446,7 @@ async function boot(){
     document.getElementById("user-label").textContent = state.me.display_name;
     document.getElementById("avatar").textContent = (state.me.display_name || "?").charAt(0).toUpperCase();
     render();
+    if(window.beCalendarFromUrl) window.beCalendarFromUrl();
   } finally {
     booting = false;
   }
@@ -4864,7 +4866,20 @@ window.addEventListener("online", function(){
     }
     return loadingPromise;
   }
-  function open(){
+  /* ---------- indirizzo ----------
+   * app.html#chi-fa-cosa apre direttamente il calendario, cosi' si puo'
+   * salvare tra i preferiti. Aprendolo dal pulsante l'indirizzo lo segue
+   * e "indietro" lo chiude invece di uscire da Mario. */
+  var CAL_HASH = "#chi-fa-cosa";
+  var pushedHash = false;     // la voce nella cronologia l'abbiamo aggiunta noi
+  function isOpen(){ return $overlay.classList.contains("show"); }
+  function urlWithoutHash(){ return location.pathname + location.search; }
+
+  function open(fromUrl){
+    if(fromUrl !== true && location.hash !== CAL_HASH){
+      history.pushState(null, "", CAL_HASH);
+      pushedHash = true;
+    }
     cursor = new Date();
     view = defaultView();
     $views.forEach(function(b){ b.classList.toggle("active", b.dataset.view === view); });
@@ -4878,7 +4893,12 @@ window.addEventListener("online", function(){
     else render();
     refresh();
   }
-  function close(){
+  function close(fromUrl){
+    if(fromUrl !== true && location.hash === CAL_HASH){
+      // si torna alla voce di prima; chiude poi l'evento hashchange
+      if(pushedHash){ pushedHash = false; history.back(); return; }
+      history.replaceState(null, "", urlWithoutHash());
+    }
     $overlay.classList.remove("show");
     $overlay.setAttribute("aria-hidden","true");
     document.body.style.overflow = "";
@@ -6523,8 +6543,16 @@ window.addEventListener("online", function(){
   }
 
   /* ---------- wire up ---------- */
-  document.getElementById("open-calendar-btn").addEventListener("click", open);
-  document.getElementById("cal-close").addEventListener("click", close);
+  document.getElementById("open-calendar-btn").addEventListener("click", function(){ open(); });
+  document.getElementById("cal-close").addEventListener("click", function(){ close(); });
+  window.addEventListener("hashchange", function(){
+    if(location.hash === CAL_HASH){ if(!isOpen()) open(true); }
+    else if(isOpen()){ pushedHash = false; close(true); }
+  });
+  /* All'avvio, a dati caricati (serve sapere chi e' collegato) */
+  window.beCalendarFromUrl = function(){
+    if(location.hash === CAL_HASH && !isOpen()) open(true);
+  };
   document.getElementById("cal-prev").addEventListener("click", function(){ shift(-1); });
   document.getElementById("cal-next").addEventListener("click", function(){ shift(1); });
   document.getElementById("cal-today-btn").addEventListener("click", goToday);
