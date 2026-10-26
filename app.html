@@ -1370,6 +1370,124 @@
   .cal-tag.warn{background:#5c4a14;color:#f5cd47}
   .cal-person-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
 
+  /* Agenda: giorni in verticale (due righe: mattina e pomeriggio),
+     persone in orizzontale, scorrimento senza fine. */
+  .cal-agenda{
+    --alabel:64px;--ahalf:44px;--acol:118px;
+    flex:1;overflow:auto;
+    position:relative;          /* offsetTop dei giorni misurato da qui */
+    overflow-anchor:none;       /* la posizione la tiene lo script quando aggiunge giorni sopra */
+    background:#1d2125;
+    overscroll-behavior:contain;
+  }
+  .cal-ahead,.cal-aday,.cal-aband,.cal-search-info{min-width:calc(var(--alabel) + var(--ahalf) + var(--acols, 6) * var(--acol))}
+  .cal-ahead{
+    display:grid;
+    position:sticky;top:0;z-index:6;
+    background:#1d2125;
+    border-bottom:1px solid #38414b;
+    box-shadow:0 4px 10px rgba(0,0,0,0.25);
+  }
+  .cal-ahead > div{
+    padding:9px 8px;
+    border-right:1px solid #2c3338;
+    font-size:12px;font-weight:700;color:#f4f5f7;
+    display:flex;align-items:center;gap:7px;
+    min-width:0;overflow:hidden;white-space:nowrap;
+  }
+  .cal-ahead-person span:last-child{overflow:hidden;text-overflow:ellipsis}
+  .cal-ahead-corner,.cal-ahead-half{position:sticky;z-index:2;background:#1d2125}
+  .cal-ahead-corner{left:0;color:#9fadbc !important;font-size:10px !important;text-transform:uppercase;letter-spacing:0.5px}
+  .cal-ahead-half{left:var(--alabel)}
+  .cal-aband{
+    background:#161a1d;
+    border-bottom:1px solid #2c3338;
+    padding:7px 0;
+    font-size:11px;font-weight:700;color:#cce0ff;
+    text-transform:uppercase;letter-spacing:0.7px;
+  }
+  .cal-aband span{position:sticky;left:12px;padding:0 12px}
+  .cal-aday{
+    display:grid;
+    grid-template-rows:auto auto;
+    border-bottom:1px solid #38414b;
+  }
+  .cal-aday.past{opacity:0.4}
+  .cal-alabel{
+    grid-row:1 / span 2;
+    position:sticky;left:0;z-index:2;
+    background:#1d2125;
+    border-right:1px solid #2c3338;
+    padding:8px 6px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    cursor:pointer;
+    transition:background 0.12s;
+  }
+  .cal-alabel:hover{background:#22272b}
+  .cal-alabel-dow{font-size:10px;font-weight:700;color:#9fadbc;text-transform:uppercase;letter-spacing:0.5px}
+  .cal-alabel-num{font-size:20px;font-weight:700;color:#f4f5f7;line-height:1.1}
+  .cal-alabel-mon{font-size:10px;color:#738496;text-transform:uppercase;letter-spacing:0.4px}
+  .cal-aday.weekend .cal-alabel{background:#1a1e22}
+  .cal-aday.weekend .cal-alabel-num{color:#b6c2cf}
+  .cal-aday.today .cal-alabel{background:#1c2b41}
+  .cal-aday.today .cal-alabel-num,.cal-aday.today .cal-alabel-dow{color:#579dff}
+  .cal-ahalf{
+    position:sticky;left:var(--alabel);z-index:2;
+    background:#1d2125;
+    border-right:1px solid #2c3338;
+    border-bottom:1px dashed #2c3338;
+    padding:6px 4px;
+    font-size:10px;font-weight:700;color:#738496;
+    text-transform:uppercase;letter-spacing:0.4px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .cal-ahalf.pm,.cal-acell.pm{border-bottom:0}
+  .cal-acell{
+    border-right:1px solid #2c3338;
+    border-bottom:1px dashed #2c3338;
+    padding:3px;min-height:30px;min-width:0;
+    display:flex;flex-direction:column;gap:3px;
+    cursor:pointer;
+    transition:background 0.12s;
+  }
+  .cal-acell:hover{background:#22272b}
+  .cal-aday.today .cal-acell{background:rgba(28,43,65,0.35)}
+  .cal-search-info{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:8px 14px;
+    background:#1c2b41;color:#cce0ff;font-size:13px;
+    border-bottom:1px solid #2c3338;
+  }
+  .cal-search-info .btn-cancel{color:#85b8ff}
+
+  /* Barra di ricerca nell'intestazione */
+  .cal-search{
+    position:relative;
+    display:flex;align-items:center;
+    flex:0 1 340px;min-width:180px;
+    color:#738496;
+  }
+  .cal-search > svg{position:absolute;left:10px;pointer-events:none}
+  .cal-search input{
+    width:100%;
+    background:#22272b;border:1px solid #38414b;color:#f4f5f7;
+    border-radius:6px;
+    padding:7px 30px 7px 31px;
+    font-family:inherit;font-size:13px;
+    outline:none;
+    -webkit-appearance:none;appearance:none;
+  }
+  .cal-search input::-webkit-search-cancel-button{display:none}
+  .cal-search input:focus{border-color:#579dff;background:#1d2125}
+  .cal-search-clear{
+    position:absolute;right:4px;
+    width:24px;height:24px;border:0;border-radius:4px;
+    background:transparent;color:#9fadbc;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .cal-search-clear:hover{background:#2c3338;color:#f4f5f7}
+  .cal-search-clear[hidden]{display:none}
+
   .cal-banner{
     background:#3a2f12;color:#f5cd47;
     border-bottom:1px solid #5c4a14;
@@ -1656,6 +1774,11 @@
     .cal-day-view-head{padding:14px 14px}
     .cal-day-view-head h3{font-size:18px}
     .cal-dsec{padding:12px 14px 0}
+    .cal-search{order:11;flex:1 1 100%;min-width:0}
+    .cal-search input{font-size:16px;padding-top:8px;padding-bottom:8px}
+    .cal-agenda{--alabel:46px;--ahalf:34px;--acol:96px}
+    .cal-alabel-num{font-size:17px}
+    .cal-ahead > div{padding:8px 6px;font-size:11px}
     .cal-drow{grid-template-columns:86px 1fr;gap:8px}
     .cal-dfree-add{opacity:1}
     .cal-apple-btn span{display:none}
@@ -1819,6 +1942,7 @@
       Chi fa cosa
     </h2>
     <div class="cal-views" role="tablist">
+      <button data-view="agenda">Agenda</button>
       <button data-view="day">Giorno</button>
       <button data-view="week">Settimana</button>
       <button data-view="month">Mese</button>
@@ -1833,6 +1957,13 @@
       </button>
     </div>
     <div class="cal-period" id="cal-period">—</div>
+    <div class="cal-search" role="search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="cal-search" placeholder="Cerca: parola, persona, progetto o data (27/10)" aria-label="Cerca negli impegni" autocomplete="off" spellcheck="false">
+      <button type="button" id="cal-search-clear" class="cal-search-clear" aria-label="Cancella ricerca" hidden>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
     <div class="cal-spacer"></div>
     <button class="cal-today-btn cal-apple-btn" id="cal-apple-btn" type="button" title="Collega Apple Calendar">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><polyline points="21 3 21 8 16 8"/><polyline points="3 21 3 16 8 16"/></svg>
@@ -4662,7 +4793,7 @@ window.addEventListener("online", function(){
   }
 
   /* ---------- state ---------- */
-  var view = "week";          // 'day' | 'week' | 'month'
+  var view = "agenda";        // 'agenda' | 'day' | 'week' | 'month'
   var cursor = new Date();    // anchor date for current view
 
   /* ---------- person filter ---------- */
@@ -4723,6 +4854,8 @@ window.addEventListener("online", function(){
   }
   function open(){
     cursor = new Date();
+    agenda.from = agenda.to = agenda.lastTop = null;
+    agenda.jumpTo = todayKey();
     $overlay.classList.add("show");
     $overlay.setAttribute("aria-hidden","false");
     document.body.style.overflow = "hidden";
@@ -4738,17 +4871,25 @@ window.addEventListener("online", function(){
 
   /* ---------- view nav ---------- */
   function setView(v){
+    if(v === "agenda" && view !== "agenda") agenda.jumpTo = fmtDate(cursor);
     view = v;
     $views.forEach(function(b){ b.classList.toggle("active", b.dataset.view === v); });
     render();
   }
   function shift(direction){
+    if(view === "agenda"){
+      agenda.jumpTo = fmtDate(addDays(parseDate(agenda.lastTop || todayKey()), 7*direction));
+    }
     if(view === "day")   cursor = addDays(cursor, direction);
     if(view === "week")  cursor = addDays(cursor, 7*direction);
     if(view === "month") cursor = new Date(cursor.getFullYear(), cursor.getMonth()+direction, 1);
     render();
   }
-  function goToday(){ cursor = new Date(); render(); }
+  function goToday(){
+    cursor = new Date();
+    agenda.jumpTo = todayKey();
+    render();
+  }
 
   /* ---------- event helpers ---------- */
   function covers(e, dateStr){
@@ -4767,6 +4908,7 @@ window.addEventListener("online", function(){
     return evs.filter(function(e){
       if(!covers(e, dateStr)) return false;
       if(half && e.half !== half && e.half !== "day") return false;
+      if(!eventShownOn(e, dateStr)) return false;
       if(row === OTHERS) return hasOutsider(e);
       return e.persons && e.persons.indexOf(row) >= 0;
     }).sort(byTime);
@@ -4901,6 +5043,7 @@ window.addEventListener("online", function(){
     renderPersonSide();
     $body.innerHTML = "";
     renderBanner();
+    if(view === "agenda") renderAgenda();
     if(view === "day")   renderDay();
     if(view === "week")  renderWeek();
     if(view === "month") renderMonth();
@@ -4913,6 +5056,418 @@ window.addEventListener("online", function(){
       date: dateStr, half: half || "am",
       persons: row && row !== OTHERS ? [row] : []
     });
+  }
+
+  /* =====================================================================
+   * Ricerca
+   *
+   * Parole: cercano in titolo, progetto, note, persone, tipo e stato
+   * (tutte devono esserci, senza badare ad accenti e maiuscole).
+   * Date: "27/10", "27/10/2026", "2026-10-27", "27 ottobre", "oggi",
+   * "domani", "ieri", un mese ("novembre", anche con l'anno) o un giorno
+   * della settimana ("martedì"). Una data da sola porta a quel giorno;
+   * insieme a delle parole restringe i risultati.
+   * ===================================================================== */
+  var MONTH_ABBR = ["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
+  var WEEKDAY_NAMES = ["lunedi","martedi","mercoledi","giovedi","venerdi","sabato","domenica"];
+  function norm(s){
+    return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  }
+  function monthIndex(t, allowAbbr){
+    var i = MONTHS.indexOf(t);
+    if(i >= 0) return i;
+    return allowAbbr ? MONTH_ABBR.indexOf(t.replace(/\.$/, "")) : -1;
+  }
+
+  var search = null;   // null = nessuna ricerca
+  function parseSearch(q){
+    var toks = norm(q).trim().split(/\s+/).filter(Boolean);
+    var s = { raw: q.trim(), words: [], days: [], months: [], weekdays: [] };
+    var today = new Date();
+    for(var i = 0; i < toks.length; i++){
+      var t = toks[i], m, next = toks[i + 1], after = toks[i + 2];
+      if(t === "oggi" || t === "domani" || t === "ieri"){
+        var d = addDays(today, t === "oggi" ? 0 : t === "domani" ? 1 : -1);
+        s.days.push({ d: d.getDate(), m: d.getMonth(), y: d.getFullYear() });
+        continue;
+      }
+      if((m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(t))){
+        s.days.push({ d: +m[3], m: +m[2] - 1, y: +m[1] });
+        continue;
+      }
+      if((m = /^(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2}|\d{4}))?$/.exec(t)) && +m[1] <= 31 && +m[2] >= 1 && +m[2] <= 12){
+        var y = m[3] ? (m[3].length === 2 ? 2000 + +m[3] : +m[3]) : null;
+        s.days.push({ d: +m[1], m: +m[2] - 1, y: y });
+        continue;
+      }
+      if(/^\d{1,2}$/.test(t) && next && monthIndex(next, true) >= 0 && +t >= 1 && +t <= 31){
+        var dy = after && /^\d{4}$/.test(after) ? +after : null;
+        s.days.push({ d: +t, m: monthIndex(next, true), y: dy });
+        i += dy ? 2 : 1;
+        continue;
+      }
+      if(monthIndex(t, false) >= 0){
+        var my = next && /^\d{4}$/.test(next) ? +next : null;
+        s.months.push({ m: monthIndex(t, false), y: my });
+        if(my) i++;
+        continue;
+      }
+      var wd = WEEKDAY_NAMES.indexOf(t);
+      if(wd >= 0){ s.weekdays.push(wd); continue; }
+      s.words.push(t);
+    }
+    s.hasDate = s.days.length + s.months.length + s.weekdays.length > 0;
+    return s;
+  }
+
+  /* Il giorno rispetta la parte "data" della ricerca? */
+  function searchDayOk(ds){
+    if(!search || !search.hasDate) return true;
+    var d = parseDate(ds);
+    if(search.days.length && !search.days.some(function(x){
+      return x.d === d.getDate() && x.m === d.getMonth() && (x.y === null || x.y === d.getFullYear());
+    })) return false;
+    if(search.months.length && !search.months.some(function(x){
+      return x.m === d.getMonth() && (x.y === null || x.y === d.getFullYear());
+    })) return false;
+    if(search.weekdays.length && search.weekdays.indexOf((d.getDay() + 6) % 7) < 0) return false;
+    return true;
+  }
+  /* L'impegno contiene tutte le parole cercate? */
+  function searchEventOk(e){
+    if(!search || !search.words.length) return true;
+    if(!e._hay){
+      e._hay = norm([
+        e.title, e.project_name, e.notes, (e.persons || []).join(" "),
+        e.kind === "extra" ? "extra fosforo" : e.kind,
+        e.status === "da_confermare" ? "da confermare ?" : "confermato",
+        e.source === "apple" ? "apple" : "",
+        HALF_LABEL[e.half], e.start_time
+      ].join(" "));
+    }
+    return search.words.every(function(w){ return e._hay.indexOf(w) >= 0; });
+  }
+  /* Una data da sola (un giorno, un mese) porta li'; tutto il resto filtra */
+  function searchFilters(){ return !!search && !searchTarget(); }
+  /* Solo date, nessuna parola: la ricerca porta a quel giorno invece di filtrare */
+  function searchTarget(){
+    if(!search || search.words.length || search.weekdays.length) return null;
+    var today = new Date();
+    if(search.days.length === 1){
+      var x = search.days[0];
+      var y = x.y;
+      if(y === null){
+        // senza anno: la prossima volta che capita (o oggi)
+        y = today.getFullYear();
+        if(new Date(y, x.m, x.d) < new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)) y++;
+      }
+      var d = new Date(y, x.m, x.d);
+      return d.getMonth() === x.m ? d : null;
+    }
+    if(search.months.length === 1 && !search.days.length){
+      var mm = search.months[0], yy = mm.y;
+      if(yy === null) yy = mm.m < today.getMonth() ? today.getFullYear() + 1 : today.getFullYear();
+      return mm.m === today.getMonth() && yy === today.getFullYear() ? today : new Date(yy, mm.m, 1);
+    }
+    return null;
+  }
+  function eventShownOn(e, ds){
+    if(searchFilters()) return searchDayOk(ds) && searchEventOk(e);
+    return true;
+  }
+
+  var searchTimer = null;
+  function onSearchInput(){
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(applySearch, 160);
+  }
+  function applySearch(){
+    var q = document.getElementById("cal-search").value;
+    document.getElementById("cal-search-clear").hidden = !q;
+    var wasSearching = !!search;
+    search = q.trim() ? parseSearch(q) : null;
+    // cancellata la ricerca si torna dove si era prima di cominciarla
+    if(search && !wasSearching) agenda.beforeSearch = { top: agenda.lastTop, cursor: cursor };
+    var target = searchTarget();
+    if(target){
+      cursor = target;
+      agenda.jumpTo = fmtDate(target);
+    } else if(!search && wasSearching && agenda.beforeSearch){
+      cursor = agenda.beforeSearch.cursor || new Date();
+      agenda.jumpTo = agenda.beforeSearch.top || todayKey();
+      agenda.beforeSearch = null;
+    }
+    render();
+  }
+  function clearSearch(){
+    var $i = document.getElementById("cal-search");
+    $i.value = "";
+    applySearch();
+  }
+
+  /* =====================================================================
+   * Agenda: i giorni scorrono in verticale senza fine, due righe ciascuno
+   * (mattina e pomeriggio); in alto le persone, sempre nello stesso
+   * ordine. Si apre sul giorno di oggi; sopra ci sono i giorni passati,
+   * attenuati.
+   * ===================================================================== */
+  var AGENDA_CHUNK = 35;
+  var agenda = { from: null, to: null, jumpTo: null, lastTop: null };
+
+  function agendaRows(){
+    return visibleRows(calEvents);
+  }
+  function agendaTemplate(rows){
+    return "var(--alabel) var(--ahalf) repeat(" + Math.max(rows.length, 1) + ", minmax(var(--acol), 1fr))";
+  }
+
+  /* Indice giorno -> impegni, solo per i giorni da disegnare */
+  function indexByDay(fromStr, toStr){
+    var idx = {};
+    calEvents.forEach(function(e){
+      var end = e.date_end || e.date;
+      if(e.date > toStr || end < fromStr) return;
+      var d = parseDate(e.date < fromStr ? fromStr : e.date);
+      for(var n = 0; n < 400; n++, d = addDays(d, 1)){
+        var ds = fmtDate(d);
+        if(ds > end || ds > toStr) break;
+        (idx[ds] = idx[ds] || []).push(e);
+      }
+    });
+    return idx;
+  }
+
+  function agendaChip(e, row){
+    var chip = document.createElement("div");
+    chip.className = "cal-chip " + chipClass(e);
+    paintChip(chip, e, row);
+    var html = "";
+    if(e.start_time) html += '<span class="cal-chip-time">' + escapeHtml(fmtTimeRange(e)) + '</span>';
+    if(e.kind === "extra") html += '<span class="cal-tag">Extra</span>';
+    if(row === OTHERS) html += '<b>' + escapeHtml(outsiders(e).join(", ")) + ':</b> ';
+    html += escapeHtml(displayTitle(e));
+    if(e.project_name) html += '<span class="cal-chip-proj">' + escapeHtml(e.project_name) + '</span>';
+    chip.innerHTML = html;
+    chip.title = eventTooltip(e);
+    chip.addEventListener("click", function(ev){ ev.stopPropagation(); openEventModal(e); });
+    return chip;
+  }
+
+  function agendaBand(d, isStart){
+    var b = document.createElement("div");
+    b.className = "cal-aband" + (isStart ? " cal-aband-start" : "");
+    b.innerHTML = "<span>" + MONTHS[d.getMonth()] + " " + d.getFullYear() + "</span>";
+    return b;
+  }
+
+  function agendaDay(ds, rows, evs, tpl){
+    var d = parseDate(ds);
+    var today = todayKey();
+    var block = document.createElement("div");
+    block.className = "cal-aday";
+    block.dataset.date = ds;
+    block.style.gridTemplateColumns = tpl;
+    if(ds < today) block.classList.add("past");
+    if(ds === today) block.classList.add("today");
+    var dow = (d.getDay() + 6) % 7;
+    if(dow >= 5) block.classList.add("weekend");
+
+    var label = document.createElement("div");
+    label.className = "cal-alabel";
+    label.innerHTML = '<span class="cal-alabel-dow">' + DAYS_SHORT[dow] + '</span>' +
+                      '<span class="cal-alabel-num">' + d.getDate() + '</span>' +
+                      '<span class="cal-alabel-mon">' + MONTH_ABBR[d.getMonth()] + '</span>';
+    label.title = fmtItalianDay(d);
+    label.addEventListener("click", function(){ cursor = d; setView("day"); });
+    block.appendChild(label);
+
+    HALVES.forEach(function(h, hi){
+      var hl = document.createElement("div");
+      hl.className = "cal-ahalf" + (hi ? " pm" : "");
+      hl.textContent = hi ? "Pom." : "Mat.";
+      hl.title = h.label;
+      block.appendChild(hl);
+      rows.forEach(function(row){
+        var cell = document.createElement("div");
+        cell.className = "cal-acell" + (hi ? " pm" : "");
+        var se = slotEvents(evs, row, ds, h.key);
+        se.forEach(function(e){ cell.appendChild(agendaChip(e, row)); });
+        if(!se.length) cell.title = rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
+        cell.addEventListener("click", function(){ newFor(row, ds, h.key); });
+        block.appendChild(cell);
+      });
+    });
+    return block;
+  }
+
+  /* I giorni [fromStr, toStr], con la fascia del mese a ogni inizio mese.
+     withStart: anche una fascia in cima se il blocco non parte dal 1. */
+  function agendaChunk(fromStr, toStr, rows, tpl, withStart){
+    var frag = document.createDocumentFragment();
+    var idx = indexByDay(fromStr, toStr);
+    for(var d = parseDate(fromStr), first = true; fmtDate(d) <= toStr; d = addDays(d, 1), first = false){
+      var ds = fmtDate(d);
+      if(d.getDate() === 1) frag.appendChild(agendaBand(d, false));
+      else if(first && withStart) frag.appendChild(agendaBand(d, true));
+      frag.appendChild(agendaDay(ds, rows, idx[ds] || [], tpl));
+    }
+    return frag;
+  }
+
+  function agendaHead(rows, tpl){
+    var head = document.createElement("div");
+    head.className = "cal-ahead";
+    head.style.gridTemplateColumns = tpl;
+    head.innerHTML = '<div class="cal-ahead-corner">Giorno</div><div class="cal-ahead-half"></div>';
+    rows.forEach(function(row){
+      var c = document.createElement("div");
+      c.className = "cal-ahead-person";
+      c.innerHTML = '<span class="cal-person-dot" style="background:' + rowColor(row) + '"></span>' +
+                    '<span>' + escapeHtml(rowLabel(row)) + '</span>';
+      head.appendChild(c);
+    });
+    if(!rows.length){
+      var none = document.createElement("div");
+      none.className = "cal-ahead-person";
+      none.textContent = "Nessuna persona selezionata";
+      head.appendChild(none);
+    }
+    return head;
+  }
+
+  /* Il primo giorno visibile sotto l'intestazione */
+  function agendaTopDay(scroller){
+    var headH = scroller.querySelector(".cal-ahead").offsetHeight;
+    var y = scroller.scrollTop + headH + 1;
+    var days = scroller.querySelectorAll(".cal-aday");
+    for(var i = 0; i < days.length; i++){
+      if(days[i].offsetTop + days[i].offsetHeight > y) return days[i];
+    }
+    return days[days.length - 1] || null;
+  }
+  function agendaScrollTo(scroller, ds, smooth){
+    var el = scroller.querySelector('.cal-aday[data-date="' + ds + '"]');
+    if(!el) return false;
+    var headH = scroller.querySelector(".cal-ahead").offsetHeight;
+    var prev = el.previousElementSibling;
+    // se il giorno apre il mese, si mostra anche la fascia del mese
+    var top = (prev && prev.classList.contains("cal-aband") ? prev.offsetTop : el.offsetTop) - headH;
+    scroller.scrollTo({ top: Math.max(0, top), behavior: smooth ? "smooth" : "auto" });
+    return true;
+  }
+  function agendaUpdatePeriod(scroller){
+    if(!scroller.isConnected) return;          // una vista gia' sostituita da un ridisegno
+    var top = agendaTopDay(scroller);
+    if(!top) return;
+    var d = parseDate(top.dataset.date);
+    $period.textContent = MONTHS[d.getMonth()] + " " + d.getFullYear();
+    agenda.lastTop = top.dataset.date;
+    cursor = d;
+  }
+
+  function renderAgenda(){
+    var rows = agendaRows();
+    var tpl = agendaTemplate(rows);
+
+    var scroller = document.createElement("div");
+    scroller.className = "cal-agenda";
+    scroller.style.setProperty("--acols", Math.max(rows.length, 1));
+    scroller.appendChild(agendaHead(rows, tpl));
+    var list = document.createElement("div");
+    list.className = "cal-alist";
+    scroller.appendChild(list);
+    $body.appendChild(scroller);
+
+    if(searchFilters()) return renderAgendaResults(scroller, list, rows, tpl);
+
+    // l'intervallo disegnato resta tra un ridisegno e l'altro: si ricomincia
+    // da oggi solo quando si apre il calendario o si salta a un giorno
+    var jump = agenda.jumpTo || agenda.lastTop || todayKey();
+    agenda.jumpTo = null;
+    if(!agenda.from || jump < agenda.from || jump > agenda.to){
+      agenda.from = fmtDate(addDays(parseDate(jump), -21));
+      agenda.to = fmtDate(addDays(parseDate(jump), 60));
+    }
+    list.appendChild(agendaChunk(agenda.from, agenda.to, rows, tpl, true));
+    agendaScrollTo(scroller, jump, false);
+    agendaUpdatePeriod(scroller);
+
+    function extendDown(){
+      var from = fmtDate(addDays(parseDate(agenda.to), 1));
+      var to = fmtDate(addDays(parseDate(agenda.to), AGENDA_CHUNK));
+      list.appendChild(agendaChunk(from, to, rows, tpl, false));
+      agenda.to = to;
+    }
+    function extendUp(){
+      var to = fmtDate(addDays(parseDate(agenda.from), -1));
+      var from = fmtDate(addDays(parseDate(agenda.from), -AGENDA_CHUNK));
+      // la vecchia fascia "inizio intervallo" non serve piu': il blocco nuovo porta la sua
+      var stale = list.querySelector(".cal-aband-start");
+      var before = scroller.scrollHeight;
+      if(stale) stale.remove();
+      list.insertBefore(agendaChunk(from, to, rows, tpl, true), list.firstChild);
+      scroller.scrollTop += scroller.scrollHeight - before;   // la vista resta ferma dov'era
+      agenda.from = from;
+    }
+    // vicino ai bordi si aggiungono altri giorni: sopra il passato, sotto il futuro
+    var EDGE = 900;
+    function edges(){
+      if(!scroller.isConnected) return;
+      // anche piu' volte di fila, se si scorre molto veloce o lo schermo e' alto
+      for(var n = 0; n < 6 && scroller.scrollTop + scroller.clientHeight > scroller.scrollHeight - EDGE; n++) extendDown();
+      for(var m = 0; m < 6 && scroller.scrollTop < EDGE; m++) extendUp();
+    }
+    // il mese in alto si aggiorna al massimo ogni 80 ms, e comunque alla fine
+    var lastPeriod = 0, periodTimer = null;
+    scroller.addEventListener("scroll", function(){
+      edges();
+      clearTimeout(periodTimer);
+      var now = Date.now();
+      if(now - lastPeriod > 80){ lastPeriod = now; agendaUpdatePeriod(scroller); }
+      else periodTimer = setTimeout(function(){ agendaUpdatePeriod(scroller); }, 90);
+    }, { passive: true });
+  }
+
+  /* Con una ricerca attiva: solo i giorni con impegni che corrispondono */
+  function renderAgendaResults(scroller, list, rows, tpl){
+    var days = {};
+    calEvents.forEach(function(e){
+      if(!searchEventOk(e)) return;
+      var end = e.date_end || e.date;
+      for(var d = parseDate(e.date), n = 0; n < 400 && fmtDate(d) <= end; d = addDays(d, 1), n++){
+        var ds = fmtDate(d);
+        if(searchDayOk(ds)) (days[ds] = days[ds] || []).push(e);
+      }
+    });
+    var keys = Object.keys(days).sort();
+    var count = 0, seen = {};
+    keys.forEach(function(k){ days[k].forEach(function(e){ if(!seen[e.id]){ seen[e.id] = 1; count++; } }); });
+
+    var info = document.createElement("div");
+    info.className = "cal-search-info";
+    info.innerHTML = count
+      ? "<b>" + count + "</b> " + (count === 1 ? "impegno trovato" : "impegni trovati") + " in " + keys.length + (keys.length === 1 ? " giorno" : " giorni")
+      : "Nessun impegno trovato";
+    var clr = document.createElement("button");
+    clr.type = "button";
+    clr.className = "btn-cancel";
+    clr.textContent = "Cancella ricerca";
+    clr.addEventListener("click", clearSearch);
+    info.appendChild(clr);
+    scroller.insertBefore(info, list);
+
+    var lastMonth = null;
+    keys.forEach(function(ds){
+      var d = parseDate(ds);
+      var mk = d.getFullYear() * 12 + d.getMonth();
+      if(mk !== lastMonth){ list.appendChild(agendaBand(d, false)); lastMonth = mk; }
+      list.appendChild(agendaDay(ds, rows, days[ds], tpl));
+    });
+    $period.textContent = count ? "Risultati della ricerca" : "—";
+    // si parte dal primo risultato da oggi in poi
+    var today = todayKey();
+    var firstNext = keys.filter(function(k){ return k >= today; })[0] || keys[keys.length - 1];
+    if(firstNext) requestAnimationFrame(function(){ agendaScrollTo(scroller, firstNext, false); });
   }
 
   function renderMonth(){
@@ -5923,6 +6478,15 @@ window.addEventListener("online", function(){
   document.getElementById("cal-next").addEventListener("click", function(){ shift(1); });
   document.getElementById("cal-today-btn").addEventListener("click", goToday);
   document.getElementById("cal-apple-btn").addEventListener("click", openApplePanel);
+  document.getElementById("cal-search").addEventListener("input", onSearchInput);
+  document.getElementById("cal-search").addEventListener("keydown", function(e){
+    if(e.key === "Escape"){ e.stopPropagation(); if(this.value) clearSearch(); else this.blur(); }
+    if(e.key === "Enter"){ clearTimeout(searchTimer); applySearch(); }
+  });
+  document.getElementById("cal-search-clear").addEventListener("click", function(){
+    clearSearch();
+    document.getElementById("cal-search").focus();
+  });
   document.getElementById("cal-add-btn").addEventListener("click", function(){ openEventModal(null, { date: fmtDate(cursor) }); });
   $views.forEach(function(b){
     b.addEventListener("click", function(){ setView(b.dataset.view); });
@@ -5938,6 +6502,8 @@ window.addEventListener("online", function(){
     if(e.key === "1") setView("day");
     if(e.key === "2") setView("week");
     if(e.key === "3") setView("month");
+    if(e.key === "4") setView("agenda");
+    if(e.key === "/"){ e.preventDefault(); document.getElementById("cal-search").focus(); }
   });
 
   // initial active view
