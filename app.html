@@ -1124,6 +1124,9 @@
   .cm-person-add{border-style:dashed;color:#9fadbc;padding:6px 12px;font-size:14px}
   .cm-person-add:hover{border-color:#579dff;color:#cce0ff}
   .cm-add-person{display:flex;gap:6px;margin-bottom:10px}
+  .cm-add-others{max-height:132px;overflow-y:auto}
+  .cm-add-others .cm-person{opacity:0.75}
+  .cm-add-others .cm-person:hover{opacity:1}
   .modal .cm-add-person input{flex:1;min-width:0;margin:0}
   .cm-add-person button{flex-shrink:0;padding:8px 12px}
   .cm-row{display:flex;gap:10px;flex-wrap:wrap}
@@ -1389,6 +1392,7 @@
   .cal-ps-order{display:flex;gap:8px;margin-bottom:14px}
   .cal-ps-order button{flex:1;border:1px solid #38414b;border-radius:6px}
   .cal-ps-order button:disabled{opacity:0.4;cursor:default}
+  .cal-ps-months button.on{background:#1f3d2f;border-color:#4bce97;color:#bdf0d6}
   .cal-person-sheet .actions .cal-ps-del{margin-right:auto;color:#f87168}
   .cal-mp-list{display:flex;flex-direction:column;gap:2px;max-height:50vh;overflow-y:auto;margin-bottom:6px}
   .cal-mp #mp-prev[hidden]{display:none}
@@ -5697,14 +5701,21 @@ window.addEventListener("online", function(){
     if(!n || n === oldName) return true;
     if(n.length > 60){ notify("Il nome è troppo lungo (al massimo 60 caratteri)."); return false; }
     if(isKnown(canonicalPerson(n))){ notify(canonicalPerson(n) + " fa parte del team: scegli un altro nome."); return false; }
-    // due Extra in elenco non si uniscono; un nome scritto solo negli
-    // impegni si', a chi e' gia' in elenco
-    var other = findExtra(n);
+    // il nome di un altro Extra in elenco: si uniscono, ma solo se si conferma
+    var other = findExtra(n), merge = false;
     if(other && findExtra(oldName) && other.name.toLowerCase() !== oldName.toLowerCase()){
-      notify(other.name + " c'è già tra gli Extra."); return false;
+      merge = await askChoice("Unire " + oldName + " a " + other.name + "?",
+        other.name + " c'è già tra gli Extra. Unendoli, gli impegni di " + oldName + " passano a " +
+        other.name + " e " + oldName + " sparisce dall'elenco. Vale per tutti.", [
+        { label: "Annulla", value: null },
+        { label: "Unisci", value: "yes", danger: true }
+      ]);
+      if(!merge) return false;
     }
     if(peopleMode !== "remote"){ notify(EXTRA_SQL_MSG); return false; }
-    var res = await sb.rpc("be_cal_rename_person", { old_name: oldName, new_name: n });
+    var args = { old_name: oldName, new_name: n };
+    if(merge) args.merge = true;
+    var res = await sb.rpc("be_cal_rename_person", args);
     if(res.error){
       notify(isMissingFunction(res.error) ? EXTRA_SQL_MSG : errorText(res.error, "Nome non cambiato"));
       return false;
@@ -5712,7 +5723,8 @@ window.addEventListener("online", function(){
     n = res.data || n;
     // subito qui, poi dal database
     var p = findExtra(oldName);
-    if(p) p.name = n;
+    if(merge) extraPeople = extraPeople.filter(function(x){ return x !== p; });
+    else if(p) p.name = n;
     calEvents.forEach(function(e){
       if(!e.persons || e.persons.indexOf(oldName) < 0) return;
       e.persons = e.persons.map(function(x){ return x === oldName ? n : x; })
@@ -5756,7 +5768,9 @@ window.addEventListener("online", function(){
         '<label for="ps-name">Nome</label>' +
         '<input type="text" id="ps-name" maxlength="60">' +
         '<p class="move-hint move-note">Il nome cambia per tutti, anche negli impegni già segnati.</p>' +
-        (p ? '<label>Posizione tra gli Extra</label>' +
+        (p ? '<label>C\'è</label>' +
+             '<div class="cal-ps-order cal-ps-months" id="ps-months"></div>' +
+             '<label>Posizione tra gli Extra</label>' +
              '<div class="cal-ps-order">' +
                '<button type="button" class="btn-cancel" id="ps-up">↑ Più su</button>' +
                '<button type="button" class="btn-cancel" id="ps-down">↓ Più giù</button>' +
@@ -5792,6 +5806,26 @@ window.addEventListener("online", function(){
         $down.disabled = i < 0 || i >= extraPeople.length - 1;
       }
       paint();
+      // presenza in questo mese e nel prossimo, come in "Chi c'e'"
+      var $months = bd.querySelector("#ps-months");
+      function paintMonths(){
+        var cur = monthKey(new Date());
+        $months.innerHTML = "";
+        [cur, addMonths(cur, 1)].forEach(function(mk){
+          var on = activeIn(p, mk);
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "btn-cancel" + (on ? " on" : "");
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+          b.textContent = (on ? "✓ " : "– ") + monthName(mk);
+          b.title = p.name + (on ? " c'è" : " non c'è") + " a " + monthName(mk) + ". Clic per cambiare.";
+          b.addEventListener("click", async function(){
+            if(await setMonth(p, mk, !on)){ render(); paintMonths(); }
+          });
+          $months.appendChild(b);
+        });
+      }
+      paintMonths();
       $up.addEventListener("click", async function(){ await moveExtra(p, i - 1); paint(); });
       $down.addEventListener("click", async function(){ await moveExtra(p, i + 1); paint(); });
       bd.querySelector("#ps-del").addEventListener("click", function(){ close(); removePerson(p); });
@@ -6108,7 +6142,8 @@ window.addEventListener("online", function(){
   function asksNextMonth(){ return new Date().getDate() >= 20; }
   function undecidedNext(){
     var next = addMonths(monthKey(new Date()), 1);
-    return extraPeople.filter(function(p){ return !decided(p, next); });
+    var cur = monthKey(new Date());
+    return extraPeople.filter(function(p){ return activeIn(p, cur) && !decided(p, next); });
   }
   /* Una volta al mese, aprendo il calendario, un promemoria */
   function askNextMonth(){
@@ -6196,8 +6231,8 @@ window.addEventListener("online", function(){
     var cur = monthKey(new Date()), next = addMonths(cur, 1);
     // da fuori: chi e' in elenco, piu' i nomi scritti a mano con impegni in arrivo
     var outside = extraPeople.map(function(p){ return p.name; });
+    // (dopo sql/calendario_extra_nomi.sql sono tutti in elenco)
     calEvents.forEach(function(e){
-      if((e.date_end || e.date) < today) return;
       (e.persons || []).forEach(function(n){
         if(!isKnown(n) && !findExtra(n) && outside.indexOf(n) < 0) outside.push(n);
       });
@@ -6335,13 +6370,14 @@ window.addEventListener("online", function(){
         '<div class="cal-months-grid"><span></span><span>' + MONTH_ABBR[+cur.slice(5,7)-1] + '</span>' +
         '<span>' + MONTH_ABBR[+next.slice(5,7)-1] + '</span></div>';
       var grid = box.querySelector(".cal-months-grid");
-      extraPeople.forEach(function(p){
+      // chi non c'e' ne' ora ne' il mese dopo si rimette dalla sua scheda (matita)
+      extraPeople.filter(function(p){ return activeIn(p, cur) || activeIn(p, next); }).forEach(function(p){
         var name = document.createElement("span");
         name.className = "cal-months-name";
         name.textContent = p.name;
         grid.appendChild(name);
         [cur, next].forEach(function(mk){
-          var on = activeIn(p, mk), open = mk === next && !decided(p, mk);
+          var on = activeIn(p, mk), open = mk === next && !decided(p, mk) && activeIn(p, cur);
           var b = document.createElement("button");
           b.type = "button";
           b.className = "cal-months-cell" + (on ? " on" : "") + (open ? " open" : "");
@@ -6359,7 +6395,8 @@ window.addEventListener("online", function(){
       });
       var hint = document.createElement("p");
       hint.className = "cal-months-hint";
-      hint.textContent = "✓ c'è · – non c'è · ? da decidere. Se non scegli, il mese dopo resta come questo.";
+      hint.textContent = "✓ c'è · – non c'è · ? da decidere. Se non scegli, il mese dopo resta come questo. " +
+        "Chi non c'è da tempo si rimette con la matita accanto al nome.";
       box.appendChild(hint);
       $side.appendChild(box);
     }
@@ -7279,8 +7316,10 @@ window.addEventListener("online", function(){
         '<label>Persone *</label>' +
         '<div class="cm-people" id="cm-people"></div>' +
         '<div class="cm-people" id="cm-extra"></div>' +
+        '<div class="cm-people cm-add-others" id="cm-add-others" hidden></div>' +
         '<div class="cm-add-person" id="cm-add-person" hidden>' +
-          '<input type="text" id="cm-add-name" placeholder="Nome di chi è fuori dal team" maxlength="60">' +
+          '<input type="text" id="cm-add-name" placeholder="Nome di chi è fuori dal team" maxlength="60" list="cm-add-list">' +
+          '<datalist id="cm-add-list"></datalist>' +
           '<button type="button" class="btn-primary" id="cm-add-ok">Aggiungi</button>' +
           '<button type="button" class="btn-cancel" id="cm-add-no">Annulla</button>' +
         '</div>' +
@@ -7624,11 +7663,32 @@ window.addEventListener("online", function(){
       add.addEventListener("click", function(){
         $addBox.hidden = false;
         $addName.value = "";
+        renderOthers(names);
         $addName.focus();
       });
       $extra.appendChild(add);
     }
-    function closeAdd(){ $addBox.hidden = true; }
+    /* Col "+": gli Extra che quel mese non ci sono, da scegliere con un clic
+       (da quel mese ci sono di nuovo), oppure un nome nuovo */
+    var $others = $("cm-add-others");
+    function renderOthers(shown){
+      var rest = extraPeople.filter(function(p){ return shown.indexOf(p.name) < 0; });
+      $others.innerHTML = "";
+      $others.hidden = !rest.length;
+      $("cm-add-list").innerHTML = rest.map(function(p){ return '<option value="' + escapeHtml(p.name) + '">'; }).join("");
+      rest.forEach(function(p){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "cm-person";
+        b.style.setProperty("--pc", personColor(p.name));
+        b.style.setProperty("--pcbg", hexA(personColor(p.name), 0.22));
+        b.title = p.name + " non c'è a " + monthName(monthOf($date.value || data.date)) + ": scegliendolo, da quel mese c'è";
+        b.innerHTML = '<span class="dot"></span>' + escapeHtml(p.name);
+        b.addEventListener("click", function(){ $addName.value = p.name; confirmAdd(); });
+        $others.appendChild(b);
+      });
+    }
+    function closeAdd(){ $addBox.hidden = true; $others.hidden = true; }
     async function confirmAdd(){
       var n = $addName.value.trim();
       if(!n){ $addName.focus(); return; }
