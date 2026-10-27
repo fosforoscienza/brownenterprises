@@ -1,6 +1,7 @@
 -- =====================================================================
--- Test di sql/calendario_extra.sql sul database vero, senza lasciare
--- tracce: tutto avviene in una transazione che alla fine viene annullata.
+-- Test di sql/calendario_extra.sql e sql/calendario_extra_nomi.sql sul
+-- database vero, senza lasciare tracce: tutto avviene in una transazione
+-- che alla fine viene annullata.
 --
 --   ssh mac-mini 'docker exec -i supabase-db psql -U postgres -d postgres -v ON_ERROR_STOP=1 -q' < tests/calendario_extra.test.sql
 --
@@ -44,11 +45,22 @@ end $$;
 
 select __t.as_user();
 
-insert into public.be_cal_people (name, months) values ('__Anna', '{}'), ('__Bruno', '{}'), ('__Carla', '{}');
+insert into public.be_cal_people (name, months) values ('__Anna', '{"2099-01": true}'), ('__Bruno', '{}'), ('__Carla', '{}');
 insert into public.be_cal_events (id, date, half, title, persons, kind, status, source) values
   ('00000000-0000-4000-8000-00000000e001', '2099-01-10', 'am', '__uno', array['__Anna', 'Luca'], 'lavoro', 'confermato', 'mario'),
   ('00000000-0000-4000-8000-00000000e002', '2099-01-11', 'am', '__due', array['__Anna', '__Dario'], 'lavoro', 'confermato', 'mario'),
-  ('00000000-0000-4000-8000-00000000e003', '2099-01-12', 'am', '__tre', array['__Dario'], 'lavoro', 'confermato', 'mario');
+  ('00000000-0000-4000-8000-00000000e003', '2099-03-12', 'am', '__tre', array['__Dario'], 'lavoro', 'confermato', 'mario'),
+  ('00000000-0000-4000-8000-00000000e004', '2099-01-13', 'am', '__quattro', array['luca', '__carla', ' __Carla ', 'Luca'], 'lavoro', 'confermato', 'mario');
+
+-- ---------------------------------------------------------------------
+-- 0) ogni nome fuori dai soci e' un Extra (sql/calendario_extra_nomi.sql)
+
+select __t.check((select months from public.be_cal_people where name = '__Dario') = '{"2099-01": true}'::jsonb,
+  'un nome nuovo in un impegno entra tra gli Extra, dal mese dell''impegno');
+select __t.check((select persons from public.be_cal_events where id = '00000000-0000-4000-8000-00000000e004') = array['Luca', '__Carla'],
+  'nomi scritti bene e una volta sola (soci ed Extra)');
+select __t.check(not exists (select 1 from public.be_cal_people where lower(name) = 'luca'),
+  'i soci non diventano Extra');
 
 -- ---------------------------------------------------------------------
 -- 1) rinominare: elenco e impegni insieme
@@ -68,12 +80,21 @@ select __t.must_fail($$select public.be_cal_rename_person('__Bruno', '   ')$$, '
 select __t.check(public.be_cal_rename_person('__Bruno', '__bruno') = '__bruno',
   'si possono cambiare solo le maiuscole');
 
--- un nome scritto solo negli impegni: due persone diventano una
-select public.be_cal_rename_person('__Dario', '__Anna Maria');
+-- due Extra in elenco: si uniscono solo se lo si chiede
+select __t.must_fail($$select public.be_cal_rename_person('__Dario', '__anna maria')$$, '23505',
+  'senza merge due Extra non si uniscono');
+select __t.must_fail($$select public.be_cal_rename_person('__Dario', 'valeria')$$, '22023',
+  'un Extra non prende il nome di un socio');
+select __t.check(public.be_cal_rename_person('__Dario', '__anna maria', true) = '__Anna Maria',
+  'con merge si uniscono, col nome di chi c''era gia''');
+select __t.check(not exists (select 1 from public.be_cal_people where name = '__Dario'),
+  'dopo l''unione resta una persona sola');
+select __t.check((select months from public.be_cal_people where name = '__Anna Maria') = '{"2099-01": true}'::jsonb,
+  'unendo, i mesi si sommano');
 select __t.check((select persons from public.be_cal_events where id = '00000000-0000-4000-8000-00000000e002') = array['__Anna Maria'],
   'unendo due nomi nello stesso impegno, la persona resta una volta sola');
 select __t.check((select persons from public.be_cal_events where id = '00000000-0000-4000-8000-00000000e003') = array['__Anna Maria'],
-  'il nome scritto a mano cambia anche dove era da solo');
+  'il nome cambia anche dove era da solo');
 
 -- ---------------------------------------------------------------------
 -- 2) ordine
@@ -84,7 +105,7 @@ select __t.check((select array_agg(name order by position) from public.be_cal_pe
   'l''ordine si salva');
 
 reset role;
-select __t.check(not has_function_privilege('anon', 'public.be_cal_rename_person(text, text)', 'execute'),
+select __t.check(not has_function_privilege('anon', 'public.be_cal_rename_person(text, text, boolean)', 'execute'),
   'chi non e'' collegato non rinomina');
 
 rollback;
