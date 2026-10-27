@@ -1321,6 +1321,12 @@
     --pc:#579dff;
   }
   .cal-person-row:hover{background:#2c3338}
+  .cal-person-row.group{font-weight:600;color:#cce0ff}
+  .cal-person-row.mixed .cal-cb{background:var(--pc);border-color:var(--pc)}
+  .cal-person-row.mixed .cal-cb::after{
+    content:"";position:absolute;left:2px;right:2px;top:50%;height:2px;margin-top:-1px;
+    background:#1d2125;border-radius:1px;
+  }
   .cal-person-row.all{
     font-weight:700;color:#cce0ff;
     margin-bottom:4px;
@@ -6189,7 +6195,15 @@ window.addEventListener("online", function(){
       bd.querySelector("#mp-prev").title = "Togli la scelta di " + monthName(mk) + ": torna come " +
         (prevSrc ? monthName(prevSrc) : "il resto del calendario");
       $list.innerHTML = "";
+      var extras = extraNames(rows);
       rows.forEach(function(r){
+        if(extras.length > 1 && r === extras[0]){
+          $list.appendChild(groupRow("Tutti gli Extra", extras, hidden, function(on){
+            var h = hiddenFor(mk);
+            extras.forEach(function(x){ if(on) h.delete(x); else h.add(x); });
+            apply(h);
+          }));
+        }
         var row = document.createElement("div");
         row.className = "cal-person-row" + (hidden.has(r) ? "" : " checked");
         row.style.setProperty("--pc", rowColor(r));
@@ -6223,6 +6237,27 @@ window.addEventListener("online", function(){
     bd.addEventListener("click", function(e){ if(e.target === bd) close(); });
     bd.querySelector("#mp-ok").addEventListener("click", close);
     paint();
+  }
+
+  /* Una riga "Tutti gli Extra": accesa se si vedono tutti, a meta' se solo
+     alcuni. Il clic li mostra tutti, o li nasconde tutti se gia' si vedono. */
+  function groupRow(label, names, hidden, onToggle){
+    var shown = names.filter(function(n){ return !hidden.has(n); }).length;
+    var allOn = names.length > 0 && shown === names.length;
+    var row = document.createElement("div");
+    row.className = "cal-person-row group" + (allOn ? " checked" : "") +
+      (shown > 0 && !allOn ? " mixed" : "");
+    row.setAttribute("role", "checkbox");
+    row.setAttribute("aria-checked", allOn ? "true" : (shown ? "mixed" : "false"));
+    row.title = allOn ? "Nascondi tutti gli Extra" : "Mostra tutti gli Extra";
+    row.innerHTML = '<div class="cal-cb"></div><div class="cal-person-name"></div>' +
+      '<div class="cal-person-count">' + shown + "/" + names.length + '</div>';
+    row.querySelector(".cal-person-name").textContent = label;
+    row.addEventListener("click", function(){ onToggle(!allOn); });
+    return row;
+  }
+  function extraNames(list){
+    return list.filter(function(r){ return !isKnown(r) && r !== NOBODY; });
   }
 
   var dragName = null;   // l'Extra che si sta trascinando
@@ -6350,6 +6385,13 @@ window.addEventListener("online", function(){
     h2.textContent = "Extra";
     h2.title = "Tutti quelli fuori dal team. Nome e ordine valgono per tutti: si cambiano con la matita o trascinando.";
     $side.appendChild(h2);
+    if(outside.length > 1){
+      $side.appendChild(groupRow("Tutti gli Extra", outside, hiddenPersons, function(on){
+        outside.forEach(function(p){ if(on) hiddenPersons.delete(p); else hiddenPersons.add(p); });
+        saveFilter();
+        render();
+      }));
+    }
     outside.forEach(function(p){ $side.appendChild(personRow(p)); });
 
     var add = document.createElement("button");
