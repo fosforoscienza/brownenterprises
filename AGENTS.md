@@ -18,6 +18,8 @@ del team, «Mario Project Manager».
   dal browser. Progetti divisi in categorie del team (più «Personale»,
   Preferiti e Archiviati), schede To Do / In Progress / Done, Archivio
   (file e link Drive), Panoramica, scadenze e il calendario «Chi fa cosa».
+  Alessandro è il coordinatore (`be_profiles.coordinator`): vede i progetti
+  nuovi del team e può eliminarli.
 - **Funzioni serverless** in `api/` (Vercel, Node): il feed `.ics` per Apple
   Calendar e la lettura dei calendari pubblici iCloud.
 
@@ -85,8 +87,9 @@ node --test tests/*.test.js
 Test di `api/` e `api/_lib/ics.js` con `node:test`, senza dipendenze e con la
 rete simulata. Devono passare prima di ogni commit che tocca `api/`.
 
-`tests/calendario.test.sql`, `tests/calendario_extra.test.sql` e
-`tests/categorie.test.sql` provano i file omonimi di `sql/` sul database vero
+`tests/calendario.test.sql`, `tests/calendario_extra.test.sql`,
+`tests/categorie.test.sql` e `tests/coordinatore.test.sql` provano i file
+omonimi di `sql/` sul database vero
 dentro una transazione annullata alla fine. Si lancia via SSH sul Mac mini
 (l'intestazione dei file usa l'alias `mac-mini`; usa quello configurato sulla
 tua macchina) e vanno eseguiti solo se richiesto.

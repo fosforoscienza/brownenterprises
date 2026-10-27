@@ -284,6 +284,14 @@
   }
   .project-item:hover .project-share{opacity:1}
   .project-share:hover{background:#1c2b41;color:#85b8ff}
+  .project-delete{
+    background:transparent;border:0;color:#9fadbc;
+    width:22px;height:22px;border-radius:4px;flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    margin-left:4px;
+    transition:background 0.12s,color 0.12s;
+  }
+  .project-delete:hover{background:#412a2a;color:#f87168}
   /* --- Categorie: stellina, archivio, selezione multipla ---------------- */
   .project-star,.project-archive{
     opacity:0;
@@ -355,6 +363,21 @@
   .move-opt.move-danger:hover:not(:disabled){background:#412a2a;border-color:#f87168}
   .move-note{margin:-4px 0 14px;font-size:13px;line-height:1.45}
   .np-cats{margin-bottom:6px}
+  .modal.np-review{max-width:600px}
+  .np-review-list{display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow-y:auto;margin-bottom:12px}
+  .np-review-row{
+    display:grid;grid-template-columns:1fr 160px auto;gap:8px;align-items:center;
+    padding:8px 10px;border:1px solid #38414b;border-radius:8px;background:#1d2125;
+  }
+  .np-review-row .col-select{margin:0;padding:7px 9px;font-size:13px}
+  .np-review-row button{padding:7px 12px;font-size:13px}
+  .np-review-name{min-width:0;display:flex;flex-direction:column;gap:2px}
+  .np-review-name b{color:#f4f5f7;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .np-review-name span{color:#9fadbc;font-size:12px}
+  @media (max-width:560px){
+    .np-review-row{grid-template-columns:1fr auto}
+    .np-review-name{grid-column:1 / -1}
+  }
   .np-cats .move-opt{flex:0 1 auto;min-height:38px;padding:8px 12px;font-size:13px}
   .np-hint{margin:0 0 12px;font-size:12px;color:#9fadbc;min-height:1.4em}
   .share-list{
@@ -644,6 +667,9 @@
     transition:background 0.12s;
   }
   .btn-primary:hover{background:#85b8ff}
+  .btn-primary.btn-danger{background:#f87168}
+  .btn-primary.btn-danger:hover{background:#fd9891}
+  .btn-primary:disabled{opacity:0.6;cursor:default}
   .btn-cancel{
     background:transparent;
     border:0;
@@ -1400,7 +1426,19 @@
   .cal-ps-order button:disabled{opacity:0.4;cursor:default}
   .cal-ps-months button.on{background:#1f3d2f;border-color:#4bce97;color:#bdf0d6}
   .cal-person-sheet .actions .cal-ps-del{margin-right:auto;color:#f87168}
-  .cal-mp-list{display:flex;flex-direction:column;gap:2px;max-height:50vh;overflow-y:auto;margin-bottom:6px}
+  .cal-mp-list{display:flex;flex-direction:column;gap:2px;max-height:34vh;overflow-y:auto;margin-bottom:6px}
+  .cal-mp-sub{margin:14px 0 6px;font-size:11px;font-weight:700;color:#9fadbc;text-transform:uppercase;letter-spacing:0.6px}
+  .cal-person-row.busy .cal-cb{opacity:0.7}
+  .cal-extra-toggle{
+    display:flex;align-items:center;gap:6px;width:100%;
+    background:none;border:0;padding:6px 8px;margin:12px 0 4px;border-radius:6px;
+    font-size:11px;font-weight:700;color:#9fadbc;text-transform:uppercase;letter-spacing:0.6px;
+    text-align:left;cursor:pointer;
+  }
+  .cal-extra-toggle:hover{background:#22272b;color:#cce0ff}
+  .cal-extra-toggle > span:nth-child(2){flex:1}
+  .cal-extra-caret{display:inline-flex;transform:rotate(-90deg);transition:transform 0.12s}
+  .cal-extra-toggle.open .cal-extra-caret{transform:none}
   .cal-mp #mp-prev[hidden]{display:none}
   .cal-aband-people{
     margin-left:12px;vertical-align:1px;
@@ -1419,34 +1457,6 @@
   }
   .cal-add-person:hover{background:#22272b;border-color:#579dff;color:#cce0ff}
   .cal-add-plus{width:16px;text-align:center;font-size:16px;line-height:1}
-  .cal-months{
-    margin-top:12px;padding:10px 8px 8px;
-    border:1px solid #2c3338;border-radius:8px;
-  }
-  .cal-months h3{padding:0;margin-bottom:6px}
-  .cal-months.ask{border-color:#f5cd47;background:rgba(245,205,71,0.06)}
-  .cal-months-ask{margin:0 0 8px;font-size:12px;font-weight:600;color:#f5cd47}
-  .cal-months-grid{
-    display:grid;grid-template-columns:1fr 34px 34px;gap:4px 6px;align-items:center;
-    font-size:12px;color:#b6c2cf;
-  }
-  .cal-months-grid > span:not(.cal-months-name){font-size:10px;font-weight:700;color:#9fadbc;text-transform:uppercase;text-align:center}
-  .cal-months-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .cal-months-cell{
-    height:24px;border-radius:4px;padding:0;
-    background:#22272b;border:1px solid #38414b;color:#738496;
-    font-size:12px;font-weight:700;
-  }
-  .cal-months-cell.on{background:rgba(75,206,151,0.16);border-color:#4bce97;color:#4bce97}
-  .cal-months-cell.open{border-style:dashed;border-color:#f5cd47;color:#f5cd47;background:transparent}
-  .cal-months-cell:hover{filter:brightness(1.3)}
-  .cal-months-hint{margin:8px 0 0;font-size:11px;color:#738496;line-height:1.35}
-  .cal-acell.off,.cal-wcell.off,.cal-mslot.off,.cal-dfree.off{
-    background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(159,173,188,0.06) 5px 10px);
-    cursor:default;
-  }
-  .cal-acell.off:hover,.cal-wcell.off:hover{background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(159,173,188,0.06) 5px 10px)}
-  .cal-dfree.off{color:#738496;border-style:solid}
 
   .cal-body{flex:1;overflow:hidden;display:flex;flex-direction:column;background:#101204}
 
@@ -1466,11 +1476,10 @@
   }
   .cal-month-headrow > div:last-child{border-right:0}
   .cal-month-grid{
-    flex:1;
+    flex:1;min-height:0;
     display:grid;
-    grid-template-columns:repeat(7,1fr);
-    grid-auto-rows:minmax(100px,1fr);
-    overflow-y:auto;
+    grid-template-columns:repeat(7,minmax(0,1fr));
+    overflow:hidden;
   }
   .cal-day-cell{
     background:#1d2125;
@@ -1501,10 +1510,18 @@
   /* Una riga per persona (ordine fisso), due caselle: mattina | pomeriggio */
   .cal-month-halves{display:flex;gap:4px;margin-top:2px;font-size:9px;font-weight:600;color:#738496;letter-spacing:0.3px;text-transform:none}
   .cal-month-halves span{flex:1}
-  .cal-mgrid{display:grid;grid-template-columns:1fr 1fr;gap:2px;align-content:start}
+  .cal-day-top{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:3px;min-height:0}
+  .cal-day-top .cal-day-num{margin-bottom:0}
+  .cal-day-more{
+    display:inline-flex;align-items:center;gap:3px;flex-shrink:0;
+    font-size:10px;font-weight:700;color:#cce0ff;
+    background:#2c3338;border-radius:8px;padding:1px 6px 1px 5px;
+  }
+  /* le sei righe dei soci si dividono l'altezza della casella */
+  .cal-mgrid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(6,minmax(0,1fr));gap:2px}
   .cal-mslot{
     --pc:#579dff;--pcbg:rgba(87,157,255,0.22);
-    height:14px;border-radius:2px;
+    min-height:0;border-radius:2px;
     background:#191d21;
     border-left:2px solid transparent;
     color:#f4f5f7;font-size:9.5px;line-height:14px;
@@ -1522,13 +1539,72 @@
      persona, sempre nello stesso ordine, divisa in mattina e pomeriggio:
      le righe restano allineate su tutta la settimana. */
   .cal-week{flex:1;overflow:auto;background:#1d2125}
-  .cal-wgrid{
+  /* Settimana e Giorno: persona | mattina/pomeriggio | giorni */
+  .cal-pgrid{
+    --plabel:120px;--phalf:44px;
     display:grid;
-    grid-template-columns:112px repeat(7,minmax(118px,1fr));
-    min-width:938px;
+    grid-template-columns:var(--plabel) var(--phalf) repeat(var(--pdays),minmax(118px,1fr));
+    min-width:calc(var(--plabel) + var(--phalf) + var(--pdays) * 118px);
   }
-  .cal-wgrid > div{border-right:1px solid #2c3338;border-bottom:1px solid #2c3338;min-width:0}
-  .cal-wcorner{position:sticky;top:0;left:0;z-index:4;background:#1d2125}
+  .cal-pgrid > div{min-width:0}
+  .cal-pcorner{
+    grid-column:span 2;position:sticky;top:0;left:0;z-index:4;background:#1d2125;
+    border-right:1px solid #2c3338;border-bottom:1px solid #38414b;
+    font-size:10px;font-weight:700;color:#9fadbc;text-transform:uppercase;letter-spacing:0.5px;
+    display:flex;align-items:flex-end;padding:8px 10px;
+  }
+  .cal-pgrid .cal-week-head{border-right:1px solid #2c3338;border-bottom:1px solid #38414b}
+  .cal-pnone{grid-column:1 / -1;padding:16px;color:#738496;font-size:13px}
+  .cal-plabel{
+    grid-row:span 2;
+    position:sticky;left:0;z-index:2;background:#1d2125;
+    display:flex;align-items:center;gap:7px;padding:6px 10px;
+    font-size:12px;font-weight:600;color:#f4f5f7;
+    border-right:1px solid #2c3338;border-bottom:1px solid #38414b;
+  }
+  .cal-phalf{
+    position:sticky;left:var(--plabel);z-index:2;background:#1d2125;
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:#738496;text-transform:uppercase;letter-spacing:0.4px;
+    border-right:1px solid #2c3338;border-bottom:1px dashed #2c3338;
+  }
+  .cal-phalf.pm{border-bottom:1px solid #38414b}
+  .cal-pcell{
+    padding:3px;min-height:32px;
+    display:flex;flex-direction:column;gap:3px;
+    border-right:1px solid #2c3338;border-bottom:1px dashed #2c3338;
+    cursor:pointer;transition:background 0.12s;
+  }
+  .cal-pcell.pm{border-bottom:1px solid #38414b}
+  .cal-pcell:hover{background:#22272b}
+  .cal-pcell.today{background:rgba(28,43,65,0.45)}
+  /* Giorno: persona | mattina | pomeriggio */
+  .cal-dgrid{
+    --plabel:140px;
+    display:grid;grid-template-columns:var(--plabel) repeat(2,minmax(0,1fr));
+  }
+  .cal-dgrid > div{min-width:0}
+  .cal-dgrid .cal-pcorner{grid-column:auto}
+  .cal-day-view{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  .cal-day-view-head{
+    padding:18px 24px;
+    border-bottom:1px solid #2c3338;
+    background:#1d2125;
+    text-align:center;
+  }
+  .cal-day-view-head h3{
+    margin:0;color:#f4f5f7;
+    font-size:24px;font-weight:700;
+    text-transform:capitalize;
+  }
+  .cal-day-view-head.today h3 span.daynum{color:#579dff}
+  .cal-dgrid .cal-week-head{cursor:default;text-align:center;border-right:1px solid #2c3338;border-bottom:1px solid #38414b}
+  .cal-dgrid .cal-week-head .cal-week-day-num{font-size:14px}
+  .cal-dgrid .cal-plabel{grid-row:auto}
+  .cal-dgrid .cal-pcell{padding:6px 8px;gap:6px;min-height:52px;border-bottom:1px solid #38414b}
+  .cal-dgrid .cal-day-event-time.notime{display:none}
+  .cal-pfree{color:#5c6c7e;font-size:12px;opacity:0;transition:opacity 0.12s;align-self:flex-start;padding:6px 4px}
+  .cal-pcell:hover .cal-pfree{opacity:1;color:#cce0ff}
   .cal-week-head{
     position:sticky;top:0;z-index:3;
     background:#1d2125;
@@ -1541,14 +1617,6 @@
   .cal-week-head.today .cal-week-day-num{color:#579dff}
   .cal-week-day-name{font-size:11px;color:#9fadbc;text-transform:uppercase;letter-spacing:0.5px;font-weight:700}
   .cal-week-day-num{font-size:18px;font-weight:700;color:#f4f5f7;margin-top:1px}
-  .cal-wband{
-    grid-column:1 / -1;
-    background:#161a1d;
-    padding:5px 0;
-    font-size:11px;font-weight:700;color:#9fadbc;
-    text-transform:uppercase;letter-spacing:0.6px;
-  }
-  .cal-wband span{position:sticky;left:10px;padding:0 10px}
   .cal-wlabel{
     position:sticky;left:0;z-index:2;
     background:#1d2125;
@@ -1557,14 +1625,6 @@
     font-size:12px;font-weight:600;color:#b6c2cf;
   }
   .cal-wlabel-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .cal-wcell{
-    padding:3px;min-height:30px;
-    display:flex;flex-direction:column;gap:3px;
-    cursor:pointer;
-    transition:background 0.12s;
-  }
-  .cal-wcell:hover{background:#22272b}
-  .cal-wcell.today{background:rgba(28,43,65,0.45)}
   .cal-chip{
     --pc:#579dff;--pcbg:rgba(87,157,255,0.22);
     background:var(--pcbg);
@@ -1733,48 +1793,6 @@
   .cal-legend-sw.tentative{outline:1px dashed var(--pc);outline-offset:-1px}
 
   /* Day view */
-  .cal-day-view{
-    flex:1;
-    display:flex;flex-direction:column;
-    overflow:hidden;
-    background:#101204;
-  }
-  .cal-day-view-head{
-    padding:18px 24px;
-    border-bottom:1px solid #2c3338;
-    background:#1d2125;
-    text-align:center;
-  }
-  .cal-day-view-head h3{
-    margin:0;color:#f4f5f7;
-    font-size:24px;font-weight:700;
-    text-transform:capitalize;
-  }
-  .cal-day-view-head.today h3 span.daynum{color:#579dff}
-  .cal-day-scroll{flex:1;overflow-y:auto;padding-bottom:24px}
-  .cal-dsec{max-width:900px;margin:0 auto;width:100%;padding:16px 24px 0}
-  .cal-dsec h4{
-    margin:0 0 6px;
-    font-size:11px;font-weight:700;color:#9fadbc;
-    text-transform:uppercase;letter-spacing:0.6px;
-  }
-  .cal-drow{
-    display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:start;
-    padding:6px 0;border-bottom:1px solid #2c3338;
-  }
-  .cal-dname{display:flex;align-items:center;gap:8px;font-weight:600;color:#f4f5f7;font-size:13px;padding-top:9px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .cal-dcards{display:flex;flex-direction:column;gap:6px;min-width:0}
-  .cal-dfree{
-    display:flex;justify-content:space-between;align-items:center;
-    width:100%;
-    background:transparent;border:1px dashed #2c3338;border-radius:6px;
-    color:#5c6c7e;font-size:12px;font-family:inherit;
-    padding:9px 12px;text-align:left;
-    transition:color 0.12s,border-color 0.12s;
-  }
-  .cal-dfree-add{opacity:0;transition:opacity 0.12s;font-weight:600}
-  .cal-dfree:hover{color:#cce0ff;border-color:#579dff}
-  .cal-dfree:hover .cal-dfree-add{opacity:1}
   .cal-dnone{color:#738496;font-size:13px}
   .cal-day-event-card{
     --pc:#579dff;--pcbg:rgba(87,157,255,0.22);
@@ -1881,11 +1899,11 @@
     .project-item{padding:10px 8px}
     .project-icon{width:26px;height:26px;font-size:12px}
     .project-name{font-size:15px}
-    .project-delete{opacity:1;width:30px;height:30px}
-    .project-move{opacity:1;width:30px;height:30px}
-    .project-share{opacity:1;width:30px;height:30px}
-    .project-star{opacity:1;width:30px;height:30px}
-    .project-actions{display:flex;position:static;transform:none;background:none;box-shadow:none;padding:0}
+    .project-delete{opacity:1;width:28px;height:30px;margin-left:2px}
+    .project-move{opacity:1;width:28px;height:30px}
+    .project-share{opacity:1;width:28px;height:30px}
+    .project-star{opacity:1;width:28px;height:30px}
+    .project-actions{display:flex;position:static;transform:none;background:none;box-shadow:none;padding:0;gap:0}
     .project-archive{display:none}
     .label-head{padding:9px 4px 7px}
     .label-btn{opacity:1;width:28px;height:28px}
@@ -1992,25 +2010,21 @@
 
     /* Month view */
     .cal-month-headrow > div{padding:6px 2px;font-size:10px;letter-spacing:0.3px}
-    .cal-month-grid{grid-auto-rows:minmax(72px,1fr)}
+    .cal-day-more{padding:0 4px;font-size:9px}
+    .cal-day-more svg{display:none}
     .cal-day-cell{padding:4px 3px 2px}
     .cal-day-num{font-size:11px;padding:0 2px;margin-bottom:2px}
     .cal-day-cell.today .cal-day-num{width:20px;height:20px;font-size:11px}
     .cal-month-halves{display:none}
-    .cal-mslot{height:9px;font-size:0;padding:0;border-left-width:2px}
+    .cal-mslot{font-size:0;padding:0;border-left-width:2px}
     .cal-mgrid{gap:1px}
 
     /* Day view */
-    .cal-day-view-head{padding:14px 14px}
-    .cal-day-view-head h3{font-size:18px}
-    .cal-dsec{padding:12px 14px 0}
     .cal-search{order:11;flex:1 1 100%;min-width:0}
     .cal-search input{font-size:16px;padding-top:8px;padding-bottom:8px}
     .cal-agenda{--alabel:46px;--ahalf:34px;--acol:96px}
     .cal-alabel-num{font-size:17px}
     .cal-ahead > div{padding:8px 6px;font-size:11px}
-    .cal-drow{grid-template-columns:86px 1fr;gap:8px}
-    .cal-dfree-add{opacity:1}
     .cal-apple-btn span{display:none}
     .cal-default-btn span{display:none}
     .cal-default-btn{order:7;padding:6px 8px}
@@ -2027,7 +2041,12 @@
   }
 
   @media (max-width:560px){
-    .cal-wgrid{grid-template-columns:84px repeat(7,minmax(108px,1fr));min-width:840px}
+    .cal-pgrid{--plabel:84px;--phalf:34px}
+    .cal-dgrid{--plabel:76px}
+    .cal-day-view-head{padding:14px 14px}
+    .cal-day-view-head h3{font-size:18px}
+    .cal-dgrid .cal-pcell{padding:4px}
+    .cal-plabel{font-size:11px;padding:6px 6px}
     .cal-wlabel{font-size:11px;padding:6px 6px}
   }
 
@@ -2532,6 +2551,9 @@ async function loadEverything(){
       personal: p.personal === undefined ? !state.isTeam : !!p.personal,
       category_id: p.category_id || null,
       archived_at: p.archived_at || null,
+      // undefined: manca sql/coordinatore.sql; null: il coordinatore non l'ha ancora visto
+      reviewed_at: p.reviewed_at === undefined ? undefined : (p.reviewed_at || null),
+      created_at: p.created_at || null,
       isOwner: p.owner_id === state.me.id,
       shares: sharesByProject[p.id] || [],
       columns: columnsByProject[p.id] || []
@@ -2540,13 +2562,25 @@ async function loadEverything(){
 
   syncActiveProject();
 
-  await Promise.all([loadLibrary(), loadCategories()]);
+  await Promise.all([loadLibrary(), loadCategories(), loadCoordinator()]);
   return true;
+}
+
+/* Il coordinatore (sql/coordinatore.sql): vede i progetti nuovi degli
+   altri e puo' eliminare i progetti del team */
+async function loadCoordinator(){
+  var res = await sb.rpc("be_is_coordinator");
+  state.isCoordinator = !res.error && res.data === true;
 }
 
 /* Senza sql/categorie.sql le colonne nuove non ci sono: si ricarica senza,
    e la colonna di sinistra resta una lista semplice con un avviso. */
 async function fetchProjects(){
+  var withReview = await sb.from("be_projects")
+    .select("id, name, owner_id, area, personal, category_id, archived_at, reviewed_at, created_at")
+    .order("created_at", { ascending: true });
+  if(!withReview.error){ state.categoriesError = null; return withReview; }
+  // senza sql/coordinatore.sql: niente avviso al coordinatore
   var full = await sb.from("be_projects")
     .select("id, name, owner_id, area, personal, category_id, archived_at, created_at")
     .order("created_at", { ascending: true });
@@ -3007,12 +3041,18 @@ function buildProjectItem(proj){
 
   // Il trascinamento e' HTML5 DnD, che da un dito non parte mai: su iOS e
   // Android questo bottone e' l'unico modo di spostare un progetto.
-  acts.appendChild(itemButton("project-move", ICON_MOVE, "Sposta, archivia o elimina",
+  acts.appendChild(itemButton("project-move", ICON_MOVE, "Sposta o archivia",
     function(){ openProjectSheet(proj); }));
 
   if(proj.isOwner){
     acts.appendChild(itemButton("project-share", ICON_SHARE, "Condividi progetto",
       function(){ openShareModal(proj.id); }));
+  }
+
+  // eliminare ha il suo pulsante, l'ultimo, separato da "Sposta"
+  if(canDelete(proj)){
+    acts.appendChild(itemButton("project-delete", ICON_TRASH, "Elimina progetto",
+      function(){ deleteProject(proj.id); }));
   }
 
   item.addEventListener("click", function(){
@@ -3403,9 +3443,6 @@ function openProjectSheet(proj){
         (proj.archived_at ? ICON_RESTORE + ' Ripristina' : ICON_ARCHIVE + ' Archivia') + '</button>';
     }
   }
-  if(proj.isOwner){
-    more += '<button type="button" class="move-opt move-danger" data-kind="delete">' + ICON_TRASH + ' Elimina</button>';
-  }
 
   var sheet = openSheet(
     '<div class="modal" role="dialog" aria-label="Sposta progetto">' +
@@ -3435,7 +3472,6 @@ function openProjectSheet(proj){
       else if(k === "area") moveProjectToArea(proj.id, b.dataset.value);
       else if(k === "fav") setFavorite([proj.id], !isFavorite(proj));
       else if(k === "archive") proj.archived_at ? restoreProjects([proj.id]) : moveProjects([proj.id], GROUP_ARCHIVED);
-      else if(k === "delete") deleteProject(proj.id);
     });
   });
 }
@@ -4130,20 +4166,161 @@ async function updateCard(cardId, columnId, title, priority, dateValue, isDoneCo
   renderBoard();
 }
 
+/* Lo elimina chi l'ha creato; un progetto del team anche il coordinatore */
+function canDelete(p){
+  return p.isOwner || (!p.personal && !!state.isCoordinator);
+}
+
+/* Prima di eliminare: se il progetto ha schede, Archivio o impegni in
+   «Chi fa cosa», si sceglie a quale progetto passarli (be_delete_project). */
 async function deleteProject(projectId){
-  if(!confirm("Eliminare definitivamente questo progetto? Verranno eliminati anche colonne, card, elementi dell'Archivio e condivisioni.")) return;
-  var paths = (state.library[projectId] || [])
-    .filter(function(it){ return it.kind === "file" && it.storage_path; })
-    .map(function(it){ return it.storage_path; });
-  var res = await sb.from("be_projects").delete().eq("id", projectId);
+  var proj = projectById(projectId);
+  if(!proj) return;
+  var cards = proj.columns.reduce(function(n, c){ return n + c.cards.length; }, 0);
+  var items = (state.library[projectId] || []).length;
+  var ev = await sb.from("be_cal_events").select("id", { count: "exact", head: true }).eq("project_id", projectId);
+  var events = ev.error ? 0 : (ev.count || 0);
+  if(!cards && !items && !events) return deleteEmptyProject(proj);
+  openDeleteMoveSheet(proj, { cards: cards, items: items, events: events });
+}
+
+async function deleteEmptyProject(proj){
+  if(!confirm("Eliminare definitivamente «" + proj.name + "»? Non ha schede, elementi in Archivio né impegni.")) return;
+  var res = await sb.from("be_projects").delete().eq("id", proj.id).select("id");
   if(res.error){ notify(errorText(res.error)); return; }
-  if(paths.length){ try { await sb.storage.from(LIBRARY_BUCKET).remove(paths); } catch(e){} }
+  if(!res.data || !res.data.length){ notify("Non puoi eliminare questo progetto."); return; }
+  forgetProject(proj.id);
+  render();
+}
+
+function forgetProject(projectId){
   delete state.library[projectId];
   delete state.favorites[projectId];
   delete state.selected[projectId];
   state.projects = state.projects.filter(function(p){ return p.id !== projectId; });
   syncActiveProject();
-  render();
+}
+
+/* I progetti dove si possono passare le cose: per categoria, Archiviati esclusi */
+function targetOptions(excludeId){
+  var html = '<option value="">— Scegli il progetto —</option>';
+  projectGroups({ sort: true }).forEach(function(g){
+    if(g.id === GROUP_FAV) return;
+    var list = g.projects.filter(function(p){ return p.id !== excludeId; });
+    if(!list.length) return;
+    html += '<optgroup label="' + escHtml(g.name) + '">' +
+      list.map(function(p){ return '<option value="' + p.id + '">' + escHtml(p.name) + '</option>'; }).join("") +
+      '</optgroup>';
+  });
+  return html;
+}
+
+function openDeleteMoveSheet(proj, n){
+  var bits = [];
+  if(n.cards) bits.push(plural(n.cards, "scheda", "schede") + " (To Do, In Progress, Done)");
+  if(n.items) bits.push(plural(n.items, "elemento", "elementi") + " in Archivio");
+  if(n.events) bits.push(plural(n.events, "impegno", "impegni") + " in «Chi fa cosa»");
+  var sheet = openSheet(
+    '<div class="modal" role="dialog" aria-label="Elimina progetto">' +
+      '<h2>Eliminare &laquo;' + escHtml(proj.name) + '&raquo;?</h2>' +
+      '<p class="move-hint move-note">Ha ' + escHtml(bits.join(", ")) + '. Prima di eliminarlo, ' +
+        'scegli a quale progetto passarli: le schede finiscono nelle liste con lo stesso nome.</p>' +
+      '<label for="dp-target">Passa tutto a</label>' +
+      '<select id="dp-target" class="col-select">' + targetOptions(proj.id) + '</select>' +
+      '<p class="cm-error" id="dp-error" role="alert"></p>' +
+      '<div class="actions">' +
+        '<button class="btn-cancel" id="m-close">Annulla</button>' +
+        '<button class="btn-primary btn-danger" id="dp-ok">Sposta ed elimina</button>' +
+      '</div>' +
+    '</div>');
+  var el = sheet.el, $t = el.querySelector("#dp-target"), $err = el.querySelector("#dp-error");
+  var $ok = el.querySelector("#dp-ok");
+  setTimeout(function(){ $t.focus(); }, 0);
+  $ok.addEventListener("click", async function(){
+    var target = projectById($t.value);
+    if(!target){ $err.textContent = "Scegli il progetto a cui passare schede, Archivio e impegni."; $t.focus(); return; }
+    $ok.disabled = true;
+    var res = await sb.rpc("be_delete_project", { p_project: proj.id, p_target: target.id });
+    $ok.disabled = false;
+    if(res.error){
+      $err.textContent = /be_delete_project|could not find the function/i.test(res.error.message || "")
+        ? "Per eliminare spostando le cose va eseguito sql/coordinatore.sql su Supabase."
+        : errorText(res.error);
+      return;
+    }
+    sheet.close();
+    // schede, liste e Archivio sono cambiati in due progetti: si ricarica tutto
+    var wasActive = state.activeProjectId === proj.id;
+    await loadEverything();
+    if(wasActive) state.activeProjectId = target.id;
+    syncActiveProject();
+    render();
+    notify("«" + proj.name + "» eliminato: " + bits.join(", ") + " ora sono in «" + target.name + "».",
+           { warn: false, autoHide: 5000 });
+  });
+}
+
+/* Al coordinatore, all'apertura: i progetti del team creati da altri che non
+   ha ancora visto. Conferma la categoria o la cambia; «Più tardi» li ripropone. */
+function checkNewProjects(){
+  if(!state.isCoordinator || state.categoriesError) return;
+  var list = state.projects.filter(function(p){
+    return p.reviewed_at === null && !p.personal && !p.archived_at && !p.isOwner;
+  });
+  if(!list.length) return;
+  var catOpts = function(cur){
+    return '<option value="">Senza categoria</option>' + sortedCategories().map(function(c){
+      return '<option value="' + c.id + '"' + (c.id === cur ? " selected" : "") + '>' + escHtml(c.name) + '</option>';
+    }).join("");
+  };
+  var sheet = openSheet(
+    '<div class="modal np-review" role="dialog" aria-label="Progetti nuovi">' +
+      '<h2>' + (list.length === 1 ? "Un progetto nuovo" : list.length + " progetti nuovi") + '</h2>' +
+      '<p class="move-hint move-note">Creati dal team dopo il tuo ultimo controllo. Conferma la categoria o cambiala.</p>' +
+      '<div class="np-review-list" id="nr-list"></div>' +
+      '<div class="actions">' +
+        '<button class="btn-cancel" id="m-close">Più tardi</button>' +
+        '<button class="btn-primary" id="nr-all">Conferma tutti</button>' +
+      '</div>' +
+    '</div>');
+  var $list = sheet.el.querySelector("#nr-list");
+  list.forEach(function(p){
+    var row = document.createElement("div");
+    row.className = "np-review-row";
+    row.dataset.id = p.id;
+    var when = p.created_at ? new Date(p.created_at).toLocaleDateString("it-IT", { day: "numeric", month: "short" }) : "";
+    row.innerHTML =
+      '<div class="np-review-name"><b></b><span></span></div>' +
+      '<select class="col-select" aria-label="Categoria">' + catOpts(p.category_id) + '</select>' +
+      '<button type="button" class="btn-primary">Conferma</button>';
+    row.querySelector("b").textContent = p.name;
+    row.querySelector("span").textContent = "di " + profileName(p.owner_id) +
+      (when ? " · " + when : "") + " · " + (AREA_LABELS[p.area] || "");
+    row.querySelector("button").addEventListener("click", function(){ confirmRows([row]); });
+    $list.appendChild(row);
+  });
+  sheet.el.querySelector("#nr-all").addEventListener("click", function(){
+    confirmRows([].slice.call($list.querySelectorAll(".np-review-row")));
+  });
+  async function confirmRows(rows){
+    var stamp = new Date().toISOString();
+    for(var i = 0; i < rows.length; i++){
+      var row = rows[i], p = projectById(row.dataset.id);
+      var cat = row.querySelector("select").value || null;
+      row.querySelectorAll("button, select").forEach(function(x){ x.disabled = true; });
+      var res = await sb.from("be_projects").update({ category_id: cat, reviewed_at: stamp }).eq("id", p.id);
+      if(res.error){
+        row.querySelectorAll("button, select").forEach(function(x){ x.disabled = false; });
+        notify(errorText(res.error));
+        return;
+      }
+      p.category_id = cat;
+      p.reviewed_at = stamp;
+      row.remove();
+    }
+    renderSidebar();
+    if(!$list.children.length) sheet.close();
+  }
 }
 
 /* Un progetto nuovo e' del team, nella categoria scelta; in «Personale»
@@ -5206,6 +5383,7 @@ async function boot(){
     document.getElementById("avatar").textContent = (state.me.display_name || "?").charAt(0).toUpperCase();
     render();
     if(window.beCalendarFromUrl) window.beCalendarFromUrl();
+    checkNewProjects();
   } finally {
     booting = false;
   }
@@ -5594,25 +5772,34 @@ window.addEventListener("online", function(){
     for(var i=0;i<extraPeople.length;i++) if(extraPeople[i].name.toLowerCase() === k) return extraPeople[i];
     return null;
   }
-  function decided(p, mk){ return !!p.months && Object.prototype.hasOwnProperty.call(p.months, mk); }
-  /* C'e' in quel mese? L'ultima scelta fatta fino a quel mese */
-  function activeIn(p, mk){
-    var best = null, val = false;
-    Object.keys(p.months || {}).forEach(function(k){
-      if(k <= mk && (best === null || k > best)){ best = k; val = !!p.months[k]; }
-    });
-    return val;
+  /* Un Extra ha la sua colonna in un mese se qualcuno l'ha accesa per quel
+     mese (months: { "2026-11": true }: vale per tutti e solo per quel mese)
+     o se quel mese ha qualcosa segnato. Di base gli Extra sono spenti. */
+  function activeIn(p, mk){ return !!p.months && p.months[mk] === true; }
+  function hasEventsIn(name, fromStr, toStr){
+    return eventsInRange(fromStr, toStr).some(function(e){ return !!e.persons && e.persons.indexOf(name) >= 0; });
+  }
+  function extraBusy(name, mk){ var b = monthBounds(mk); return hasEventsIn(name, b.from, b.to); }
+  function extraShown(name, mk){
+    var p = findExtra(name);
+    return (!!p && activeIn(p, mk)) || extraBusy(name, mk);
+  }
+  /* Accende o spegne la colonna di un Extra in un mese, per tutti. Con
+     qualcosa segnato quel mese la colonna resta comunque. */
+  async function setExtraShown(name, mk, on){
+    if(!on && extraBusy(name, mk)){
+      notify(name + " ha qualcosa segnato a " + monthName(mk) + ": la sua colonna resta.", { warn: false, autoHide: 3500 });
+      return false;
+    }
+    var p = findExtra(name);
+    if(!p){ notify(name + " non è tra gli Extra: va eseguito sql/calendario_extra_nomi.sql."); return false; }
+    return setMonth(p, mk, on);
   }
   function activeBetween(p, fromStr, toStr){
     for(var mk = monthOf(fromStr), last = monthOf(toStr); mk <= last; mk = addMonths(mk, 1)){
       if(activeIn(p, mk)) return true;
     }
     return false;
-  }
-  /* Una casella di chi quel mese non c'e': niente impegni nuovi */
-  function rowOff(row, ds){
-    var p = findExtra(row);
-    return !!p && !activeIn(p, monthOf(ds));
   }
 
   var peopleOrdered = false;  // c'e' be_cal_people.position (sql/calendario_extra.sql)
@@ -5774,7 +5961,7 @@ window.addEventListener("online", function(){
         '<label for="ps-name">Nome</label>' +
         '<input type="text" id="ps-name" maxlength="60">' +
         '<p class="move-hint move-note">Il nome cambia per tutti, anche negli impegni già segnati.</p>' +
-        (p ? '<label>C\'è</label>' +
+        (p ? '<label>Colonna in Agenda, per tutti</label>' +
              '<div class="cal-ps-order cal-ps-months" id="ps-months"></div>' +
              '<label>Posizione tra gli Extra</label>' +
              '<div class="cal-ps-order">' +
@@ -5818,15 +6005,15 @@ window.addEventListener("online", function(){
         var cur = monthKey(new Date());
         $months.innerHTML = "";
         [cur, addMonths(cur, 1)].forEach(function(mk){
-          var on = activeIn(p, mk);
+          var on = extraShown(p.name, mk);
           var b = document.createElement("button");
           b.type = "button";
           b.className = "btn-cancel" + (on ? " on" : "");
           b.setAttribute("aria-pressed", on ? "true" : "false");
           b.textContent = (on ? "✓ " : "– ") + monthName(mk);
-          b.title = p.name + (on ? " c'è" : " non c'è") + " a " + monthName(mk) + ". Clic per cambiare.";
+          b.title = "La colonna di " + p.name + (on ? " c'è" : " non c'è") + " a " + monthName(mk) + ". Clic per cambiare.";
           b.addEventListener("click", async function(){
-            if(await setMonth(p, mk, !on)){ render(); paintMonths(); }
+            if(await setExtraShown(p.name, mk, !on)){ render(); paintMonths(); }
           });
           $months.appendChild(b);
         });
@@ -5840,16 +6027,16 @@ window.addEventListener("online", function(){
   function promptAddPerson(){
     showInputModal({
       title: "Aggiungi una persona",
-      label: "Nome · potrà ricevere impegni da " + monthName(monthKey(new Date())),
+      label: "Nome · la sua colonna si accende a " + monthName(filterMonth || monthKey(new Date())) + ", per tutti",
       placeholder: "Es. Giulia Rossi",
       confirmText: "Aggiungi",
       onConfirm: async function(name){
         var n = String(name || "").trim();
         if(!n) return;
         if(isKnown(canonicalPerson(n))){ notify(canonicalPerson(n) + " fa già parte del team."); return; }
-        var got = await addPerson(n, monthKey(new Date()));
+        var got = await addPerson(n, filterMonth || monthKey(new Date()));
         if(!got) return;
-        renameInFilters(got, null);
+        lsSet(EXTRA_OPEN_KEY, "1");
         render();
       }
     });
@@ -5957,8 +6144,11 @@ window.addEventListener("online", function(){
     if(evs.some(function(e){ return !e.persons || !e.persons.length; })) rows.push(NOBODY);
     return rows;
   }
+  /* Il filtro di ognuno vale per i soci (e "Senza persona"); gli Extra
+     si vedono quando la loro colonna e' accesa per tutti */
+  function isPersonal(r){ return isKnown(r) || r === NOBODY; }
   function visibleRows(evs, fromStr, toStr){
-    return allRows(evs, fromStr, toStr).filter(function(r){ return !hiddenPersons.has(r); });
+    return allRows(evs, fromStr, toStr).filter(function(r){ return !(isPersonal(r) && hiddenPersons.has(r)); });
   }
   function monthBounds(mk){
     var d = new Date(+mk.slice(0,4), +mk.slice(5,7) - 1, 1);
@@ -5971,7 +6161,7 @@ window.addEventListener("online", function(){
   }
   function monthRows(mk){
     var hidden = hiddenFor(mk);
-    return monthAllRows(mk).filter(function(r){ return !hidden.has(r); });
+    return monthAllRows(mk).filter(function(r){ return !(isPersonal(r) && hidden.has(r)); });
   }
   function hasPerson(e, row){
     if(row === NOBODY) return !e.persons || !e.persons.length;
@@ -5993,7 +6183,7 @@ window.addEventListener("online", function(){
     if(!loadingPromise){
       loadingPromise = Promise.all([loadEvents(), loadPeople()]).then(function(){
         loadingPromise = null;
-        if($overlay.classList.contains("show")){ render(); askNextMonth(); }
+        if($overlay.classList.contains("show")) render();
         maybeAutoSyncApple();
       });
     }
@@ -6116,7 +6306,6 @@ window.addEventListener("online", function(){
       return hasPerson(e, row);
     }).sort(byTime);
   }
-  function offTitle(row, ds){ return row + " non c'è a " + monthName(monthOf(ds)); }
   function fmtTimeRange(ev){
     if(!ev.start_time) return HALF_LABEL[ev.half] || "";
     if(ev.end_time && ev.end_time !== ev.start_time) return ev.start_time + " – " + ev.end_time;
@@ -6144,25 +6333,9 @@ window.addEventListener("online", function(){
   }
 
   /* ---------- rendering ---------- */
-  /* Il mese prossimo: dal 20 si chiede chi ci sara' */
-  function asksNextMonth(){ return new Date().getDate() >= 20; }
-  function undecidedNext(){
-    var next = addMonths(monthKey(new Date()), 1);
-    var cur = monthKey(new Date());
-    return extraPeople.filter(function(p){ return activeIn(p, cur) && !decided(p, next); });
-  }
-  /* Una volta al mese, aprendo il calendario, un promemoria */
-  function askNextMonth(){
-    if(!asksNextMonth() || !undecidedNext().length) return;
-    var next = addMonths(monthKey(new Date()), 1);
-    var k = "brown_calendar_asked_" + next;
-    if(lsGet(k)) return;
-    lsSet(k, "1");
-    notify("Decidi chi c'è a " + monthName(next) + ": lo trovi in Persone, sotto «Chi c'è».", { warn: false, autoHide: 6000 });
-  }
-
-  /* Chi si vede in un mese: dalla fascia del mese nell'Agenda. La scelta e'
-     solo di chi la fa; i mesi dopo senza scelta la seguono. */
+  /* Chi si vede in un mese, dalla fascia del mese nell'Agenda. I soci sono
+     una scelta di chi guarda (i mesi dopo senza scelta la seguono); gli
+     Extra si accendono per tutti, solo in quel mese. */
   function openMonthPeople(mk){
     var label = monthName(mk) + " " + mk.slice(0, 4);
     var bd = document.createElement("div");
@@ -6173,37 +6346,31 @@ window.addEventListener("online", function(){
         '<p class="move-hint move-note" id="mp-note"></p>' +
         '<div class="cal-mp-list" id="mp-list"></div>' +
         '<div class="cal-side-actions">' +
-          '<button type="button" data-act="all">Tutti</button>' +
+          '<button type="button" data-act="all">Tutti i soci</button>' +
           '<button type="button" data-act="none">Nessuno</button>' +
           '<button type="button" data-act="prev" id="mp-prev">Come il mese prima</button>' +
         '</div>' +
+        '<h3 class="cal-mp-sub">Extra · per tutti, solo a ' + escapeHtml(monthName(mk)) + '</h3>' +
+        '<div class="cal-mp-list" id="mp-extra"></div>' +
         '<div class="actions"><button type="button" class="btn-primary" id="mp-ok">Fatto</button></div>' +
       '</div>';
     document.body.appendChild(bd);
     bd.querySelector("h2").textContent = "Chi vedi a " + label;
-    var $list = bd.querySelector("#mp-list");
-    var rows = monthAllRows(mk);
+    var $list = bd.querySelector("#mp-list"), $extra = bd.querySelector("#mp-extra");
+    var mine = KNOWN_PERSONS.concat(monthAllRows(mk).indexOf(NOBODY) >= 0 ? [NOBODY] : []);
 
     function paint(){
       var hidden = hiddenFor(mk), src = filterSource(mk);
       var prevSrc = filterSource(addMonths(mk, -1));
-      bd.querySelector("#mp-note").textContent = src === mk
-        ? "Scelta tua per " + monthName(mk) + ": vale anche per i mesi dopo che non hai cambiato. Gli altri non vedono questa scelta."
-        : "Ora è come " + (src ? "a " + monthName(src) : "il resto del calendario") +
-          ". Cambiando, vale da " + monthName(mk) + " in poi. Gli altri non vedono questa scelta.";
+      bd.querySelector("#mp-note").textContent = (src === mk
+        ? "Soci: scelta tua per " + monthName(mk) + ", vale anche per i mesi dopo che non hai cambiato."
+        : "Soci: ora è come " + (src ? "a " + monthName(src) : "il resto del calendario") +
+          "; cambiando, vale da " + monthName(mk) + " in poi.") + " Gli altri non la vedono.";
       bd.querySelector("#mp-prev").hidden = src !== mk;
-      bd.querySelector("#mp-prev").title = "Togli la scelta di " + monthName(mk) + ": torna come " +
+      bd.querySelector("#mp-prev").title = "Togli la tua scelta di " + monthName(mk) + ": torna come " +
         (prevSrc ? monthName(prevSrc) : "il resto del calendario");
       $list.innerHTML = "";
-      var extras = extraNames(rows);
-      rows.forEach(function(r){
-        if(extras.length > 1 && r === extras[0]){
-          $list.appendChild(groupRow("Tutti gli Extra", extras, hidden, function(on){
-            var h = hiddenFor(mk);
-            extras.forEach(function(x){ if(on) h.delete(x); else h.add(x); });
-            apply(h);
-          }));
-        }
+      mine.forEach(function(r){
         var row = document.createElement("div");
         row.className = "cal-person-row" + (hidden.has(r) ? "" : " checked");
         row.style.setProperty("--pc", rowColor(r));
@@ -6216,6 +6383,16 @@ window.addEventListener("online", function(){
         });
         $list.appendChild(row);
       });
+      $extra.innerHTML = "";
+      var extras = outsideNames();
+      if(extras.length > 1){
+        $extra.appendChild(groupRow("Tutti gli Extra", extras, function(n){ return extraShown(n, mk); }, async function(on){
+          await setAllExtras(extras, mk, on);
+          paint();
+        }));
+      }
+      extras.forEach(function(n){ $extra.appendChild(extraRow(n, mk, paint)); });
+      if(!extras.length) $extra.innerHTML = '<p class="cal-dnone">Nessun Extra.</p>';
     }
     function apply(h){
       setHiddenIn(mk, h);
@@ -6223,7 +6400,7 @@ window.addEventListener("online", function(){
       render();
     }
     bd.querySelector('[data-act="all"]').addEventListener("click", function(){ apply(new Set()); });
-    bd.querySelector('[data-act="none"]').addEventListener("click", function(){ apply(new Set(rows)); });
+    bd.querySelector('[data-act="none"]').addEventListener("click", function(){ apply(new Set(mine)); });
     bd.querySelector("#mp-prev").addEventListener("click", function(){
       delete hiddenByMonth[mk];
       saveMonthFilter();
@@ -6239,10 +6416,20 @@ window.addEventListener("online", function(){
     paint();
   }
 
+  function outsideNames(){
+    var out = extraPeople.map(function(p){ return p.name; });
+    calEvents.forEach(function(e){
+      (e.persons || []).forEach(function(n){
+        if(!isKnown(n) && !findExtra(n) && out.indexOf(n) < 0) out.push(n);
+      });
+    });
+    return out;
+  }
+
   /* Una riga "Tutti gli Extra": accesa se si vedono tutti, a meta' se solo
      alcuni. Il clic li mostra tutti, o li nasconde tutti se gia' si vedono. */
-  function groupRow(label, names, hidden, onToggle){
-    var shown = names.filter(function(n){ return !hidden.has(n); }).length;
+  function groupRow(label, names, isShown, onToggle){
+    var shown = names.filter(isShown).length;
     var allOn = names.length > 0 && shown === names.length;
     var row = document.createElement("div");
     row.className = "cal-person-row group" + (allOn ? " checked" : "") +
@@ -6256,44 +6443,60 @@ window.addEventListener("online", function(){
     row.addEventListener("click", function(){ onToggle(!allOn); });
     return row;
   }
-  function extraNames(list){
-    return list.filter(function(r){ return !isKnown(r) && r !== NOBODY; });
+  /* Tutti gli Extra di un mese accesi o spenti insieme, per tutti */
+  async function setAllExtras(names, mk, on){
+    for(var i = 0; i < names.length; i++){
+      var p = findExtra(names[i]);
+      if(!p || activeIn(p, mk) === on || (!on && extraBusy(p.name, mk))) continue;
+      if(!(await setMonth(p, mk, on))) break;
+    }
+    render();
+  }
+  /* La riga di un Extra: la spunta accende la sua colonna in quel mese */
+  function extraRow(name, mk, onDone){
+    var busy = extraBusy(name, mk), on = extraShown(name, mk);
+    var row = document.createElement("div");
+    row.className = "cal-person-row" + (on ? " checked" : "") + (busy ? " busy" : "");
+    row.style.setProperty("--pc", rowColor(name));
+    row.title = busy ? name + " ha qualcosa segnato a " + monthName(mk) + ": la colonna c'è comunque"
+                     : (on ? "Spegni" : "Accendi") + " la colonna di " + name + " a " + monthName(mk) + ", per tutti";
+    row.innerHTML = '<div class="cal-cb"></div><div class="cal-person-name"></div>';
+    row.querySelector(".cal-person-name").textContent = name;
+    row.addEventListener("click", async function(){
+      if(await setExtraShown(name, mk, !on)){ render(); if(onDone) onDone(); }
+    });
+    return row;
   }
 
   var dragName = null;   // l'Extra che si sta trascinando
+  /* La sezione Extra a sinistra: chiusa di base, ognuno la apre per se' */
+  var EXTRA_OPEN_KEY = "brown_calendar_extra_open_v1";
   function renderPersonSide(){
     var today = todayKey();
-    var cur = monthKey(new Date()), next = addMonths(cur, 1);
-    // da fuori: chi e' in elenco, piu' i nomi scritti a mano con impegni in arrivo
-    var outside = extraPeople.map(function(p){ return p.name; });
-    // (dopo sql/calendario_extra_nomi.sql sono tutti in elenco)
-    calEvents.forEach(function(e){
-      (e.persons || []).forEach(function(n){
-        if(!isKnown(n) && !findExtra(n) && outside.indexOf(n) < 0) outside.push(n);
-      });
-    });
-    var people = KNOWN_PERSONS.concat(outside);
+    var mk = filterMonth;
+    var outside = outsideNames();
+    var mine = KNOWN_PERSONS.slice();
     $side.innerHTML = "";
 
     var h = document.createElement("h3");
-    h.textContent = "Persone · " + monthName(filterMonth) + " " + filterMonth.slice(0, 4);
+    h.textContent = "Persone · " + monthName(mk) + " " + mk.slice(0, 4);
     $side.appendChild(h);
     var fh = document.createElement("p");
     fh.className = "cal-filter-hint";
-    var src = filterSource(filterMonth);
-    fh.textContent = src && src !== filterMonth
-      ? "Come a " + monthName(src) + ": cambiando, vale da " + monthName(filterMonth) + " in poi. Solo per te."
-      : "Chi vedi a " + monthName(filterMonth) + " e nei mesi dopo che non cambi. Solo per te.";
+    var src = filterSource(mk);
+    fh.textContent = src && src !== mk
+      ? "Soci come a " + monthName(src) + ": cambiando, vale da " + monthName(mk) + " in poi. Solo per te."
+      : "Soci che vedi a " + monthName(mk) + " e nei mesi dopo che non cambi. Solo per te.";
     $side.appendChild(fh);
 
     var allRow = document.createElement("div");
     allRow.className = "cal-person-row all";
-    var allOn = people.every(function(p){ return !hiddenPersons.has(p); });
+    var allOn = mine.every(function(p){ return !hiddenPersons.has(p); });
     if(allOn) allRow.classList.add("checked");
-    allRow.innerHTML = '<div class="cal-cb"></div><div class="cal-person-name">Tutti</div>';
+    allRow.innerHTML = '<div class="cal-cb"></div><div class="cal-person-name">Tutti i soci</div>';
     allRow.addEventListener("click", function(){
-      if(allOn) people.forEach(function(p){ hiddenPersons.add(p); });
-      else hiddenPersons.clear();
+      if(allOn) mine.forEach(function(p){ hiddenPersons.add(p); });
+      else { mine.forEach(function(p){ hiddenPersons.delete(p); }); hiddenPersons.delete(NOBODY); }
       saveFilter();
       render();
     });
@@ -6303,35 +6506,56 @@ window.addEventListener("online", function(){
     divider.className = "cal-side-divider";
     $side.appendChild(divider);
 
-    function personRow(p){
+    function countFrom(p){
+      return calEvents.reduce(function(n,e){
+        if((e.date_end || e.date) < today) return n;
+        return n + (hasPerson(e, p) ? 1 : 0);
+      }, 0);
+    }
+    function socioRow(p){
       var row = document.createElement("div");
       row.className = "cal-person-row";
       if(!hiddenPersons.has(p)) row.classList.add("checked");
       row.style.setProperty("--pc", rowColor(p));
-      var count = calEvents.reduce(function(n,e){
-        if((e.date_end || e.date) < today) return n;
-        return n + (hasPerson(e, p) ? 1 : 0);
-      }, 0);
-      var extra = findExtra(p);
-      var tip = count + " impegni da oggi in poi";
-      if(extra && !activeIn(extra, cur)) { row.classList.add("inactive"); tip += " · non c'è a " + monthName(cur); }
-      if(!extra && !isKnown(p)) { row.classList.add("inactive"); tip += " · non in elenco: si aggiunge col +"; }
-      row.title = tip;
+      var count = countFrom(p);
+      row.title = count + " impegni da oggi in poi";
       row.innerHTML =
         '<div class="cal-cb"></div>'+
         '<div class="cal-person-name">'+ escapeHtml(p) +'</div>'+
         '<div class="cal-person-count">'+ count +'</div>';
+      row.addEventListener("click", function(e){
+        if(e.shiftKey || e.metaKey || e.ctrlKey){
+          // modifier-click: solo questo socio
+          mine.forEach(function(x){ hiddenPersons.add(x); });
+          hiddenPersons.delete(p);
+        } else {
+          if(hiddenPersons.has(p)) hiddenPersons.delete(p);
+          else hiddenPersons.add(p);
+        }
+        saveFilter();
+        render();
+      });
+      return row;
+    }
+    function outsideRow(p){
+      var row = extraRow(p, mk);
+      var extra = findExtra(p);
+      var count = countFrom(p);
+      var c = document.createElement("div");
+      c.className = "cal-person-count";
+      c.textContent = count;
+      c.title = count + " impegni da oggi in poi";
+      row.appendChild(c);
+      if(!extra) row.classList.add("inactive");
       // gli Extra si rinominano, si spostano e si tolgono dalla loro scheda
-      if(!isKnown(p) && p !== NOBODY){
-        var edit = document.createElement("button");
-        edit.type = "button";
-        edit.className = "cal-person-del cal-person-edit";
-        edit.title = "Modifica " + p;
-        edit.setAttribute("aria-label", "Modifica " + p);
-        edit.innerHTML = ICON_PEN;
-        edit.addEventListener("click", function(ev){ ev.stopPropagation(); openPersonSheet(p); });
-        row.appendChild(edit);
-      }
+      var edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "cal-person-del cal-person-edit";
+      edit.title = "Modifica " + p;
+      edit.setAttribute("aria-label", "Modifica " + p);
+      edit.innerHTML = ICON_PEN;
+      edit.addEventListener("click", function(ev){ ev.stopPropagation(); openPersonSheet(p); });
+      row.appendChild(edit);
       // ...e col mouse si trascinano per cambiare l'ordine (per tutti)
       if(extra){
         row.draggable = true;
@@ -6364,96 +6588,57 @@ window.addEventListener("online", function(){
           moveExtra(moving, rest.indexOf(extra) + (after ? 1 : 0));
         });
       }
-      row.addEventListener("click", function(e){
-        if(e.shiftKey || e.metaKey || e.ctrlKey){
-          // modifier-click: solo questa persona
-          people.forEach(function(x){ hiddenPersons.add(x); });
-          hiddenPersons.delete(p);
-        } else {
-          if(hiddenPersons.has(p)) hiddenPersons.delete(p);
-          else hiddenPersons.add(p);
-        }
-        saveFilter();
-        render();
-      });
       return row;
     }
-    KNOWN_PERSONS.forEach(function(p){ $side.appendChild(personRow(p)); });
+    mine.forEach(function(p){ $side.appendChild(socioRow(p)); });
 
-    var h2 = document.createElement("h3");
-    h2.className = "cal-side-sub";
-    h2.textContent = "Extra";
-    h2.title = "Tutti quelli fuori dal team. Nome e ordine valgono per tutti: si cambiano con la matita o trascinando.";
+    // Extra: chiusa di base; aperta mostra chi ha la colonna in questo mese
+    var open = lsGet(EXTRA_OPEN_KEY) === "1";
+    var shownN = outside.filter(function(n){ return extraShown(n, mk); }).length;
+    var h2 = document.createElement("button");
+    h2.type = "button";
+    h2.className = "cal-side-sub cal-extra-toggle" + (open ? " open" : "");
+    h2.setAttribute("aria-expanded", open ? "true" : "false");
+    h2.title = "Tutti quelli fuori dai soci. Le spunte accendono la colonna in " + monthName(mk) +
+      " per tutti; nome e ordine si cambiano con la matita o trascinando.";
+    h2.innerHTML = '<span class="cal-extra-caret">' + ICON_CARET + '</span><span>Extra</span>' +
+      '<span class="cal-person-count">' + shownN + "/" + outside.length + '</span>';
+    h2.addEventListener("click", function(){
+      lsSet(EXTRA_OPEN_KEY, open ? "0" : "1");
+      renderPersonSide();
+    });
     $side.appendChild(h2);
-    if(outside.length > 1){
-      $side.appendChild(groupRow("Tutti gli Extra", outside, hiddenPersons, function(on){
-        outside.forEach(function(p){ if(on) hiddenPersons.delete(p); else hiddenPersons.add(p); });
-        saveFilter();
-        render();
-      }));
-    }
-    outside.forEach(function(p){ $side.appendChild(personRow(p)); });
-
-    var add = document.createElement("button");
-    add.type = "button";
-    add.className = "cal-add-person";
-    add.innerHTML = '<span class="cal-add-plus">+</span>Aggiungi persona';
-    add.addEventListener("click", promptAddPerson);
-    $side.appendChild(add);
-
-    // ogni mese si decide se chi e' da fuori c'e' anche il mese dopo
-    if(extraPeople.length){
-      var pending = asksNextMonth() && undecidedNext().length > 0;
-      var box = document.createElement("div");
-      box.className = "cal-months" + (pending ? " ask" : "");
-      box.innerHTML =
-        '<h3>Chi c\'è</h3>' +
-        (pending ? '<p class="cal-months-ask">Decidi chi c\'è a ' + monthName(next) + '.</p>' : '') +
-        '<div class="cal-months-grid"><span></span><span>' + MONTH_ABBR[+cur.slice(5,7)-1] + '</span>' +
-        '<span>' + MONTH_ABBR[+next.slice(5,7)-1] + '</span></div>';
-      var grid = box.querySelector(".cal-months-grid");
-      // chi non c'e' ne' ora ne' il mese dopo si rimette dalla sua scheda (matita)
-      extraPeople.filter(function(p){ return activeIn(p, cur) || activeIn(p, next); }).forEach(function(p){
-        var name = document.createElement("span");
-        name.className = "cal-months-name";
-        name.textContent = p.name;
-        grid.appendChild(name);
-        [cur, next].forEach(function(mk){
-          var on = activeIn(p, mk), open = mk === next && !decided(p, mk) && activeIn(p, cur);
-          var b = document.createElement("button");
-          b.type = "button";
-          b.className = "cal-months-cell" + (on ? " on" : "") + (open ? " open" : "");
-          b.textContent = open ? "?" : (on ? "✓" : "–");
-          b.title = p.name + " a " + monthName(mk) + ": " +
-            (open ? "da decidere (se non scegli, " + (on ? "c'è" : "non c'è") + " come ora)" : (on ? "c'è" : "non c'è")) +
-            ". Clic per " + (open ? "confermare" : "cambiare") + ".";
-          b.setAttribute("aria-label", b.title);
-          b.addEventListener("click", async function(){
-            // il primo clic su "?" conferma come ora; poi alterna
-            if(await setMonth(p, mk, open ? on : !on)) render();
-          });
-          grid.appendChild(b);
-        });
-      });
-      var hint = document.createElement("p");
-      hint.className = "cal-months-hint";
-      hint.textContent = "✓ c'è · – non c'è · ? da decidere. Se non scegli, il mese dopo resta come questo. " +
-        "Chi non c'è da tempo si rimette con la matita accanto al nome.";
-      box.appendChild(hint);
-      $side.appendChild(box);
+    if(open){
+      var eh = document.createElement("p");
+      eh.className = "cal-filter-hint";
+      eh.textContent = "La spunta accende la colonna solo a " + monthName(mk) + ", per tutti. " +
+        "Chi ha qualcosa segnato nel mese ha la colonna comunque.";
+      $side.appendChild(eh);
+      if(outside.length > 1){
+        $side.appendChild(groupRow("Tutti gli Extra", outside, function(n){ return extraShown(n, mk); }, function(on){
+          setAllExtras(outside, mk, on);
+        }));
+      }
+      outside.forEach(function(p){ $side.appendChild(outsideRow(p)); });
+      var add = document.createElement("button");
+      add.type = "button";
+      add.className = "cal-add-person";
+      add.innerHTML = '<span class="cal-add-plus">+</span>Aggiungi persona';
+      add.addEventListener("click", promptAddPerson);
+      $side.appendChild(add);
     }
 
     var actions = document.createElement("div");
     actions.className = "cal-side-actions";
     actions.innerHTML =
-      '<button data-act="all">Tutti</button>'+
+      '<button data-act="all">Tutti i soci</button>'+
       '<button data-act="none">Nessuno</button>';
     actions.querySelector('[data-act="all"]').addEventListener("click", function(){
       hiddenPersons.clear();
       saveFilter(); render();
     });
     actions.querySelector('[data-act="none"]').addEventListener("click", function(){
-      people.forEach(function(p){ hiddenPersons.add(p); });
+      mine.forEach(function(p){ hiddenPersons.add(p); });
       hiddenPersons.add(NOBODY);
       saveFilter(); render();
     });
@@ -6501,10 +6686,6 @@ window.addEventListener("online", function(){
   /* Una casella vuota ma cliccabile: apre un impegno gia' compilato
      con persona, giorno e mezza giornata */
   function newFor(row, dateStr, half){
-    if(row && rowOff(row, dateStr)){
-      notify(offTitle(row, dateStr) + ": si cambia in Persone, sotto «Chi c'è».", { warn: false, autoHide: 3500 });
-      return;
-    }
     openEventModal(null, {
       date: dateStr, half: half || "am",
       persons: row && row !== NOBODY ? [row] : []
@@ -6722,7 +6903,7 @@ window.addEventListener("online", function(){
     b.innerHTML = "<span>" + MONTHS[d.getMonth()] + " " + d.getFullYear() +
       '<button type="button" class="cal-aband-people"></button></span>';
     var btn = b.querySelector("button");
-    btn.textContent = "Persone " + r.rows.length + "/" + r.all;
+    btn.textContent = "Persone · " + r.rows.length;
     btn.title = "Scegli chi vedi a " + MONTHS[d.getMonth()];
     btn.addEventListener("click", function(){ openMonthPeople(mk); });
     return b;
@@ -6761,8 +6942,7 @@ window.addEventListener("online", function(){
         cell.className = "cal-acell" + (hi ? " pm" : "");
         var se = slotEvents(evs, row, ds, h.key);
         se.forEach(function(e){ cell.appendChild(agendaChip(e, row)); });
-        if(!se.length && rowOff(row, ds)){ cell.classList.add("off"); cell.title = offTitle(row, ds); }
-        else if(!se.length) cell.title = rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
+        if(!se.length) cell.title = rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
         cell.addEventListener("click", function(){ newFor(row, ds, h.key); });
         block.appendChild(cell);
       });
@@ -6959,6 +7139,21 @@ window.addEventListener("online", function(){
     if(firstNext) requestAnimationFrame(function(){ agendaScrollTo(scroller, firstNext, false); });
   }
 
+  /* Gli Extra con qualcosa segnato in un giorno: nel Mese non hanno una
+     casella, li segnala un'icona */
+  function extrasOn(evs, ds){
+    var out = [];
+    evs.forEach(function(e){
+      if(e.date > ds || (e.date_end || e.date) < ds) return;
+      (e.persons || []).forEach(function(n){ if(!isKnown(n) && out.indexOf(n) < 0) out.push(n); });
+      if(!e.persons || !e.persons.length){ if(out.indexOf(NOBODY) < 0) out.push(NOBODY); }
+    });
+    return out;
+  }
+  var ICON_PEOPLE = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+
+  /* Mese: sempre le caselle dei sei soci (mattina | pomeriggio), che si
+     adattano all'altezza della finestra; gli Extra con un'icona */
   function renderMonth(){
     $period.textContent = MONTHS[cursor.getMonth()] + " " + cursor.getFullYear();
 
@@ -6979,11 +7174,14 @@ window.addEventListener("online", function(){
 
     var firstOfMonth = startOfMonth(cursor);
     var gridStart = startOfWeek(firstOfMonth);
+    // 5 o 6 settimane, quante ne servono al mese
+    var weeks = Math.ceil((((firstOfMonth.getDay() + 6) % 7) + new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate()) / 7);
+    grid.style.gridTemplateRows = "repeat(" + weeks + ", minmax(0, 1fr))";
     var today = new Date();
-    var evs = eventsInRange(fmtDate(gridStart), fmtDate(addDays(gridStart, 41)));
-    var rows = visibleRows(evs, fmtDate(gridStart), fmtDate(addDays(gridStart, 41)));
+    var evs = eventsInRange(fmtDate(gridStart), fmtDate(addDays(gridStart, weeks * 7 - 1)));
+    var rows = KNOWN_PERSONS;
 
-    for(var i=0;i<42;i++){
+    for(var i=0;i<weeks*7;i++){
       var d = addDays(gridStart, i);
       var ds = fmtDate(d);
       var cell = document.createElement("div");
@@ -6991,12 +7189,23 @@ window.addEventListener("online", function(){
       if(d.getMonth() !== cursor.getMonth()) cell.classList.add("other-month");
       if(isSameDay(d, today)) cell.classList.add("today");
 
+      var top = document.createElement("div");
+      top.className = "cal-day-top";
       var num = document.createElement("span");
       num.className = "cal-day-num";
       num.textContent = d.getDate();
-      cell.appendChild(num);
+      top.appendChild(num);
+      var others = extrasOn(evs, ds);
+      if(others.length){
+        var more = document.createElement("span");
+        more.className = "cal-day-more";
+        more.innerHTML = ICON_PEOPLE + "<span>+" + others.length + "</span>";
+        more.title = "Anche altre persone: " + others.map(rowLabel).join(", ") + ". Clic per vedere il giorno.";
+        top.appendChild(more);
+      }
+      cell.appendChild(top);
 
-      // Una riga per persona, sempre nello stesso ordine; a sinistra la
+      // Una riga per socio, sempre nello stesso ordine; a sinistra la
       // mattina, a destra il pomeriggio. Le caselle vuote restano.
       var mg = document.createElement("div");
       mg.className = "cal-mgrid";
@@ -7013,9 +7222,6 @@ window.addEventListener("online", function(){
               (e.kind === "ferie" ? "Ferie" : e.title) + (se.length > 1 ? " +" + (se.length - 1) : "");
             slot.title = rowLabel(row) + " · " + h.label + "\n" + se.map(eventTooltip).join("\n\n");
             slot.addEventListener("click", function(ev){ ev.stopPropagation(); openEventModal(e); });
-          } else if(rowOff(row, ds)){
-            slot.className += " off";
-            slot.title = offTitle(row, ds);
           } else {
             slot.title = rowLabel(row) + " · " + h.label + ": libero";
           }
@@ -7037,6 +7243,63 @@ window.addEventListener("online", function(){
     $body.appendChild(wrap);
   }
 
+  /* Settimana: le persone in verticale, ognuna con la riga della mattina
+     e quella del pomeriggio; i giorni in orizzontale. */
+  function personGrid(days, rows, evs){
+    var today = new Date();
+    var grid = document.createElement("div");
+    grid.className = "cal-pgrid";
+    grid.style.setProperty("--pdays", days.length);
+
+    var corner = document.createElement("div");
+    corner.className = "cal-pcorner";
+    corner.textContent = rows.length ? "Persone" : "";
+    grid.appendChild(corner);
+    days.forEach(function(d, i){
+      var head = document.createElement("div");
+      head.className = "cal-week-head";
+      if(isSameDay(d, today)) head.classList.add("today");
+      head.innerHTML = '<div class="cal-week-day-name">'+ DAYS_SHORT[(d.getDay()+6)%7] +'</div>'+
+                       '<div class="cal-week-day-num">'+ d.getDate() +'</div>';
+      head.addEventListener("click", function(){ cursor = d; setView("day"); });
+      grid.appendChild(head);
+    });
+
+    if(!rows.length){
+      var none = document.createElement("div");
+      none.className = "cal-pnone";
+      none.textContent = "Nessuna persona selezionata";
+      grid.appendChild(none);
+    }
+
+    rows.forEach(function(row){
+      var label = document.createElement("div");
+      label.className = "cal-plabel";
+      label.innerHTML = '<span class="cal-person-dot" style="background:'+ rowColor(row) +'"></span>' +
+                        '<span class="cal-wlabel-name">' + escapeHtml(rowLabel(row)) + '</span>';
+      grid.appendChild(label);
+      HALVES.forEach(function(h, hi){
+        var hl = document.createElement("div");
+        hl.className = "cal-phalf" + (hi ? " pm" : "");
+        hl.textContent = hi ? "Pom." : "Mat.";
+        hl.title = h.label;
+        grid.appendChild(hl);
+        days.forEach(function(d){
+          var ds = fmtDate(d);
+          var cell = document.createElement("div");
+          cell.className = "cal-pcell" + (hi ? " pm" : "");
+          if(isSameDay(d, today)) cell.classList.add("today");
+          var se = slotEvents(evs, row, ds, h.key);
+          se.forEach(function(e){ cell.appendChild(agendaChip(e, row)); });
+          if(!se.length) cell.title = rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
+          cell.addEventListener("click", function(){ newFor(row, ds, h.key); });
+          grid.appendChild(cell);
+        });
+      });
+    });
+    return grid;
+  }
+
   function renderWeek(){
     var ws = startOfWeek(cursor);
     var we = addDays(ws, 6);
@@ -7045,153 +7308,76 @@ window.addEventListener("online", function(){
     } else {
       $period.textContent = ws.getDate() + " " + MONTHS[ws.getMonth()] + " – " + we.getDate() + " " + MONTHS[we.getMonth()] + " " + we.getFullYear();
     }
-
     var evs = eventsInRange(fmtDate(ws), fmtDate(we));
     var rows = visibleRows(evs, fmtDate(ws), fmtDate(we));
-    var today = new Date();
+    var days = [];
+    for(var i = 0; i < 7; i++) days.push(addDays(ws, i));
 
     var wrap = document.createElement("div");
     wrap.className = "cal-week";
-    var grid = document.createElement("div");
-    grid.className = "cal-wgrid";
-
-    var corner = document.createElement("div");
-    corner.className = "cal-wcorner";
-    grid.appendChild(corner);
-    for(var i=0;i<7;i++){
-      var d = addDays(ws, i);
-      var head = document.createElement("div");
-      head.className = "cal-week-head";
-      if(isSameDay(d, today)) head.classList.add("today");
-      head.innerHTML = '<div class="cal-week-day-name">'+ DAYS_SHORT[i] +'</div>'+
-                       '<div class="cal-week-day-num">'+ d.getDate() +'</div>';
-      (function(date){
-        head.addEventListener("click", function(){ cursor = date; setView("day"); });
-      })(new Date(d));
-      grid.appendChild(head);
-    }
-
-    if(!rows.length){
-      var none = document.createElement("div");
-      none.className = "cal-wband";
-      none.innerHTML = "<span>Nessuna persona selezionata</span>";
-      grid.appendChild(none);
-    }
-
-    HALVES.forEach(function(h){
-      if(!rows.length) return;
-      var band = document.createElement("div");
-      band.className = "cal-wband";
-      band.innerHTML = "<span>" + h.label + "</span>";
-      grid.appendChild(band);
-
-      rows.forEach(function(row){
-        var label = document.createElement("div");
-        label.className = "cal-wlabel";
-        label.innerHTML = '<span class="cal-person-dot" style="background:'+ rowColor(row) +'"></span>' +
-                          '<span class="cal-wlabel-name">' + escapeHtml(rowLabel(row)) + '</span>';
-        grid.appendChild(label);
-
-        for(var i=0;i<7;i++){
-          var d = addDays(ws, i);
-          var ds = fmtDate(d);
-          var cell = document.createElement("div");
-          cell.className = "cal-wcell";
-          if(isSameDay(d, today)) cell.classList.add("today");
-          var se = slotEvents(evs, row, ds, h.key);
-          se.forEach(function(e){
-            var chip = document.createElement("div");
-            chip.className = "cal-chip " + chipClass(e);
-            paintChip(chip, e, row);
-            var html = "";
-            if(e.start_time) html += '<span class="cal-chip-time">' + escapeHtml(fmtTimeRange(e)) + '</span>';
-            if(e.kind === "extra") html += '<span class="cal-tag">Extra</span>';
-            html += escapeHtml(displayTitle(e));
-            if(e.project_name) html += '<span class="cal-chip-proj">' + escapeHtml(e.project_name) + '</span>';
-            chip.innerHTML = html;
-            chip.title = eventTooltip(e);
-            chip.addEventListener("click", function(ev){ ev.stopPropagation(); openEventModal(e); });
-            cell.appendChild(chip);
-          });
-          if(!se.length && rowOff(row, ds)){ cell.classList.add("off"); cell.title = offTitle(row, ds); }
-          else cell.title = se.length ? "" : rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
-          (function(row, ds, half){
-            cell.addEventListener("click", function(){ newFor(row, ds, half); });
-          })(row, ds, h.key);
-          grid.appendChild(cell);
-        }
-      });
-    });
-
-    wrap.appendChild(grid);
+    wrap.appendChild(personGrid(days, rows, evs));
     $body.appendChild(wrap);
   }
 
+  /* Giorno: una riga per persona, due colonne, mattina e pomeriggio */
   function renderDay(){
     $period.textContent = cursor.getDate() + " " + MONTHS[cursor.getMonth()] + " " + cursor.getFullYear();
     var ds = fmtDate(cursor);
-
-    var wrap = document.createElement("div");
-    wrap.className = "cal-day-view";
-
-    var head = document.createElement("div");
-    head.className = "cal-day-view-head";
-    if(isSameDay(cursor, new Date())) head.classList.add("today");
-    head.innerHTML = '<h3>'+ DAYS_LONG[(cursor.getDay()+6)%7] +' <span class="daynum">'+ cursor.getDate() +'</span> '+ MONTHS[cursor.getMonth()] +'</h3>';
-    wrap.appendChild(head);
-
-    var list = document.createElement("div");
-    list.className = "cal-day-scroll";
-
     var evs = eventsInRange(ds, ds);
     var rows = visibleRows(evs, ds, ds);
+    var isToday = isSameDay(cursor, new Date());
 
+    var grid = document.createElement("div");
+    grid.className = "cal-dgrid";
+    var corner = document.createElement("div");
+    corner.className = "cal-pcorner";
+    corner.textContent = "Persone";
+    grid.appendChild(corner);
     HALVES.forEach(function(h){
-      var sec = document.createElement("section");
-      sec.className = "cal-dsec";
-      var t = document.createElement("h4");
-      t.textContent = h.label;
-      sec.appendChild(t);
-
-      rows.forEach(function(row){
-        var r = document.createElement("div");
-        r.className = "cal-drow";
-        var name = document.createElement("div");
-        name.className = "cal-dname";
-        name.innerHTML = '<span class="cal-person-dot" style="background:'+ rowColor(row) +'"></span>' + escapeHtml(rowLabel(row));
-        r.appendChild(name);
-
-        var cards = document.createElement("div");
-        cards.className = "cal-dcards";
-        var se = slotEvents(evs, row, ds, h.key);
-        if(!se.length && rowOff(row, ds)){
-          var off = document.createElement("div");
-          off.className = "cal-dfree off";
-          off.textContent = "Non c'è questo mese";
-          cards.appendChild(off);
-        } else if(!se.length){
-          var free = document.createElement("button");
-          free.type = "button";
-          free.className = "cal-dfree";
-          free.innerHTML = '<span>Libero</span><span class="cal-dfree-add">+ aggiungi</span>';
-          free.addEventListener("click", function(){ newFor(row, ds, h.key); });
-          cards.appendChild(free);
-        }
-        se.forEach(function(e){ cards.appendChild(dayCard(e, row)); });
-        r.appendChild(cards);
-        sec.appendChild(r);
-      });
-      if(!rows.length){
-        var none = document.createElement("p");
-        none.className = "cal-dnone";
-        none.textContent = "Nessuna persona selezionata.";
-        sec.appendChild(none);
-      }
-      list.appendChild(sec);
+      var head = document.createElement("div");
+      head.className = "cal-week-head" + (isToday ? " today" : "");
+      head.innerHTML = '<div class="cal-week-day-num">' + h.label + '</div>';
+      grid.appendChild(head);
     });
 
-    wrap.appendChild(list);
-    $body.appendChild(wrap);
+    if(!rows.length){
+      var none = document.createElement("div");
+      none.className = "cal-pnone";
+      none.textContent = "Nessuna persona selezionata";
+      grid.appendChild(none);
+    }
+    rows.forEach(function(row){
+      var label = document.createElement("div");
+      label.className = "cal-plabel";
+      label.innerHTML = '<span class="cal-person-dot" style="background:'+ rowColor(row) +'"></span>' +
+                        '<span class="cal-wlabel-name">' + escapeHtml(rowLabel(row)) + '</span>';
+      grid.appendChild(label);
+      HALVES.forEach(function(h){
+        var cell = document.createElement("div");
+        cell.className = "cal-pcell";
+        var se = slotEvents(evs, row, ds, h.key);
+        se.forEach(function(e){ cell.appendChild(dayCard(e, row)); });
+        if(!se.length){
+          cell.title = rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
+          cell.innerHTML = '<span class="cal-pfree">+ aggiungi</span>';
+        }
+        cell.addEventListener("click", function(){ newFor(row, ds, h.key); });
+        grid.appendChild(cell);
+      });
+    });
+
+    // in alto, grande e al centro, il giorno; sotto la griglia che scorre
+    var view = document.createElement("div");
+    view.className = "cal-day-view";
+    var head = document.createElement("div");
+    head.className = "cal-day-view-head" + (isToday ? " today" : "");
+    head.innerHTML = '<h3>'+ DAYS_LONG[(cursor.getDay()+6)%7] +' <span class="daynum">'+ cursor.getDate() +'</span> '+ MONTHS[cursor.getMonth()] +'</h3>';
+    view.appendChild(head);
+    var wrap = document.createElement("div");
+    wrap.className = "cal-week";
+    wrap.appendChild(grid);
+    view.appendChild(wrap);
+    $body.appendChild(view);
   }
 
   function dayCard(e, row){
@@ -7676,7 +7862,7 @@ window.addEventListener("online", function(){
     var $extra = $("cm-extra"), $addBox = $("cm-add-person"), $addName = $("cm-add-name");
     function renderExtra(){
       var mk = monthOf($date.value || data.date);
-      var names = extraPeople.filter(function(p){ return activeIn(p, mk); }).map(function(p){ return p.name; });
+      var names = extraPeople.filter(function(p){ return extraShown(p.name, mk); }).map(function(p){ return p.name; });
       persons.forEach(function(n){ if(!isKnown(n) && names.indexOf(n) < 0) names.push(n); });
       $extra.innerHTML = "";
       names.forEach(function(n){
@@ -7686,8 +7872,6 @@ window.addEventListener("online", function(){
         b.dataset.p = n;
         b.style.setProperty("--pc", personColor(n));
         b.style.setProperty("--pcbg", hexA(personColor(n), 0.22));
-        var p = findExtra(n);
-        if(!p || !activeIn(p, mk)) b.title = n + " non c'è a " + monthName(mk);
         b.innerHTML = '<span class="dot"></span>' + escapeHtml(n);
         b.addEventListener("click", function(){
           var i = persons.indexOf(n);
@@ -7724,7 +7908,7 @@ window.addEventListener("online", function(){
         b.className = "cm-person";
         b.style.setProperty("--pc", personColor(p.name));
         b.style.setProperty("--pcbg", hexA(personColor(p.name), 0.22));
-        b.title = p.name + " non c'è a " + monthName(monthOf($date.value || data.date)) + ": scegliendolo, da quel mese c'è";
+        b.title = "Scegliendo " + p.name + ", la sua colonna si accende a " + monthName(monthOf($date.value || data.date)) + " per tutti";
         b.innerHTML = '<span class="dot"></span>' + escapeHtml(p.name);
         b.addEventListener("click", function(){ $addName.value = p.name; confirmAdd(); });
         $others.appendChild(b);
