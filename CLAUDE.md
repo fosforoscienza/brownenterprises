@@ -11,7 +11,7 @@ Le istruzioni del progetto sono in AGENTS.md, condivise con gli altri agenti:
   esempio con `grep -n`) e leggi solo quella invece del file intero.
 - Il database si raggiunge solo via SSH sul Mac mini (`docker exec -i
   supabase-db psql -U postgres -d postgres`). Le letture sono libere; per
-  qualunque scrittura, migrazione o `tests/calendario.test.sql` chiedi prima.
+  qualunque scrittura, migrazione o test SQL in `tests/` chiedi prima.
 - Per vedere una modifica al sito basta un server statico nella radice, per
   esempio `python3 -m http.server`. Le funzioni `api/` girano solo su Vercel
   (o con `vercel dev`).

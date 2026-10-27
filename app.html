@@ -284,6 +284,79 @@
   }
   .project-item:hover .project-share{opacity:1}
   .project-share:hover{background:#1c2b41;color:#85b8ff}
+  /* --- Categorie: stellina, archivio, selezione multipla ---------------- */
+  .project-star,.project-archive{
+    opacity:0;
+    background:transparent;border:0;color:#9fadbc;
+    width:22px;height:22px;border-radius:4px;flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:opacity 0.12s,background 0.12s,color 0.12s;
+  }
+  .project-item:hover .project-star,.project-item:hover .project-archive{opacity:1}
+  .project-star:hover,.project-archive:hover{background:#2c3338;color:#f4f5f7}
+  .project-star.on{opacity:1;color:#f5cd47}
+  .project-star.on svg{fill:currentColor}
+  .project-actions{
+    display:none;align-items:center;gap:2px;
+    position:absolute;right:4px;top:50%;transform:translateY(-50%);
+    padding-left:8px;border-radius:4px;background:#2c3338;
+    box-shadow:-10px 0 8px -4px #2c3338;
+  }
+  .project-item.active .project-actions{background:#1c2b41;box-shadow:-10px 0 8px -4px #1c2b41}
+  .project-item:hover .project-actions,.project-item:focus-within .project-actions{display:flex}
+  .project-actions > button{opacity:1}
+  .project-star.on:hover{color:#f8e6a0}
+  .project-item.archived .project-name{color:#8c9bab}
+  .project-item.archived .project-icon{background:#38414b;color:#9fadbc}
+  .fav-group .label-shared{color:#f5cd47}
+  .fav-group .label-shared svg{fill:currentColor}
+  .label-head .label-shared + .label-title{margin-left:2px}
+  .sidebar-section-tools{display:inline-flex;gap:2px}
+  .project-check{
+    width:18px;height:18px;margin:2px;border-radius:4px;flex-shrink:0;
+    border:2px solid #4a5560;background:#1d2125;position:relative;
+    transition:background 0.12s,border-color 0.12s;
+  }
+  .project-item.picked{background:#1c2b41;color:#cce0ff}
+  .project-item.picked .project-check{background:#579dff;border-color:#579dff}
+  .project-item.picked .project-check::after{
+    content:"";position:absolute;left:4px;top:0;
+    width:5px;height:10px;border:solid #1d2125;border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+  }
+  .projects.selecting{padding-bottom:0}
+  .select-bar{
+    position:sticky;bottom:0;z-index:2;
+    margin:8px -8px 0;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));
+    background:#22272b;border-top:1px solid #38414b;
+    box-shadow:0 -6px 16px rgba(0,0,0,0.35);
+  }
+  .select-bar-top{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+  .select-count{flex:1;font-size:12px;font-weight:700;color:#cce0ff}
+  .select-link{
+    background:transparent;border:0;color:#85b8ff;font-size:12px;font-weight:600;
+    padding:4px 6px;border-radius:4px;
+  }
+  .select-link:hover{background:#2c3338}
+  .select-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .select-btn{
+    flex:1 1 0;min-width:0;min-height:38px;
+    background:#1d2125;border:1px solid #38414b;color:#f4f5f7;border-radius:6px;
+    font-size:12px;font-weight:600;padding:6px 4px;
+    display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    transition:background 0.12s,border-color 0.12s;
+  }
+  .select-btn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .select-btn:hover:not(:disabled){background:#2c3338;border-color:#579dff}
+  .select-btn:disabled{opacity:0.45;cursor:default}
+  .move-opt.on{background:#1c2b41;border-color:#579dff;color:#cce0ff}
+  .move-opt svg{flex-shrink:0}
+  .move-opt.move-danger{color:#f87168}
+  .move-opt.move-danger:hover:not(:disabled){background:#412a2a;border-color:#f87168}
+  .move-note{margin:-4px 0 14px;font-size:13px;line-height:1.45}
+  .np-cats{margin-bottom:6px}
+  .np-cats .move-opt{flex:0 1 auto;min-height:38px;padding:8px 12px;font-size:13px}
+  .np-hint{margin:0 0 12px;font-size:12px;color:#9fadbc;min-height:1.4em}
   .share-list{
     display:flex;flex-direction:column;gap:2px;
     margin-bottom:14px;
@@ -311,6 +384,13 @@
     transform:rotate(45deg);
   }
   .share-row-name{font-size:14px;color:#f4f5f7}
+  /* condivisione in blocco: la persona vede solo alcuni dei progetti scelti */
+  .share-row.mixed .cal-cb{background:#579dff;border-color:#579dff;position:relative}
+  .share-row.mixed .cal-cb::after{
+    content:"";position:absolute;left:3px;right:3px;top:50%;height:2px;margin-top:-1px;
+    background:#1d2125;border-radius:1px;
+  }
+  .share-row-sub{font-size:12px;color:#9fadbc;margin-left:auto;white-space:nowrap}
   .sidebar-footer{
     padding:10px 14px;
     border-top:1px solid #2c3338;
@@ -973,6 +1053,63 @@
   }
   .cm-seg button:hover{border-color:#579dff;color:#f4f5f7}
   .cm-seg button.on{background:#1c2b41;border-color:#579dff;color:#cce0ff}
+  /* Progetto dell'impegno: tendina a colonne, come la vista a colonne del
+     Finder. A sinistra le categorie, a destra i progetti di quella scelta */
+  .cm-dd{position:relative}
+  .cm-dd-btn{
+    display:flex;align-items:center;gap:6px;text-align:left;cursor:pointer;
+    padding-right:34px;position:relative;
+  }
+  .cm-dd-btn::after{
+    content:"";position:absolute;right:13px;top:50%;
+    width:7px;height:7px;margin-top:-6px;
+    border-right:2px solid #9fadbc;border-bottom:2px solid #9fadbc;
+    transform:rotate(45deg);transition:transform 0.12s;
+  }
+  .cm-dd-btn[aria-expanded="true"]{border-color:#579dff}
+  .cm-dd-btn[aria-expanded="true"]::after{transform:rotate(-135deg);margin-top:-2px}
+  .cm-dd-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cm-dd-label .cm-dd-path{color:#9fadbc}
+  .cm-dd-label.empty{color:#8c9bab}
+  .cm-dd-pop{
+    position:absolute;left:0;right:0;top:calc(100% - 10px);z-index:5;
+    display:flex;height:280px;max-height:50vh;
+    background:#22272b;border:1px solid #38414b;border-radius:8px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.5);overflow:hidden;
+  }
+  .cm-dd-col{flex:1 1 50%;min-width:0;overflow-y:auto;padding:5px;display:flex;flex-direction:column;gap:1px}
+  .cm-dd-col + .cm-dd-col{border-left:1px solid #38414b}
+  .cm-dd-row{
+    display:flex;align-items:center;gap:8px;width:100%;
+    background:transparent;border:0;border-radius:5px;
+    padding:7px 9px;color:#dee4ea;text-align:left;
+    font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;outline:none;
+  }
+  .cm-dd-row span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cm-dd-row:hover,.cm-dd-row:focus-visible{background:#2c3338}
+  .cm-dd-row.open{background:#38414b}
+  .cm-dd-row.open:focus,.cm-dd-row.open:hover{background:#0c66e4;color:#fff}
+  .cm-dd-row.on{color:#85b8ff;font-weight:600}
+  .cm-dd-row.on::after{content:"✓";font-size:13px}
+  .cm-dd-n{font-size:11px;color:#8c9bab}
+  .cm-dd-row.open:focus .cm-dd-n,.cm-dd-row.open:hover .cm-dd-n{color:#cce0ff}
+  .cm-dd-go{
+    width:6px;height:6px;border-right:1.5px solid currentColor;border-top:1.5px solid currentColor;
+    transform:rotate(45deg);opacity:0.6;margin-right:2px;
+  }
+  .cm-dd-sep{height:1px;background:#38414b;margin:4px 6px;flex:none}
+  .cm-dd-empty{color:#8c9bab;font-size:12px;padding:10px}
+  .cm-dd-back{display:none;color:#85b8ff;font-weight:600}
+  .cm-dd-back::before{content:"‹";font-size:16px;line-height:1}
+  @media (max-width:560px){
+    /* sul telefono una colonna alla volta: si entra nella categoria e si torna indietro */
+    .cm-dd-pop[data-col="cats"] .cm-dd-col:last-child,
+    .cm-dd-pop[data-col="projs"] .cm-dd-col:first-child{display:none}
+    .cm-dd-pop{height:auto;max-height:340px}
+    .cm-dd-col + .cm-dd-col{border-left:0}
+    .cm-dd-back{display:flex}
+    .cm-dd-row{padding:10px 10px;font-size:14px}
+  }
   .cm-people{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
   .cm-person{
     --pc:#579dff;--pcbg:rgba(87,157,255,0.22);
@@ -1243,6 +1380,26 @@
   }
   .cal-person-row:hover .cal-person-del,.cal-person-del:focus-visible{opacity:1}
   .cal-person-del:hover{background:#3d2a2a;color:#f87168}
+  .cal-person-edit{display:inline-flex;align-items:center;justify-content:center}
+  .cal-person-row[draggable="true"]{cursor:grab}
+  .cal-person-row.dragging{opacity:0.4}
+  .cal-person-row.drop-before{box-shadow:inset 0 2px 0 #579dff}
+  .cal-person-row.drop-after{box-shadow:inset 0 -2px 0 #579dff}
+  .cal-filter-hint{margin:-4px 8px 8px;font-size:11px;line-height:1.4;color:#738496}
+  .cal-ps-order{display:flex;gap:8px;margin-bottom:14px}
+  .cal-ps-order button{flex:1;border:1px solid #38414b;border-radius:6px}
+  .cal-ps-order button:disabled{opacity:0.4;cursor:default}
+  .cal-person-sheet .actions .cal-ps-del{margin-right:auto;color:#f87168}
+  .cal-mp-list{display:flex;flex-direction:column;gap:2px;max-height:50vh;overflow-y:auto;margin-bottom:6px}
+  .cal-mp #mp-prev[hidden]{display:none}
+  .cal-aband-people{
+    margin-left:12px;vertical-align:1px;
+    background:#22272b;border:1px solid #38414b;border-radius:10px;
+    color:#9fadbc;font-size:10px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;
+    padding:2px 9px;cursor:pointer;
+    transition:background 0.12s,border-color 0.12s,color 0.12s;
+  }
+  .cal-aband-people:hover{border-color:#579dff;color:#cce0ff}
   .cal-add-person{
     display:flex;align-items:center;gap:10px;
     background:none;border:1px dashed #38414b;border-radius:6px;
@@ -1717,6 +1874,9 @@
     .project-delete{opacity:1;width:30px;height:30px}
     .project-move{opacity:1;width:30px;height:30px}
     .project-share{opacity:1;width:30px;height:30px}
+    .project-star{opacity:1;width:30px;height:30px}
+    .project-actions{display:flex;position:static;transform:none;background:none;box-shadow:none;padding:0}
+    .project-archive{display:none}
     .label-head{padding:9px 4px 7px}
     .label-btn{opacity:1;width:28px;height:28px}
 
@@ -1882,6 +2042,9 @@
     .project-delete{opacity:1}
     .project-move{opacity:1}
     .project-share{opacity:1}
+    .project-star{opacity:1}
+    .project-actions{display:flex;position:static;transform:none;background:none;box-shadow:none;padding:0}
+    .project-archive{display:none}              /* sta nel pannello Sposta */
     .label-btn{opacity:1}
   }
 
@@ -2077,18 +2240,27 @@ var state = {
   overviewFilter: { projectId: "", onlyDue: false },
   alerts: [], msgHighlight: [],
   library: {}, libraryError: null, cardDatesError: null, areaError: null,
-  labels: [],                                      /* le label dell'utente collegato */
-  projectLabels: {},                               /* project_id -> label_id (solo mie) */
-  labelsError: null
+  isTeam: false,                                   /* email @brown.internal */
+  teamIds: [],                                     /* chi vede i progetti del team */
+  categories: [],                                  /* le categorie del team */
+  favorites: {},                                   /* project_id -> true (solo mie) */
+  categoriesError: null,
+  selecting: false, selected: {}                   /* selezione multipla nella sidebar */
 };
 
 function areaProjects(){
   return state.projects.filter(function(p){ return p.area === state.area; });
 }
+/* I progetti archiviati restano apribili, ma non entrano in Panoramica,
+   scadenze e Chi fa cosa. */
+function liveAreaProjects(){
+  return areaProjects().filter(function(p){ return !p.archived_at; });
+}
 function syncActiveProject(){
   var inArea = areaProjects();
   if(!inArea.some(function(p){ return p.id === state.activeProjectId; })){
-    state.activeProjectId = inArea.length ? inArea[0].id : null;
+    var live = liveAreaProjects();
+    state.activeProjectId = live.length ? live[0].id : (inArea.length ? inArea[0].id : null);
   }
 }
 function getActiveProject(){
@@ -2296,14 +2468,15 @@ async function loadEverything(){
     id: user.id,
     email: user.email,
     display_name: (user.user_metadata && user.user_metadata.display_name) || user.email,
-    no_label_name: (user.user_metadata && user.user_metadata.no_label_name) || "",
     apple_ics_url: (user.user_metadata && user.user_metadata.apple_ics_url) || "",
     cal_default_view: (user.user_metadata && user.user_metadata.cal_default_view) || ""
   };
 
+  state.isTeam = /@brown\.internal$/i.test(user.email || "");
+
   var results = await Promise.all([
     sb.from("be_profiles").select("id, display_name"),
-    sb.from("be_projects").select("id, name, owner_id, area, created_at").order("created_at", { ascending: true }),
+    fetchProjects(),
     sb.from("be_project_shares").select("project_id, user_id"),
     sb.from("be_columns").select("id, project_id, name, position").order("position", { ascending: true }),
     fetchCards()
@@ -2346,6 +2519,9 @@ async function loadEverything(){
       name: p.name,
       owner_id: p.owner_id,
       area: normalizeArea(p.area),
+      personal: p.personal === undefined ? !state.isTeam : !!p.personal,
+      category_id: p.category_id || null,
+      archived_at: p.archived_at || null,
       isOwner: p.owner_id === state.me.id,
       shares: sharesByProject[p.id] || [],
       columns: columnsByProject[p.id] || []
@@ -2354,259 +2530,374 @@ async function loadEverything(){
 
   syncActiveProject();
 
-  await Promise.all([loadLibrary(), loadLabels()]);
+  await Promise.all([loadLibrary(), loadCategories()]);
   return true;
+}
+
+/* Senza sql/categorie.sql le colonne nuove non ci sono: si ricarica senza,
+   e la colonna di sinistra resta una lista semplice con un avviso. */
+async function fetchProjects(){
+  var full = await sb.from("be_projects")
+    .select("id, name, owner_id, area, personal, category_id, archived_at, created_at")
+    .order("created_at", { ascending: true });
+  if(!full.error){ state.categoriesError = null; return full; }
+  var basic = await sb.from("be_projects")
+    .select("id, name, owner_id, area, created_at")
+    .order("created_at", { ascending: true });
+  if(!basic.error) state.categoriesError = full.error.message;
+  return basic;
 }
 
 /* =====================================================================
- * Label della colonna di sinistra
+ * Categorie della colonna di sinistra (sql/categorie.sql)
  *
- * Ogni utente crea le proprie label e ci mette dentro i progetti che
- * vede (propri o condivisi): label e assegnazioni sono private, quindi
- * lo stesso progetto puo' stare sotto label diverse per persone diverse.
- * Un progetto sta in una sola label per utente.
+ * Le categorie sono una lista sola per tutto il team: un progetto sta in
+ * una categoria per tutti, e chiunque del team le crea, le rinomina e ci
+ * sposta dentro i progetti. Accanto ci sono quattro gruppi fissi:
+ *   - «Preferiti»: la stellina, privata di ognuno, fissa in cima;
+ *   - «Personale»: i miei progetti che il team non vede (personal),
+ *     condivisibili con singole persone;
+ *   - «Condivisi con me»: il Personale di un altro, aperto a me;
+ *   - «Archiviati»: archived_at pieno, uguale per tutti.
+ * Le aree di lavoro in alto restano un filtro sopra a tutto questo.
  * ===================================================================== */
-var NO_LABEL = "__nolabel__";
-var LABELS_COLLAPSED_KEY = "be_labels_collapsed_v1";
+var GROUP_FAV      = "__preferiti__";
+var GROUP_NONE     = "__senza__";
+var GROUP_PERSONAL = "__personale__";
+var GROUP_SHARED   = "__condivisi__";
+var GROUP_ARCHIVED = "__archiviati__";
+var GROUPS_TOGGLED_KEY = "be_groups_toggled_v1";
 
-/* Il gruppo dei progetti non catalogati non e' una riga di be_labels:
-   il nome scelto dall'utente vive nei suoi user_metadata, cosi' lo segue
-   su ogni dispositivo senza toccare lo schema. */
-function noLabelName(){
-  return (state.me && state.me.no_label_name) || "Senza label";
-}
-
-/* Le label nuove di Alessandro sono condivise col team (sql/label_condivise.sql):
-   gli altri le vedono con dentro i progetti che ci mette lui, ma solo lui le
-   rinomina, le elimina e le riempie. Una label condivisa vince sulla scelta
-   privata: un progetto che Alessandro ci ha messo sta li' per tutti. */
-async function loadLabels(){
+async function loadCategories(){
+  state.categories = [];
+  state.favorites = {};
+  state.teamIds = [];
+  if(state.categoriesError) return;
   var res = await Promise.all([
-    sb.from("be_labels").select("id, name, position, user_id, shared").order("position", { ascending: true }),
-    sb.from("be_project_labels").select("user_id, project_id, label_id")
+    sb.from("be_categories").select("id, name, position").order("position", { ascending: true }),
+    sb.from("be_project_favorites").select("project_id"),
+    sb.rpc("be_team")
   ]);
-  // senza la migrazione la colonna shared non c'e': label solo private
-  if(res[0].error && /shared|user_id/.test(res[0].error.message || "")){
-    res[0] = await sb.from("be_labels").select("id, name, position").order("position", { ascending: true });
-  }
-  var err = (res[0].error || res[1].error);
-  if(err){
-    state.labels = [];
-    state.projectLabels = {};
-    state.labelsError = err.message;
-    return;
-  }
-  state.labelsError = null;
-  var meId = state.me && state.me.id;
-  state.labels = (res[0].data || []).map(function(l){
-    var mine = !l.user_id || l.user_id === meId;
-    return {
-      id: l.id, name: l.name, position: l.position,
-      shared: !!l.shared, mine: mine,
-      owner: mine ? "" : profileName(l.user_id)
-    };
-  });
-
-  var byId = {};
-  state.labels.forEach(function(l){ byId[l.id] = l; });
-  var map = {}, sharedMap = {};
-  (res[1].data || []).forEach(function(r){
-    var l = byId[r.label_id];
-    if(!l) return;
-    if(l.shared) sharedMap[r.project_id] = r.label_id;
-    else if(!r.user_id || r.user_id === meId) map[r.project_id] = r.label_id;
-  });
-  Object.keys(sharedMap).forEach(function(pid){ map[pid] = sharedMap[pid]; });
-  state.projectLabels = map;
+  var err = res[0].error || res[1].error;
+  if(err){ state.categoriesError = err.message; return; }
+  state.categories = res[0].data || [];
+  (res[1].data || []).forEach(function(r){ state.favorites[r.project_id] = true; });
+  // setof uuid: a seconda della versione di PostgREST stringhe o oggetti
+  state.teamIds = (res[2].data || []).map(function(r){ return typeof r === "string" ? r : r.be_team; });
 }
 
-function profileName(userId){
-  var p = (state.profiles || []).find(function(x){ return x.id === userId; });
-  return p ? p.display_name : "un collega";
+function categoryById(id){
+  return state.categories.find(function(c){ return c.id === id; }) || null;
 }
-function labelById(labelId){
-  return state.labels.find(function(x){ return x.id === labelId; }) || null;
-}
-/* Il progetto sta in una label condivisa di un altro: lo sposta solo lui */
-function lockedByShared(projectId){
-  var l = labelById(state.projectLabels[projectId]);
-  return l && l.shared && !l.mine ? l : null;
-}
-function ownLabels(){
-  return sortedLabels().filter(function(l){ return l.mine; });
-}
-
-function labelsUnavailable(){
-  if(!state.labelsError) return false;
-  notify("Le label non sono ancora attive sul database.\n\n" + state.labelsError +
-        "\n\nEsegui lo script sql/label.sql nell'editor SQL di Supabase.");
-  return true;
-}
-
-function sortedLabels(){
-  return state.labels.slice().sort(function(a,b){
+function sortedCategories(){
+  return state.categories.slice().sort(function(a,b){
     if(a.position !== b.position) return a.position - b.position;
     return a.name.localeCompare(b.name, "it");
   });
 }
-
-function labelName(labelId){
-  var l = state.labels.find(function(x){ return x.id === labelId; });
-  return l ? l.name : "";
+function isFavorite(p){ return !!state.favorites[p.id]; }
+function projectById(id){
+  return state.projects.find(function(p){ return p.id === id; }) || null;
 }
 
-/* Le label si applicano dentro l'area di lavoro aperta: la colonna di
-   sinistra mostra sempre e solo i progetti dell'area corrente. */
-function projectsInLabel(labelId){
-  return areaProjects().filter(function(p){
-    var l = state.projectLabels[p.id] || null;
-    return labelId === NO_LABEL ? !l : l === labelId;
+/* Il gruppo in cui sta un progetto, Preferiti a parte */
+function projectGroup(p){
+  if(p.archived_at) return GROUP_ARCHIVED;
+  if(p.personal) return p.isOwner ? GROUP_PERSONAL : GROUP_SHARED;
+  return categoryById(p.category_id) ? p.category_id : GROUP_NONE;
+}
+function groupName(id){
+  if(id === GROUP_FAV)      return "Preferiti";
+  if(id === GROUP_NONE)     return "Senza categoria";
+  if(id === GROUP_PERSONAL) return "Personale";
+  if(id === GROUP_SHARED)   return "Condivisi con me";
+  if(id === GROUP_ARCHIVED) return "Archiviati";
+  var c = categoryById(id);
+  return c ? c.name : "";
+}
+function isCategoryGroup(id){ return !!categoryById(id); }
+
+/* Gli stessi permessi di sql/categorie.sql (il database ha comunque
+   l'ultima parola): categoria e archivio dei progetti del team li cambia
+   chiunque del team, il Personale solo il proprietario. */
+function canCategorize(p){ return p.personal ? (p.isOwner && state.isTeam) : state.isTeam; }
+function canArchive(p){ return p.isOwner || (!p.personal && state.isTeam); }
+
+/* I gruppi in ordine, con dentro i progetti. Li usano la colonna di
+   sinistra (una sola area, Preferiti solo in cima) e «Chi fa cosa»
+   (tutte le aree, niente Archiviati).
+   opts: { area, archived, favoritesApart, sort } */
+function projectGroups(opts){
+  opts = opts || {};
+  var groups = [], byId = {};
+  function add(id){
+    var g = { id: id, name: groupName(id), projects: [] };
+    groups.push(g);
+    byId[id] = g;
+  }
+  add(GROUP_FAV);
+  sortedCategories().forEach(function(c){ add(c.id); });
+  add(GROUP_NONE);
+  add(GROUP_PERSONAL);
+  add(GROUP_SHARED);
+  if(opts.archived) add(GROUP_ARCHIVED);
+
+  var list = state.projects.filter(function(p){ return !opts.area || p.area === opts.area; });
+  if(opts.sort) list.sort(function(a,b){ return a.name.localeCompare(b.name, "it"); });
+  list.forEach(function(p){
+    var g = projectGroup(p);
+    if(g === GROUP_ARCHIVED){
+      if(opts.archived) byId[g].projects.push(p);
+      return;
+    }
+    if(isFavorite(p)){
+      byId[GROUP_FAV].projects.push(p);
+      if(opts.favoritesApart) return;
+    }
+    byId[g].projects.push(p);
   });
+  return groups;
 }
 
-/* Gruppi chiusi: preferenza locale del browser, non del database */
-function readCollapsed(){
+/* Gruppi chiusi: preferenza locale del browser, non del database.
+   Si salvano i gruppi cambiati rispetto al default (Archiviati chiuso). */
+function readToggled(){
   try {
-    var v = JSON.parse(localStorage.getItem(LABELS_COLLAPSED_KEY) || "[]");
+    var v = JSON.parse(localStorage.getItem(GROUPS_TOGGLED_KEY) || "[]");
     return Array.isArray(v) ? v : [];
   } catch(e){ return []; }
 }
-function isCollapsed(id){ return readCollapsed().indexOf(id) >= 0; }
+function isCollapsed(id){
+  var toggled = readToggled().indexOf(id) >= 0;
+  return id === GROUP_ARCHIVED ? !toggled : toggled;
+}
 function toggleCollapsed(id){
-  var ids = readCollapsed(), i = ids.indexOf(id);
+  var ids = readToggled(), i = ids.indexOf(id);
   if(i >= 0) ids.splice(i, 1); else ids.push(id);
-  try { localStorage.setItem(LABELS_COLLAPSED_KEY, JSON.stringify(ids)); } catch(e){}
+  try { localStorage.setItem(GROUPS_TOGGLED_KEY, JSON.stringify(ids)); } catch(e){}
 }
 
-/* --- mutazioni ----------------------------------------------------------- */
-function promptNewLabel(onDone){
-  if(labelsUnavailable()) return;
+function categoriesUnavailable(){
+  if(!state.categoriesError) return false;
+  notify("Le categorie non sono ancora attive sul database.\n\n" + state.categoriesError +
+        "\n\nEsegui lo script sql/categorie.sql nell'editor SQL di Supabase.");
+  return true;
+}
+
+/* --- categorie ------------------------------------------------------------ */
+function categoryNameTaken(name, exceptId){
+  var n = name.toLowerCase();
+  return state.categories.some(function(c){ return c.id !== exceptId && c.name.trim().toLowerCase() === n; }) ||
+    [GROUP_FAV, GROUP_NONE, GROUP_PERSONAL, GROUP_SHARED, GROUP_ARCHIVED].some(function(g){
+      return groupName(g).toLowerCase() === n;
+    });
+}
+
+function promptNewCategory(onDone){
+  if(categoriesUnavailable()) return;
   showInputModal({
-    title: "Nuova label",
-    label: "Nome della label",
-    placeholder: "Es. Bandi, Clienti, Interni",
+    title: "Nuova categoria",
+    label: "Nome della categoria (la vede tutto il team)",
+    placeholder: "Es. Bandi, Scuole, Eventi",
     confirmText: "Crea",
     onConfirm: async function(name){
       var n = (name || "").trim();
       if(!n) return;
-      if(ownLabels().some(function(l){ return l.name.toLowerCase() === n.toLowerCase(); })){
-        notify("Hai già una label con questo nome.");
-        return;
-      }
-      var pos = state.labels.reduce(function(m, l){ return Math.max(m, l.position); }, -1) + 1;
-      var res = await sb.from("be_labels")
-        .insert({ user_id: state.me.id, name: n, position: pos })
-        .select().single();
-      if(res.error){ notify(errorText(res.error)); return; }
-      var label = { id: res.data.id, name: res.data.name, position: res.data.position,
-                    shared: !!res.data.shared, mine: true, owner: "" };
-      state.labels.push(label);
+      if(categoryNameTaken(n)){ notify("C'è già un gruppo con questo nome."); return; }
+      var pos = state.categories.reduce(function(m, c){ return Math.max(m, c.position); }, -1) + 1;
+      var res = await sb.from("be_categories").insert({ name: n, position: pos }).select("id, name, position").single();
+      if(res.error){ notify(errorText(res.error, "Categoria non creata")); return; }
+      state.categories.push(res.data);
       renderSidebar();
-      if(label.shared) notify("«" + n + "» è condivisa col team: i progetti che ci metti li vedono tutti.", { warn: false, autoHide: 4000 });
-      if(onDone) onDone(label);
+      if(onDone) onDone(res.data);
     }
   });
 }
 
-function promptRenameLabel(label){
+function promptRenameCategory(cat){
   showInputModal({
-    title: "Rinomina label",
-    label: "Nome della label",
-    value: label.name,
+    title: "Rinomina categoria",
+    label: "Nome della categoria (cambia per tutto il team)",
+    value: cat.name,
     confirmText: "Salva",
     onConfirm: async function(name){
       var n = (name || "").trim();
-      if(!n || n === label.name) return;
-      if(ownLabels().some(function(l){
-        return l.id !== label.id && l.name.toLowerCase() === n.toLowerCase();
-      })){
-        notify("Hai già una label con questo nome.");
-        return;
-      }
-      var res = await sb.from("be_labels").update({ name: n }).eq("id", label.id);
+      if(!n || n === cat.name) return;
+      if(categoryNameTaken(n, cat.id)){ notify("C'è già un gruppo con questo nome."); return; }
+      var res = await sb.from("be_categories").update({ name: n }).eq("id", cat.id);
       if(res.error){ notify(errorText(res.error)); return; }
-      label.name = n;
-      renderSidebar();
+      cat.name = n;
+      render();
     }
   });
 }
 
-function promptRenameNoLabel(){
-  showInputModal({
-    title: "Rinomina «Senza label»",
-    label: "Nome del gruppo (vuoto per ripristinare «Senza label»)",
-    value: noLabelName(),
-    confirmText: "Salva",
-    onConfirm: async function(name){
-      var n = (name || "").trim();
-      if(n === "Senza label") n = "";
-      if(n === (state.me.no_label_name || "")) return;
-      if(n && state.labels.some(function(l){ return l.name.toLowerCase() === n.toLowerCase(); })){
-        notify("Hai già una label con questo nome.");
-        return;
-      }
-      var res = await sb.auth.updateUser({ data: { no_label_name: n || null } });
-      if(res.error){ notify(errorText(res.error)); return; }
-      state.me.no_label_name = n;
-      renderSidebar();
-    }
-  });
-}
-
-async function deleteLabel(label){
-  /* Contati su tutte le aree: la label esiste al di sopra delle dashboard. */
-  var n = state.projects.filter(function(p){
-    return state.projectLabels[p.id] === label.id;
-  }).length;
-  var msg = "Eliminare la label «" + label.name + "»?";
-  if(label.shared) msg += "\n\nÈ condivisa: sparisce per tutto il team. I progetti restano condivisi.";
+async function deleteCategory(cat){
+  /* Contati su tutte le aree: la categoria esiste al di sopra delle dashboard. */
+  var n = state.projects.filter(function(p){ return !p.personal && p.category_id === cat.id; }).length;
+  var msg = "Eliminare la categoria «" + cat.name + "» per tutto il team?";
   if(n){
-    msg += "\n\n" + (n === 1 ? "Il progetto contenuto non verrà eliminato: tornerà"
-                             : "I " + n + " progetti contenuti non verranno eliminati: torneranno") +
-           " in «" + noLabelName() + "».";
+    msg += "\n\n" + (n === 1 ? "Il progetto contenuto non verrà eliminato: finirà"
+                             : "I " + n + " progetti contenuti non verranno eliminati: finiranno") +
+           " in «" + groupName(GROUP_NONE) + "».";
   }
   if(!confirm(msg)) return;
-  var res = await sb.from("be_labels").delete().eq("id", label.id);
-  if(res.error){ notify(errorText(res.error, "Label non eliminata")); return; }
-  state.labels = state.labels.filter(function(l){ return l.id !== label.id; });
-  Object.keys(state.projectLabels).forEach(function(pid){
-    if(state.projectLabels[pid] === label.id) delete state.projectLabels[pid];
-  });
+  var res = await sb.from("be_categories").delete().eq("id", cat.id);
+  if(res.error){ notify(errorText(res.error, "Categoria non eliminata")); return; }
+  state.categories = state.categories.filter(function(c){ return c.id !== cat.id; });
+  state.projects.forEach(function(p){ if(p.category_id === cat.id) p.category_id = null; });
   renderSidebar();
 }
 
-/* labelId null = fuori da ogni label */
-async function setProjectLabel(projectId, labelId){
-  if(labelsUnavailable()) return;
-  if(!state.projects.some(function(p){ return p.id === projectId; })) return;
-  var current = state.projectLabels[projectId] || null;
-  if(current === (labelId || null)) return;
-  var locked = lockedByShared(projectId);
-  if(locked){
-    notify("È nella label condivisa «" + locked.name + "»: può spostarlo solo " + locked.owner + ".");
-    return;
-  }
-  var target = labelId ? labelById(labelId) : null;
-  if(target && !target.mine){
-    notify("«" + target.name + "» è la label condivisa di " + target.owner + ": può riempirla solo chi l'ha creata.");
-    return;
+/* --- spostamenti, anche in blocco -------------------------------------- */
+function plural(n, one, many){ return n + " " + (n === 1 ? one : many); }
+
+/* Una sola update per gruppo di progetti con lo stesso payload. Con
+   .select() tornano solo le righe che la RLS ha lasciato cambiare. */
+async function updateProjects(ids, payload){
+  if(!ids.length) return { ids: [] };
+  var res = await sb.from("be_projects").update(payload).in("id", ids).select("id");
+  if(res.error) return { error: res.error, ids: [] };
+  return { ids: (res.data || []).map(function(r){ return r.id; }) };
+}
+
+function applyLocal(ids, payload){
+  ids.forEach(function(id){
+    var p = projectById(id);
+    if(p) Object.keys(payload).forEach(function(k){ p[k] = payload[k]; });
+  });
+}
+
+function reportSkipped(skipped, what){
+  if(!skipped.length) return;
+  var names = skipped.slice(0, 3).map(function(p){ return "«" + p.name + "»"; }).join(", ") +
+    (skipped.length > 3 ? " e altri " + (skipped.length - 3) : "");
+  notify(names + ": " + what);
+}
+
+/* target: l'id di una categoria, GROUP_NONE, GROUP_PERSONAL o GROUP_ARCHIVED.
+   Spostare in una categoria tira fuori dagli Archiviati. */
+async function moveProjects(ids, target){
+  if(categoriesUnavailable()) return false;
+  var projs = ids.map(projectById).filter(Boolean);
+  var ok = [], skipped = [], why;
+
+  if(target === GROUP_ARCHIVED){
+    why = "può archiviarli solo chi li vede come progetti del team, o il proprietario.";
+    projs.forEach(function(p){
+      if(p.archived_at) return;
+      (canArchive(p) ? ok : skipped).push(p);
+    });
+    if(!ok.length){ reportSkipped(skipped, why); return !skipped.length; }
+    var stamp = new Date().toISOString();
+    var a = await updateProjects(ok.map(function(p){ return p.id; }), { archived_at: stamp });
+    if(a.error){ notify(errorText(a.error, "Non sono riuscito ad archiviare")); return false; }
+    applyLocal(a.ids, { archived_at: stamp });
+    return finishMove(ok, a.ids, skipped, why);
   }
 
+  if(target === GROUP_PERSONAL){
+    why = "solo il proprietario può metterlo nel suo Personale.";
+    projs.forEach(function(p){
+      if(p.personal && !p.archived_at) return;
+      (p.isOwner ? ok : skipped).push(p);
+    });
+    if(!ok.length){ reportSkipped(skipped, why); return !skipped.length; }
+    // «Personale» vuol dire solo per me: le condivisioni che il progetto
+    // aveva da progetto del team si tolgono (quelle di un Personale
+    // archiviato e ripristinato restano)
+    var fromTeam = ok.filter(function(p){ return !p.personal; }).map(function(p){ return p.id; });
+    var shared = [];
+    ok.forEach(function(p){
+      if(fromTeam.indexOf(p.id) < 0) return;
+      p.shares.forEach(function(uid){
+        var n = profileName(uid);
+        if(shared.indexOf(n) < 0) shared.push(n);
+      });
+    });
+    if(shared.length && !confirm(
+      (ok.length === 1 ? "«" + ok[0].name + "» lo vedrai" : plural(ok.length, "progetto", "progetti") + " li vedrai") +
+      " solo tu: tolgo anche le condivisioni con " + shared.join(", ") + ".\n\n" +
+      "Potrai ricondividere con chi vuoi dal pulsante Condividi.")) return false;
+    var pay = { personal: true, category_id: null, archived_at: null };
+    var r = await updateProjects(ok.map(function(p){ return p.id; }), pay);
+    if(r.error){ notify(errorText(r.error, "Non sono riuscito a spostare")); return false; }
+    applyLocal(r.ids, pay);
+    var withShares = r.ids.filter(function(id){ return fromTeam.indexOf(id) >= 0 && projectById(id).shares.length; });
+    if(withShares.length){
+      var s = await sb.from("be_project_shares").delete().in("project_id", withShares);
+      if(s.error) notify(errorText(s.error, "Spostato in Personale, ma le condivisioni sono rimaste"));
+      else withShares.forEach(function(id){ projectById(id).shares = []; });
+    }
+    return finishMove(ok, r.ids, skipped, why);
+  }
+
+  // una categoria del team (o nessuna)
+  var catId = target === GROUP_NONE ? null : target;
+  why = "è nel Personale di un altro: può spostarlo solo il proprietario.";
+  projs.forEach(function(p){
+    if(!p.personal && !p.archived_at && p.category_id === catId) return;
+    (canCategorize(p) ? ok : skipped).push(p);
+  });
+  if(!ok.length){ reportSkipped(skipped, why); return !skipped.length; }
+  var mine   = ok.filter(function(p){ return p.personal; });        // dal mio Personale al team
+  var others = ok.filter(function(p){ return !p.personal; });
+  var payTeam = { personal: false, category_id: catId, archived_at: null };
+  var payCat  = { category_id: catId, archived_at: null };
+  var res = await Promise.all([
+    updateProjects(mine.map(function(p){ return p.id; }), payTeam),
+    updateProjects(others.map(function(p){ return p.id; }), payCat)
+  ]);
+  var err = res[0].error || res[1].error;
+  if(err) notify(errorText(err, "Non sono riuscito a spostare"));
+  applyLocal(res[0].ids, payTeam);
+  applyLocal(res[1].ids, payCat);
+  return finishMove(ok, res[0].ids.concat(res[1].ids), skipped, why) && !err;
+}
+
+/* Ripristina dagli Archiviati: il progetto torna nella sua categoria */
+async function restoreProjects(ids){
+  if(categoriesUnavailable()) return false;
+  var ok = [], skipped = [];
+  ids.map(projectById).filter(Boolean).forEach(function(p){
+    if(!p.archived_at) return;
+    (canArchive(p) ? ok : skipped).push(p);
+  });
+  var why = "può ripristinarlo solo il proprietario.";
+  if(!ok.length){ reportSkipped(skipped, why); return !skipped.length; }
+  var r = await updateProjects(ok.map(function(p){ return p.id; }), { archived_at: null });
+  if(r.error){ notify(errorText(r.error, "Non sono riuscito a ripristinare")); return false; }
+  applyLocal(r.ids, { archived_at: null });
+  return finishMove(ok, r.ids, skipped, why);
+}
+
+/* Quelli che il database non ha cambiato (RLS) contano come saltati */
+function finishMove(tried, doneIds, skipped, why){
+  tried.forEach(function(p){ if(doneIds.indexOf(p.id) < 0) skipped.push(p); });
+  render();
+  reportSkipped(skipped, why);
+  return !skipped.length;
+}
+
+async function setFavorite(ids, on){
+  if(categoriesUnavailable()) return false;
   var res;
-  if(labelId){
-    res = await sb.from("be_project_labels").upsert(
-      { user_id: state.me.id, project_id: projectId, label_id: labelId },
-      { onConflict: "user_id,project_id" }
+  if(on){
+    ids = ids.filter(function(id){ return !state.favorites[id]; });
+    if(!ids.length) return true;
+    res = await sb.from("be_project_favorites").upsert(
+      ids.map(function(id){ return { user_id: state.me.id, project_id: id }; }),
+      { onConflict: "user_id,project_id", ignoreDuplicates: true }
     );
   } else {
-    res = await sb.from("be_project_labels").delete()
-      .eq("user_id", state.me.id).eq("project_id", projectId);
+    res = await sb.from("be_project_favorites").delete().eq("user_id", state.me.id).in("project_id", ids);
   }
-  if(res.error){ notify(errorText(res.error, "Non sono riuscito a spostare il progetto")); return; }
-
-  if(labelId) state.projectLabels[projectId] = labelId;
-  else delete state.projectLabels[projectId];
+  if(res.error){ notify(errorText(res.error, "Preferiti non aggiornati")); return false; }
+  ids.forEach(function(id){
+    if(on) state.favorites[id] = true; else delete state.favorites[id];
+  });
   renderSidebar();
+  return true;
 }
 
 /* =====================================================================
@@ -2619,58 +2910,99 @@ function projectInitial(name){
   return (name || "?").trim().charAt(0).toUpperCase() || "?";
 }
 
+var ICON_CARET = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+var ICON_PLUS  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+var ICON_PEN   = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+var ICON_TRASH = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>';
+var ICON_STAR  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+var ICON_ARCHIVE = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>';
+var ICON_RESTORE = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>';
+var ICON_LOCK  = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+var ICON_SELECT = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>';
+var ICON_MOVE  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>';
+var ICON_SHARE = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>';
+
+function escHtml(s){ return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); }
+
+function itemButton(cls, html, tip, fn){
+  var b = document.createElement("button");
+  b.type = "button";
+  b.className = cls;
+  b.title = tip;
+  b.setAttribute("aria-label", tip);
+  b.innerHTML = html;
+  b.addEventListener("click", function(e){ e.stopPropagation(); fn(); });
+  return b;
+}
+
+function projectTooltip(proj){
+  var bits = [proj.name];
+  if(!proj.isOwner) bits.push((proj.personal ? "condiviso da " : "di ") + profileName(proj.owner_id));
+  if(proj.archived_at) bits.push("archiviato");
+  return bits.join(" · ");
+}
+
 function buildProjectItem(proj){
+  var selecting = state.selecting;
+  var picked = !!state.selected[proj.id];
   var item = document.createElement("div");
-  item.className = "project-item" + (state.view === "board" && proj.id === state.activeProjectId ? " active" : "");
+  item.className = "project-item" +
+    (!selecting && state.view === "board" && proj.id === state.activeProjectId ? " active" : "") +
+    (selecting ? " selectable" : "") + (picked ? " picked" : "") +
+    (proj.archived_at ? " archived" : "");
   item.dataset.projectId = proj.id;
 
   var ico = document.createElement("div");
-  ico.className = "project-icon";
-  ico.textContent = projectInitial(proj.name);
+  ico.className = selecting ? "project-check" : "project-icon";
+  if(!selecting) ico.textContent = projectInitial(proj.name);
 
   var name = document.createElement("div");
   name.className = "project-name";
   name.textContent = proj.name;
-  name.title = proj.isOwner ? proj.name : (proj.name + " · di " + profileName(proj.owner_id));
+  name.title = projectTooltip(proj);
 
   item.appendChild(ico);
   item.appendChild(name);
 
+  if(selecting){
+    item.setAttribute("role", "checkbox");
+    item.setAttribute("aria-checked", picked ? "true" : "false");
+    item.addEventListener("click", function(){
+      if(picked) delete state.selected[proj.id]; else state.selected[proj.id] = true;
+      renderSidebar();
+    });
+    return item;
+  }
+
+  /* Le azioni compaiono sopra la riga al passaggio del mouse, cosi' il
+     nome usa tutta la larghezza; su touch restano sempre visibili. */
+  var acts = document.createElement("div");
+  acts.className = "project-actions";
+  item.appendChild(acts);
+
+  if(!state.categoriesError){
+    var fav = isFavorite(proj);
+    var star = itemButton("project-star" + (fav ? " on" : ""), ICON_STAR,
+      fav ? "Togli dai preferiti" : "Aggiungi ai preferiti (solo per te)",
+      function(){ setFavorite([proj.id], !fav); });
+    star.setAttribute("aria-pressed", fav ? "true" : "false");
+    acts.appendChild(star);
+
+    if(canArchive(proj)){
+      acts.appendChild(proj.archived_at
+        ? itemButton("project-archive", ICON_RESTORE, "Ripristina", function(){ restoreProjects([proj.id]); })
+        : itemButton("project-archive", ICON_ARCHIVE, "Archivia", function(){ moveProjects([proj.id], GROUP_ARCHIVED); }));
+    }
+  }
+
   // Il trascinamento e' HTML5 DnD, che da un dito non parte mai: su iOS e
   // Android questo bottone e' l'unico modo di spostare un progetto.
-  // La label e' una scelta privata di chi guarda, quindi il pannello si apre
-  // anche per i progetti condivisi da altri.
-  var move = document.createElement("button");
-  move.className = "project-move";
-  move.title = "Sposta in una label o in un'altra area";
-  move.setAttribute("aria-label", "Sposta " + proj.name);
-  move.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>';
-  move.addEventListener("click", function(e){
-    e.stopPropagation();
-    openMoveProjectSheet(proj);
-  });
-  item.appendChild(move);
+  acts.appendChild(itemButton("project-move", ICON_MOVE, "Sposta, archivia o elimina",
+    function(){ openProjectSheet(proj); }));
 
   if(proj.isOwner){
-    var share = document.createElement("button");
-    share.className = "project-share";
-    share.title = "Condividi progetto";
-    share.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>';
-    share.addEventListener("click", function(e){
-      e.stopPropagation();
-      openShareModal(proj.id);
-    });
-    item.appendChild(share);
-
-    var del = document.createElement("button");
-    del.className = "project-delete";
-    del.title = "Elimina progetto";
-    del.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>';
-    del.addEventListener("click", function(e){
-      e.stopPropagation();
-      deleteProject(proj.id);
-    });
-    item.appendChild(del);
+    acts.appendChild(itemButton("project-share", ICON_SHARE, "Condividi progetto",
+      function(){ openShareModal(proj.id); }));
   }
 
   item.addEventListener("click", function(){
@@ -2679,8 +3011,8 @@ function buildProjectItem(proj){
     render();
   });
 
-  /* trascinamento del progetto da una label all'altra */
-  if(!state.labelsError){
+  /* trascinamento del progetto da un gruppo all'altro */
+  if(!state.categoriesError){
     item.draggable = true;
     item.addEventListener("dragstart", function(e){
       item.classList.add("dragging");
@@ -2698,44 +3030,32 @@ function buildProjectItem(proj){
   return item;
 }
 
-function buildSidebarSectionHeader(title, onAdd, addTitle){
-  var h = document.createElement("div");
-  h.className = "sidebar-section-title";
-
-  var label = document.createElement("span");
-  label.textContent = title;
-  h.appendChild(label);
-
-  var add = document.createElement("button");
-  add.className = "sidebar-section-add";
-  add.title = addTitle || "Nuovo progetto";
-  add.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
-  add.addEventListener("click", onAdd || function(){ promptNewProject(); });
-  h.appendChild(add);
-
-  return h;
+/* Dove si lascia un progetto trascinato su un gruppo */
+function dropOnGroup(groupId, projectId){
+  if(groupId === GROUP_FAV) return setFavorite([projectId], true);
+  if(groupId === GROUP_SHARED) return;
+  moveProjects([projectId], groupId);
 }
 
-var ICON_CARET = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
-var ICON_PLUS  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
-var ICON_PEN   = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
-var ICON_TEAM  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
-var ICON_TRASH = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>';
+var GROUP_HINTS = {};
+GROUP_HINTS[GROUP_FAV]      = "I tuoi preferiti: la stellina la vedi solo tu";
+GROUP_HINTS[GROUP_NONE]     = "Progetti del team non ancora in una categoria";
+GROUP_HINTS[GROUP_PERSONAL] = "Li vedi solo tu, e chi scegli con Condividi";
+GROUP_HINTS[GROUP_SHARED]   = "Progetti personali di altri, condivisi con te";
+GROUP_HINTS[GROUP_ARCHIVED] = "Progetti archiviati: non compaiono in Panoramica, scadenze e Chi fa cosa";
 
-/* Un gruppo della colonna di sinistra: una label dell'utente,
-   oppure (label = null) i progetti che non ha ancora catalogato. */
-function buildLabelGroup(label){
-  var isNone   = !label;
-  var groupId  = isNone ? NO_LABEL : label.id;
-  var projects = projectsInLabel(groupId);
-
+/* Un gruppo della colonna di sinistra: una categoria del team o uno dei
+   gruppi fissi (Preferiti, Senza categoria, Personale, ...). */
+function buildGroup(g){
+  var cat = categoryById(g.id);
   var group = document.createElement("div");
-  group.className = "label-group" + (isCollapsed(groupId) ? " collapsed" : "");
-  group.dataset.labelId = groupId;
+  group.className = "label-group" + (isCollapsed(g.id) ? " collapsed" : "") +
+    (g.id === GROUP_FAV ? " fav-group" : "") + (g.id === GROUP_ARCHIVED ? " archived-group" : "");
+  group.dataset.groupId = g.id;
 
   var head = document.createElement("div");
   head.className = "label-head";
-  head.title = isNone ? "Progetti non ancora assegnati a una label" : label.name;
+  head.title = cat ? cat.name + " · categoria del team" : GROUP_HINTS[g.id];
 
   var caret = document.createElement("span");
   caret.className = "label-caret";
@@ -2743,63 +3063,51 @@ function buildLabelGroup(label){
 
   var title = document.createElement("span");
   title.className = "label-title";
-  title.textContent = isNone ? noLabelName() : label.name;
+  title.textContent = g.name;
 
   var count = document.createElement("span");
   count.className = "label-count";
-  count.textContent = projects.length;
+  count.textContent = g.projects.length;
 
   head.appendChild(caret);
-  head.appendChild(title);
-  if(!isNone && label.shared){
+  if(g.id === GROUP_FAV || g.id === GROUP_PERSONAL){
     var badge = document.createElement("span");
     badge.className = "label-shared";
-    badge.innerHTML = ICON_TEAM;
-    badge.title = label.mine ? "Condivisa col team: i progetti che ci metti li vedono tutti"
-                             : "Label condivisa da " + label.owner;
-    head.title = label.name + " · " + badge.title;
+    badge.innerHTML = g.id === GROUP_FAV ? ICON_STAR : ICON_LOCK;
     head.appendChild(badge);
   }
+  head.appendChild(title);
   head.appendChild(count);
 
   function action(html, tip, danger, fn){
-    var b = document.createElement("button");
-    b.className = "label-btn" + (danger ? " danger" : "");
-    b.title = tip;
-    b.innerHTML = html;
-    b.addEventListener("click", function(e){ e.stopPropagation(); fn(); });
+    var b = itemButton("label-btn" + (danger ? " danger" : ""), html, tip, fn);
     head.appendChild(b);
     return b;
   }
-
-  // la label condivisa di un altro si guarda soltanto
-  if(isNone || label.mine){
-    action(ICON_PLUS, isNone ? "Nuovo progetto senza label" : "Nuovo progetto in « " + label.name + " »",
-      false, function(){ promptNewProject(isNone ? null : label.id); });
-  }
-  if(isNone){
-    action(ICON_PEN, "Rinomina gruppo", false, promptRenameNoLabel);
-  } else if(label.mine){
-    action(ICON_PEN,   "Rinomina label", false, function(){ promptRenameLabel(label); });
-    action(ICON_TRASH, "Elimina label",  true,  function(){ deleteLabel(label); });
+  if(!state.selecting){
+    if(cat && state.isTeam){
+      action(ICON_PLUS,  "Nuovo progetto in «" + cat.name + "»", false, function(){ openNewProjectModal(cat.id); });
+      action(ICON_PEN,   "Rinomina categoria", false, function(){ promptRenameCategory(cat); });
+      action(ICON_TRASH, "Elimina categoria",  true,  function(){ deleteCategory(cat); });
+    } else if(g.id === GROUP_PERSONAL){
+      action(ICON_PLUS, "Nuovo progetto personale", false, function(){ openNewProjectModal(GROUP_PERSONAL); });
+    }
   }
 
   head.addEventListener("click", function(){
-    toggleCollapsed(groupId);
+    toggleCollapsed(g.id);
     group.classList.toggle("collapsed");
   });
 
   var body = document.createElement("div");
   body.className = "label-body";
-  if(projects.length){
-    projects.forEach(function(p){ body.appendChild(buildProjectItem(p)); });
+  if(g.projects.length){
+    g.projects.forEach(function(p){ body.appendChild(buildProjectItem(p)); });
   } else {
     var empty = document.createElement("div");
     empty.className = "label-empty";
-    empty.textContent = !isNone ? (label.mine ? "Vuota — trascina qui un progetto o usa +."
-                                              : "Vuota — la riempie " + label.owner + ".")
-      : (areaProjects().length ? "Tutti i progetti sono in una label."
-                               : "Nessun progetto in quest'area. Creane uno con +.");
+    empty.textContent = g.id === GROUP_PERSONAL ? "Qui vanno i progetti che vedi solo tu."
+      : (state.isTeam ? "Vuota — trascina qui un progetto o usa +." : "Vuota.");
     body.appendChild(empty);
   }
 
@@ -2807,27 +3115,29 @@ function buildLabelGroup(label){
   group.appendChild(body);
 
   /* destinazione del trascinamento */
-  function dragging(e){
-    var types = (e.dataTransfer && e.dataTransfer.types)
-      ? Array.prototype.slice.call(e.dataTransfer.types) : [];
-    return types.indexOf("text/project-id") >= 0;
+  if(g.id !== GROUP_SHARED){
+    var dragging = function(e){
+      var types = (e.dataTransfer && e.dataTransfer.types)
+        ? Array.prototype.slice.call(e.dataTransfer.types) : [];
+      return types.indexOf("text/project-id") >= 0;
+    };
+    group.addEventListener("dragover", function(e){
+      if(!dragging(e)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      group.classList.add("drop-target");
+    });
+    group.addEventListener("dragleave", function(e){
+      if(!group.contains(e.relatedTarget)) group.classList.remove("drop-target");
+    });
+    group.addEventListener("drop", function(e){
+      if(!dragging(e)) return;
+      e.preventDefault();
+      group.classList.remove("drop-target");
+      var pid = e.dataTransfer.getData("text/project-id");
+      if(pid) dropOnGroup(g.id, pid);
+    });
   }
-  group.addEventListener("dragover", function(e){
-    if(!dragging(e)) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    group.classList.add("drop-target");
-  });
-  group.addEventListener("dragleave", function(e){
-    if(!group.contains(e.relatedTarget)) group.classList.remove("drop-target");
-  });
-  group.addEventListener("drop", function(e){
-    if(!dragging(e)) return;
-    e.preventDefault();
-    group.classList.remove("drop-target");
-    var pid = e.dataTransfer.getData("text/project-id");
-    if(pid) setProjectLabel(pid, isNone ? null : label.id);
-  });
 
   return group;
 }
@@ -2849,25 +3159,120 @@ function buildOverviewItem(){
   return item;
 }
 
+function buildSidebarHeader(){
+  var h = document.createElement("div");
+  h.className = "sidebar-section-title";
+  var label = document.createElement("span");
+  label.textContent = "Categorie";
+  h.appendChild(label);
+
+  var tools = document.createElement("span");
+  tools.className = "sidebar-section-tools";
+  if(state.selecting) return h;
+  h.appendChild(tools);
+  tools.appendChild(itemButton("sidebar-section-add", ICON_SELECT, "Seleziona più progetti", function(){
+    state.selecting = true;
+    state.selected = {};
+    renderSidebar();
+  }));
+  if(state.isTeam){
+    tools.appendChild(itemButton("sidebar-section-add", ICON_PLUS, "Nuova categoria (per tutto il team)",
+      function(){ promptNewCategory(); }));
+  }
+  return h;
+}
+
+/* Barra della selezione multipla: sposta, stellina e archivia in blocco */
+function selectedIds(){
+  return Object.keys(state.selected).filter(function(id){ return projectById(id); });
+}
+function endSelection(){
+  state.selecting = false;
+  state.selected = {};
+  renderSidebar();
+}
+function buildSelectBar(){
+  var ids = selectedIds();
+  var projs = ids.map(projectById);
+  var allFav = projs.length && projs.every(isFavorite);
+  var allArchived = projs.length && projs.every(function(p){ return !!p.archived_at; });
+
+  var bar = document.createElement("div");
+  bar.className = "select-bar";
+  bar.innerHTML =
+    '<div class="select-bar-top">' +
+      '<span class="select-count"></span>' +
+      '<button type="button" class="select-link" data-a="all">Tutti</button>' +
+      '<button type="button" class="select-link" data-a="done">Fine</button>' +
+    '</div>' +
+    '<div class="select-actions">' +
+      '<button type="button" class="select-btn" data-a="move">' + ICON_MOVE + '<span>Sposta</span></button>' +
+      '<button type="button" class="select-btn" data-a="fav">' + ICON_STAR + '<span>' + (allFav ? "Togli" : "Preferiti") + '</span></button>' +
+      '<button type="button" class="select-btn" data-a="archive">' + (allArchived ? ICON_RESTORE : ICON_ARCHIVE) +
+        '<span>' + (allArchived ? "Ripristina" : "Archivia") + '</span></button>' +
+      '<button type="button" class="select-btn" data-a="share">' + ICON_SHARE + '<span>Condividi</span></button>' +
+    '</div>';
+  bar.querySelector(".select-count").textContent = ids.length
+    ? plural(ids.length, "selezionato", "selezionati") : "Tocca i progetti da selezionare";
+  bar.querySelectorAll(".select-btn").forEach(function(b){ b.disabled = !ids.length; });
+  // condivide solo chi ha creato il progetto
+  var $share = bar.querySelector('[data-a="share"]');
+  if(ids.length && !projs.some(function(p){ return p.isOwner; })){
+    $share.disabled = true;
+    $share.title = "Nessuno di questi progetti è tuo: li condivide solo chi li ha creati";
+  }
+
+  bar.addEventListener("click", async function(e){
+    var b = e.target.closest("button");
+    if(!b || b.disabled) return;
+    var a = b.dataset.a;
+    if(a === "done") return endSelection();
+    if(a === "all"){
+      areaProjects().forEach(function(p){ state.selected[p.id] = true; });
+      return renderSidebar();
+    }
+    if(a === "move") return openMoveSheet(ids, function(){ endSelection(); });
+    if(a === "share") return openBulkShareModal(ids);
+    var ok;
+    if(a === "fav") ok = await setFavorite(ids, !allFav);
+    else if(allArchived) ok = await restoreProjects(ids);
+    else ok = await moveProjects(ids, GROUP_ARCHIVED);
+    if(ok) endSelection();
+  });
+  return bar;
+}
+
 function renderSidebar(){
+  // ridisegnando, la lista non deve tornare in cima (selezione, stelline)
+  var scroll = $projects.scrollTop;
+  renderSidebarContent();
+  $projects.scrollTop = scroll;
+}
+
+function renderSidebarContent(){
   $projects.innerHTML = "";
+  $projects.classList.toggle("selecting", state.selecting);
 
   var visible = areaProjects();
 
-  $projects.appendChild(buildOverviewItem());
+  if(!state.selecting) $projects.appendChild(buildOverviewItem());
 
-  /* Migrazione sql/label.sql non ancora eseguita: lista piatta + avviso */
-  if(state.labelsError){
+  /* Migrazione sql/categorie.sql non ancora eseguita: lista piatta + avviso */
+  if(state.categoriesError){
+    state.selecting = false;
     var note = document.createElement("div");
     note.className = "sidebar-note";
-    note.textContent = "Label non attive: " + state.labelsError +
-      " \u2014 esegui sql/label.sql sul database Supabase.";
+    note.textContent = "Categorie non attive: " + state.categoriesError +
+      " — esegui sql/categorie.sql sul database Supabase.";
     $projects.appendChild(note);
-    $projects.appendChild(buildSidebarSectionHeader("Progetti"));
+    var flatHead = document.createElement("div");
+    flatHead.className = "sidebar-section-title";
+    flatHead.textContent = "Progetti";
+    $projects.appendChild(flatHead);
     if(!visible.length){
       var flatEmpty = document.createElement("div");
       flatEmpty.className = "empty-projects";
-      flatEmpty.textContent = "Nessuno in quest'area. Creane uno con +";
+      flatEmpty.textContent = "Nessuno in quest'area.";
       $projects.appendChild(flatEmpty);
       return;
     }
@@ -2875,21 +3280,18 @@ function renderSidebar(){
     return;
   }
 
-  $projects.appendChild(buildSidebarSectionHeader("Label", function(){ promptNewLabel(); }, "Nuova label"));
+  $projects.appendChild(buildSidebarHeader());
 
-  var labels = sortedLabels();
-  labels.forEach(function(l){ $projects.appendChild(buildLabelGroup(l)); });
+  // i Preferiti sono una scorciatoia in cima: il progetto resta anche nella sua categoria
+  projectGroups({ area: state.area, archived: true }).forEach(function(g){
+    // le categorie si vedono anche vuote (sono la destinazione del
+    // trascinamento), Personale pure; gli altri gruppi solo se servono
+    var always = (isCategoryGroup(g.id) && state.isTeam) || g.id === GROUP_PERSONAL;
+    if(!always && !g.projects.length) return;
+    $projects.appendChild(buildGroup(g));
+  });
 
-  /* \u00ABSenza label\u00BB resta sempre visibile: e' la destinazione per togliere
-     un progetto da una label trascinandolo. */
-  $projects.appendChild(buildLabelGroup(null));
-
-  if(!labels.length && !visible.length){
-    var empty = document.createElement("div");
-    empty.className = "empty-projects";
-    empty.textContent = "Crea una label con + e mettici dentro i tuoi progetti.";
-    $projects.appendChild(empty);
-  }
+  if(state.selecting) $projects.appendChild(buildSelectBar());
 }
 
 var AREA_LABELS = {
@@ -2898,70 +3300,132 @@ var AREA_LABELS = {
   amministrazione: "Amministrazione"
 };
 
-/* Il trascinamento resta, ma da telefono non esiste: questo pannello e'
-   l'equivalente esplicito, e sposta anche fra le tre aree \u2014 cosa che il
-   drag'n'drop nella sidebar non permette comunque.
-   La label e' una scelta privata di chi guarda; l'area di lavoro e' invece
-   condivisa, quindi solo il proprietario del progetto puo' cambiarla. */
-function openMoveProjectSheet(proj){
+/* Le scelte "dove va": le categorie del team, Personale e + Nuova categoria */
+function categoryChoices(current, allowPersonal){
+  var html = "";
+  sortedCategories().forEach(function(c){
+    var on = current === c.id;
+    html += '<button type="button" class="move-opt' + (on ? " current" : "") +
+      '" data-kind="cat" data-value="' + c.id + '"' + (on ? " disabled" : "") + '>' +
+      escHtml(c.name) + (on ? ' <span class="move-now">attuale</span>' : '') + '</button>';
+  });
+  if(allowPersonal){
+    var onP = current === GROUP_PERSONAL;
+    html += '<button type="button" class="move-opt move-personal' + (onP ? " current" : "") +
+      '" data-kind="cat" data-value="' + GROUP_PERSONAL + '"' + (onP ? " disabled" : "") + '>' +
+      ICON_LOCK + ' Personale' + (onP ? ' <span class="move-now">attuale</span>' : '') + '</button>';
+  }
+  if(state.isTeam) html += '<button type="button" class="move-opt" data-kind="new-cat">+ Nuova categoria</button>';
+  return html;
+}
+
+function openSheet(html){
   var backdrop = document.createElement("div");
   backdrop.className = "modal-backdrop";
+  backdrop.innerHTML = html;
+  document.body.appendChild(backdrop);
+  function close(){ backdrop.remove(); document.removeEventListener("keydown", onKey); }
+  function onKey(e){ if(e.key === "Escape") close(); }
+  document.addEventListener("keydown", onKey);
+  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+  var $c = backdrop.querySelector("#m-close");
+  if($c) $c.addEventListener("click", close);
+  return { el: backdrop, close: close };
+}
 
-  var current = state.projectLabels[proj.id] || NO_LABEL;
-  var locked = lockedByShared(proj.id);
-  var labelRows = "";
-  if(!state.labelsError && locked){
-    labelRows = '<p class="move-hint">È nella label condivisa «' + locked.name.replace(/</g, "&lt;") +
-      '»: può spostarlo solo ' + locked.owner.replace(/</g, "&lt;") + '.</p>';
-  } else if(!state.labelsError){
-    [{ id: NO_LABEL, name: noLabelName() }].concat(ownLabels()).forEach(function(l){
-      var on = current === l.id;
-      labelRows += '<button type="button" class="move-opt' + (on ? " current" : "") +
-        '" data-kind="label" data-value="' + l.id + '"' + (on ? " disabled" : "") + '>' +
-        l.name.replace(/</g, "&lt;") + (on ? ' <span class="move-now">attuale</span>' : '') + '</button>';
+/* "Sposta in…" della selezione multipla */
+function openMoveSheet(ids, onDone){
+  var sheet = openSheet(
+    '<div class="modal" role="dialog" aria-label="Sposta progetti">' +
+      '<h2>Sposta ' + plural(ids.length, "progetto", "progetti") + '</h2>' +
+      '<p class="move-label">Categoria <span class="move-hint">· vale per tutto il team; Personale solo per te</span></p>' +
+      '<div class="move-group">' + categoryChoices(null, true) + '</div>' +
+      '<div class="actions"><button class="btn-cancel" id="m-close">Annulla</button></div>' +
+    '</div>');
+  sheet.el.querySelectorAll(".move-opt").forEach(function(b){
+    b.addEventListener("click", async function(){
+      sheet.close();
+      var ok;
+      if(b.dataset.kind === "new-cat"){
+        return promptNewCategory(async function(c){
+          if(await moveProjects(ids, c.id) && onDone) onDone();
+        });
+      }
+      ok = await moveProjects(ids, b.dataset.value);
+      if(ok && onDone) onDone();
     });
-    labelRows += '<button type="button" class="move-opt" data-kind="new-label">+ Nuova label</button>';
+  });
+}
+
+/* Il pannello di un progetto: l'equivalente esplicito del trascinamento
+   (che da telefono non esiste), piu' area, preferiti, archivio ed
+   eliminazione. L'area di lavoro la cambia solo il proprietario. */
+function openProjectSheet(proj){
+  var group = projectGroup(proj);
+  var current = proj.personal ? GROUP_PERSONAL : (proj.archived_at ? null : proj.category_id);
+  var catRows, catHint;
+  if(state.categoriesError){
+    catRows = "";
+  } else if(!canCategorize(proj)){
+    catHint = proj.personal
+      ? "È nel Personale di " + profileName(proj.owner_id) + ": può spostarlo solo " + profileName(proj.owner_id) + "."
+      : "Solo chi è del team sposta i progetti fra le categorie.";
+    catRows = '<p class="move-hint">' + escHtml(catHint) + '</p>';
+  } else {
+    catRows = categoryChoices(current, proj.isOwner);
   }
 
   var areaRows = "";
   AREAS.forEach(function(a){
     var on = proj.area === a;
     areaRows += '<button type="button" class="move-opt' + (on ? " current" : "") +
-      '" data-kind="area" data-value="' + a + '"' + (on ? " disabled" : "") + '>' +
+      '" data-kind="area" data-value="' + a + '"' + (on || !proj.isOwner ? " disabled" : "") + '>' +
       AREA_LABELS[a] + (on ? ' <span class="move-now">attuale</span>' : '') + '</button>';
   });
 
-  backdrop.innerHTML =
+  var more = "";
+  if(!state.categoriesError){
+    var fav = isFavorite(proj);
+    more += '<button type="button" class="move-opt" data-kind="fav">' + ICON_STAR + ' ' +
+      (fav ? "Togli dai preferiti" : "Aggiungi ai preferiti") + '</button>';
+    if(canArchive(proj)){
+      more += '<button type="button" class="move-opt" data-kind="archive">' +
+        (proj.archived_at ? ICON_RESTORE + ' Ripristina' : ICON_ARCHIVE + ' Archivia') + '</button>';
+    }
+  }
+  if(proj.isOwner){
+    more += '<button type="button" class="move-opt move-danger" data-kind="delete">' + ICON_TRASH + ' Elimina</button>';
+  }
+
+  var sheet = openSheet(
     '<div class="modal" role="dialog" aria-label="Sposta progetto">' +
-      '<h2>Sposta &laquo;' + proj.name.replace(/</g, "&lt;") + '&raquo;</h2>' +
-      (labelRows
-        ? '<p class="move-label">Label <span class="move-hint">\u00B7 ' +
-          (ownLabels().some(function(l){ return l.shared; }) ? "quelle condivise valgono per tutto il team" : "solo per te") +
+      '<h2>&laquo;' + escHtml(proj.name) + '&raquo;</h2>' +
+      (proj.archived_at ? '<p class="move-hint move-note">Archiviato. Sceglierne la categoria lo ripristina.</p>' : '') +
+      (catRows
+        ? '<p class="move-label">Categoria <span class="move-hint">· ' +
+          (group === GROUP_SHARED ? "decide " + escHtml(profileName(proj.owner_id))
+                                  : "vale per tutto il team" + (proj.isOwner ? "; Personale solo per te" : "")) +
           '</span></p>' +
-          '<div class="move-group">' + labelRows + '</div>'
+          '<div class="move-group">' + catRows + '</div>'
         : '') +
-      '<p class="move-label">Area di lavoro</p>' +
+      '<p class="move-label">Area di lavoro' +
+        (proj.isOwner ? '' : ' <span class="move-hint">· la cambia ' + escHtml(profileName(proj.owner_id)) + '</span>') +
+      '</p>' +
       '<div class="move-group">' + areaRows + '</div>' +
+      (more ? '<div class="move-group">' + more + '</div>' : '') +
       '<div class="actions"><button class="btn-cancel" id="m-close">Chiudi</button></div>' +
-    '</div>';
-  document.body.appendChild(backdrop);
+    '</div>');
 
-  function close(){ backdrop.remove(); document.removeEventListener("keydown", onKey); }
-  function onKey(e){ if(e.key === "Escape") close(); }
-  document.addEventListener("keydown", onKey);
-  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
-  backdrop.querySelector("#m-close").addEventListener("click", close);
-
-  backdrop.querySelectorAll(".move-opt").forEach(function(b){
+  sheet.el.querySelectorAll(".move-opt").forEach(function(b){
     b.addEventListener("click", function(){
-      close();
-      if(b.dataset.kind === "label"){
-        setProjectLabel(proj.id, b.dataset.value === NO_LABEL ? null : b.dataset.value);
-      } else if(b.dataset.kind === "new-label"){
-        promptNewLabel(function(label){ setProjectLabel(proj.id, label.id); });
-      } else {
-        moveProjectToArea(proj.id, b.dataset.value);
-      }
+      sheet.close();
+      var k = b.dataset.kind;
+      if(k === "cat") moveProjects([proj.id], b.dataset.value);
+      else if(k === "new-cat") promptNewCategory(function(c){ moveProjects([proj.id], c.id); });
+      else if(k === "area") moveProjectToArea(proj.id, b.dataset.value);
+      else if(k === "fav") setFavorite([proj.id], !isFavorite(proj));
+      else if(k === "archive") proj.archived_at ? restoreProjects([proj.id]) : moveProjects([proj.id], GROUP_ARCHIVED);
+      else if(k === "delete") deleteProject(proj.id);
     });
   });
 }
@@ -3001,12 +3465,21 @@ function openShareModal(projectId){
   var proj = state.projects.find(function(p){ return p.id === projectId; });
   if(!proj) return;
   var others = state.profiles.filter(function(p){ return p.id !== state.me.id; });
+  /* Un progetto del team lo vede gia' tutto il team: qui si aggiunge
+     solo chi e' da fuori. Il Personale si apre persona per persona. */
+  var teamProject = !proj.personal && state.teamIds.length;
+  if(teamProject) others = others.filter(function(p){ return state.teamIds.indexOf(p.id) < 0; });
+  var note = teamProject
+    ? "È un progetto del team: lo vede già tutto il team. Qui puoi aprirlo anche a chi è da fuori."
+    : (proj.personal && !state.categoriesError ? "È nel tuo Personale: lo vede solo chi scegli qui." : "");
 
   var backdrop = document.createElement("div");
   backdrop.className = "modal-backdrop";
   backdrop.innerHTML =
     '<div class="modal" role="dialog">' +
       '<h2>Condividi &laquo;' + proj.name.replace(/</g,"&lt;") + '&raquo;</h2>' +
+      (note ? '<p class="move-hint move-note">' + note + '</p>' : '') +
+      (others.length ? '' : '<p class="move-hint move-note">Non c\'è nessun altro con cui condividerlo.</p>') +
       '<div class="share-list" id="share-list"></div>' +
       '<div class="actions">' +
         '<button class="btn-cancel" id="m-close">Chiudi</button>' +
@@ -3029,6 +3502,94 @@ function openShareModal(projectId){
   function close(){ backdrop.remove(); }
   backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
   backdrop.querySelector("#m-close").addEventListener("click", close);
+}
+
+/* Condividere piu' progetti insieme. Si tocca una persona e la si aggiunge a
+   tutti i progetti scelti (o la si toglie da tutti, se c'era gia' ovunque).
+   Vale solo per i progetti propri; chi e' del team vede gia' quelli del team. */
+function openBulkShareModal(ids){
+  var projs = ids.map(projectById).filter(function(p){ return p && p.isOwner; });
+  var skipped = ids.length - projs.length;
+  if(!projs.length) return;
+  var isTeamMember = function(uid){ return state.teamIds.indexOf(uid) >= 0; };
+  function seesIt(p, uid){
+    return p.shares.indexOf(uid) >= 0 || (!p.personal && state.teamIds.length && isTeamMember(uid));
+  }
+  // se sono tutti del team, servono solo le persone da fuori
+  var allTeam = state.teamIds.length && projs.every(function(p){ return !p.personal; });
+  var others = state.profiles.filter(function(p){
+    return p.id !== state.me.id && !(allTeam && isTeamMember(p.id));
+  });
+  var notes = [];
+  if(allTeam) notes.push("Sono progetti del team: li vede già tutto il team. Qui puoi aprirli anche a chi è da fuori.");
+  else notes.push("Tocca una persona per aggiungerla a tutti i " + projs.length + " progetti; toccala di nuovo per toglierla da tutti.");
+  if(skipped) notes.push(skipped === 1
+    ? "1 progetto non è tuo: lo condivide solo chi l'ha creato, quindi resta com'è."
+    : skipped + " progetti non sono tuoi: li condivide solo chi li ha creati, quindi restano come sono.");
+
+  var backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.innerHTML =
+    '<div class="modal" role="dialog">' +
+      '<h2>Condividi ' + plural(projs.length, "progetto", "progetti") + '</h2>' +
+      notes.map(function(n){ return '<p class="move-hint move-note">' + escHtml(n) + '</p>'; }).join("") +
+      (others.length ? '' : '<p class="move-hint move-note">Non c\'è nessun altro con cui condividerli.</p>') +
+      '<div class="share-list" id="share-list"></div>' +
+      '<div class="actions">' +
+        '<button class="btn-cancel" id="m-close">Fine</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(backdrop);
+
+  var $list = backdrop.querySelector("#share-list");
+  function paint(row, uid){
+    var n = projs.filter(function(p){ return seesIt(p, uid); }).length;
+    row.classList.toggle("checked", n === projs.length);
+    row.classList.toggle("mixed", n > 0 && n < projs.length);
+    row.querySelector(".share-row-sub").textContent =
+      n > 0 && n < projs.length ? n + " su " + projs.length : "";
+  }
+  others.forEach(function(p){
+    var row = document.createElement("div");
+    row.className = "share-row";
+    row.innerHTML = '<div class="cal-cb"></div><div class="share-row-name"></div><span class="share-row-sub"></span>';
+    row.querySelector(".share-row-name").textContent = p.display_name;
+    paint(row, p.id);
+    row.addEventListener("click", async function(){
+      row.style.pointerEvents = "none";
+      await shareMany(projs, p.id, !row.classList.contains("checked"));
+      row.style.pointerEvents = "";
+      paint(row, p.id);
+    });
+    $list.appendChild(row);
+  });
+
+  function close(){ backdrop.remove(); endSelection(); }
+  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+  backdrop.querySelector("#m-close").addEventListener("click", close);
+}
+
+async function shareMany(projs, userId, add){
+  var res;
+  if(add){
+    var todo = projs.filter(function(p){
+      return p.shares.indexOf(userId) < 0 && !(!p.personal && state.teamIds.indexOf(userId) >= 0);
+    });
+    if(!todo.length) return;
+    res = await sb.from("be_project_shares")
+      .insert(todo.map(function(p){ return { project_id: p.id, user_id: userId }; }));
+    if(res.error){ notify(errorText(res.error)); return; }
+    todo.forEach(function(p){ p.shares.push(userId); });
+  } else {
+    var had = projs.filter(function(p){ return p.shares.indexOf(userId) >= 0; });
+    if(!had.length) return;
+    res = await sb.from("be_project_shares").delete()
+      .eq("user_id", userId).in("project_id", had.map(function(p){ return p.id; }));
+    if(res.error){ notify(errorText(res.error)); return; }
+    had.forEach(function(p){
+      p.shares = p.shares.filter(function(id){ return id !== userId; });
+    });
+  }
 }
 
 async function toggleShare(proj, userId, add, $row){
@@ -3067,7 +3628,7 @@ function renderBoard(){
     var btn = document.createElement("button");
     btn.className = "btn-primary";
     btn.textContent = "+ Nuovo progetto";
-    btn.addEventListener("click", function(){ promptNewProject("progetti"); });
+    btn.addEventListener("click", function(){ openNewProjectModal(); });
     empty.appendChild(btn);
     $board.appendChild(empty);
     renderAlerts();
@@ -3104,7 +3665,8 @@ function renderBoard(){
   var docCount = libraryItems(proj.id).length;
   meta.textContent = totalCards + " card · " + (cols.length + 1) + " liste · " + docCount +
     (docCount === 1 ? " elemento in Archivio" : " elementi in Archivio") +
-    (proj.isOwner ? "" : " · condiviso da " + profileName(proj.owner_id));
+    (proj.isOwner ? "" : (proj.personal ? " · condiviso da " : " · di ") + profileName(proj.owner_id)) +
+    (proj.archived_at ? " · archiviato" : "");
   header.appendChild(title);
   header.appendChild(meta);
   $board.appendChild(header);
@@ -3202,7 +3764,7 @@ function overviewEntries(){
   var out = { todo: [], doing: [], done: [] };
   var filter = state.overviewFilter;
 
-  areaProjects().forEach(function(proj){
+  liveAreaProjects().forEach(function(proj){
     if(filter.projectId && proj.id !== filter.projectId) return;
     var cols = proj.columns.slice().sort(function(a,b){ return a.position - b.position; });
     var doneId = doneColumnId(proj);
@@ -3249,7 +3811,7 @@ function renderOverview(){
   title.spellcheck = false;
   var meta = document.createElement("span");
   meta.className = "board-meta";
-  var nProj = areaProjects().length;
+  var nProj = liveAreaProjects().length;
   meta.textContent = total + " card · " + nProj + (nProj === 1 ? " progetto" : " progetti") +
     " · " + AREA_LABELS[state.area];
   header.appendChild(title);
@@ -3264,7 +3826,7 @@ function renderOverview(){
   optAll.value = "";
   optAll.textContent = "Tutti i progetti";
   $sel.appendChild(optAll);
-  areaProjects().forEach(function(p){
+  liveAreaProjects().forEach(function(p){
     var o = document.createElement("option");
     o.value = p.id;
     o.textContent = p.name;
@@ -3567,50 +4129,114 @@ async function deleteProject(projectId){
   if(res.error){ notify(errorText(res.error)); return; }
   if(paths.length){ try { await sb.storage.from(LIBRARY_BUCKET).remove(paths); } catch(e){} }
   delete state.library[projectId];
-  delete state.projectLabels[projectId];
+  delete state.favorites[projectId];
+  delete state.selected[projectId];
   state.projects = state.projects.filter(function(p){ return p.id !== projectId; });
   syncActiveProject();
   render();
 }
 
-/* labelId facoltativo: il progetto nasce dentro quella label (solo per me) */
-function promptNewProject(labelId){
-  showInputModal({
-    title: labelId ? "Nuovo progetto in « " + labelName(labelId) + " »" : "Nuovo progetto",
-    label: "Nome del progetto",
-    placeholder: "Es. Sito istituzionale",
-    confirmText: "Crea",
-    onConfirm: async function(name){
-      var n = name.trim();
-      if(!n) return;
-      var pRes = await sb.from("be_projects")
-        .insert({ owner_id: state.me.id, name: n, area: state.area })
-        .select().single();
-      if(pRes.error){ notify(errorText(pRes.error)); return; }
-      var project = pRes.data;
-      var colsPayload = DEFAULT_COLUMNS.map(function(colName, i){
-        return { project_id: project.id, name: colName, position: i };
-      });
-      var cRes = await sb.from("be_columns").insert(colsPayload).select();
-      if(cRes.error){ notify(errorText(cRes.error, "Colonne non create")); }
-      var columns = (cRes.data || []).map(function(c){
-        return { id: c.id, name: c.name, position: c.position, cards: [] };
-      });
-      state.projects.push({
-        id: project.id, name: project.name, owner_id: project.owner_id,
-        area: normalizeArea(project.area),
-        isOwner: true, shares: [], columns: columns
-      });
-      if(labelId && state.labels.some(function(l){ return l.id === labelId; })){
-        var lRes = await sb.from("be_project_labels")
-          .insert({ user_id: state.me.id, project_id: project.id, label_id: labelId });
-        if(lRes.error) notify(errorText(lRes.error, "Progetto creato, ma non assegnato alla label"));
-        else state.projectLabels[project.id] = labelId;
+/* Un progetto nuovo e' del team, nella categoria scelta; in «Personale»
+   lo vede solo chi lo crea. groupId facoltativo: la scelta di partenza
+   (il + di una categoria o di Personale). */
+function openNewProjectModal(groupId){
+  var withCats = !state.categoriesError && state.isTeam;
+  var choice = withCats && (isCategoryGroup(groupId) || groupId === GROUP_PERSONAL) ? groupId : null;
+  if(!withCats && !state.categoriesError) choice = GROUP_PERSONAL;   // chi e' fuori dal team
+
+  var sheet = openSheet(
+    '<div class="modal" role="dialog" aria-label="Nuovo progetto">' +
+      '<h2>Nuovo progetto</h2>' +
+      '<label for="np-name">Nome del progetto</label>' +
+      '<input type="text" id="np-name" placeholder="Es. Sito istituzionale" maxlength="120">' +
+      (withCats
+        ? '<label>Categoria</label>' +
+          '<div class="move-group np-cats">' + categoryChoices(null, true) + '</div>' +
+          '<p class="np-hint" id="np-hint"></p>'
+        : '') +
+      '<p class="cm-error" id="np-error" role="alert"></p>' +
+      '<div class="actions">' +
+        '<button class="btn-cancel" id="m-close">Annulla</button>' +
+        '<button class="btn-primary" id="np-ok">Crea</button>' +
+      '</div>' +
+    '</div>');
+  var el = sheet.el;
+  var $name = el.querySelector("#np-name"), $err = el.querySelector("#np-error");
+
+  function sync(){
+    el.querySelectorAll('.np-cats .move-opt[data-kind="cat"]').forEach(function(b){
+      b.disabled = false;
+      b.classList.toggle("on", b.dataset.value === choice);
+      b.setAttribute("aria-pressed", b.dataset.value === choice ? "true" : "false");
+    });
+    var $hint = el.querySelector("#np-hint");
+    if($hint) $hint.textContent = !choice ? "Scegli dove metterlo."
+      : choice === GROUP_PERSONAL ? "Lo vedrai solo tu: potrai condividerlo con singole persone."
+      : "Lo vedrà tutto il team, in «" + groupName(choice) + "».";
+  }
+  el.querySelectorAll(".np-cats .move-opt").forEach(function(b){
+    b.addEventListener("click", function(){
+      if(b.dataset.kind === "new-cat"){
+        return promptNewCategory(function(c){
+          var $n = document.createElement("button");
+          $n.type = "button";
+          $n.className = "move-opt";
+          $n.dataset.kind = "cat";
+          $n.dataset.value = c.id;
+          $n.textContent = c.name;
+          $n.addEventListener("click", function(){ choice = c.id; sync(); });
+          b.parentNode.insertBefore($n, el.querySelector('.np-cats [data-value="' + GROUP_PERSONAL + '"]'));
+          choice = c.id;
+          sync();
+        });
       }
-      state.activeProjectId = project.id;
-      state.view = "board";
-      render();
+      choice = b.dataset.value;
+      sync();
+    });
+  });
+  sync();
+  setTimeout(function(){ $name.focus(); }, 0);
+
+  var busy = false;
+  async function create(){
+    if(busy) return;
+    var n = $name.value.trim();
+    if(!n){ $err.textContent = "Scrivi il nome del progetto."; $name.focus(); return; }
+    if(withCats && !choice){ $err.textContent = "Scegli la categoria, oppure Personale."; return; }
+    busy = true;
+    var row = { owner_id: state.me.id, name: n, area: state.area };
+    if(!state.categoriesError){
+      row.personal = choice === GROUP_PERSONAL;
+      row.category_id = row.personal ? null : choice;
     }
+    var pRes = await sb.from("be_projects").insert(row).select().single();
+    busy = false;
+    if(pRes.error){ $err.textContent = errorText(pRes.error, "Progetto non creato"); return; }
+    sheet.close();
+    var project = pRes.data;
+    var colsPayload = DEFAULT_COLUMNS.map(function(colName, i){
+      return { project_id: project.id, name: colName, position: i };
+    });
+    var cRes = await sb.from("be_columns").insert(colsPayload).select();
+    if(cRes.error){ notify(errorText(cRes.error, "Colonne non create")); }
+    var columns = (cRes.data || []).map(function(c){
+      return { id: c.id, name: c.name, position: c.position, cards: [] };
+    });
+    state.projects.push({
+      id: project.id, name: project.name, owner_id: project.owner_id,
+      area: normalizeArea(project.area),
+      personal: project.personal === undefined ? !state.isTeam : !!project.personal,
+      category_id: project.category_id || null,
+      archived_at: null,
+      isOwner: true, shares: [], columns: columns
+    });
+    state.activeProjectId = project.id;
+    state.view = "board";
+    render();
+  }
+  el.querySelector("#np-ok").addEventListener("click", create);
+  $name.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ e.preventDefault(); create(); }
   });
 }
 
@@ -4303,6 +4929,7 @@ function collectAlerts(){
   if(state.cardDatesError) return [];
   var out = [];
   state.projects.forEach(function(proj){
+    if(proj.archived_at) return;
     var doneId = doneColumnId(proj);
     proj.columns.forEach(function(col){
       if(col.id === doneId) return;
@@ -4621,7 +5248,7 @@ window.addEventListener("online", function(){
   if(sideDrawer){
     document.getElementById("projects").addEventListener("click", function(e){
       var item = e.target.closest(".project-item");
-      if(item && !e.target.closest("button") && MOBILE_QUERY.matches){
+      if(item && !e.target.closest("button") && !state.selecting && MOBILE_QUERY.matches){
         sideDrawer.close();
       }
     });
@@ -4978,8 +5605,15 @@ window.addEventListener("online", function(){
     return !!p && !activeIn(p, monthOf(ds));
   }
 
+  var peopleOrdered = false;  // c'e' be_cal_people.position (sql/calendario_extra.sql)
   async function loadPeople(){
-    var res = await sb.from("be_cal_people").select("name, months").order("created_at", { ascending: true });
+    var res = await sb.from("be_cal_people").select("name, months, position")
+      .order("position", { ascending: true, nullsFirst: false }).order("created_at", { ascending: true });
+    peopleOrdered = !res.error;
+    // senza sql/calendario_extra.sql manca la colonna: l'ordine e' quello di arrivo
+    if(res.error && (res.error.code === "42703" || /position/.test(res.error.message || ""))){
+      res = await sb.from("be_cal_people").select("name, months").order("created_at", { ascending: true });
+    }
     if(res.error && isMissingTable(res.error)){
       peopleMode = "local";
       try{ extraPeople = JSON.parse(lsGet(PEOPLE_KEY) || "[]"); }catch(_){ extraPeople = []; }
@@ -5043,10 +5677,125 @@ window.addEventListener("online", function(){
       if(res.error){ notify(errorText(res.error, "Persona non tolta")); return; }
     }
     extraPeople = extraPeople.filter(function(x){ return x !== p; });
-    hiddenPersons.delete(p.name);
-    saveFilter();
+    renameInFilters(p.name, null);
     keepPeople();
     render();
+  }
+
+  /* ---------- Extra: rinominare e riordinare ----------
+   * Valgono per tutti: il nome cambia nell'elenco e in tutti gli impegni
+   * (be_cal_rename_person), l'ordine sta in be_cal_people.position. Servono
+   * le funzioni di sql/calendario_extra.sql. */
+  var EXTRA_SQL_MSG = "Per rinominare e riordinare gli Extra va eseguito sql/calendario_extra.sql su Supabase.";
+  function isMissingFunction(err){
+    return !!err && (err.code === "PGRST202" || err.code === "42883" ||
+                     /could not find the function|function .* does not exist/i.test(err.message || ""));
+  }
+  function cleanName(name){ return String(name || "").trim().replace(/\s+/g, " "); }
+  async function renamePerson(oldName, newName){
+    var n = cleanName(newName);
+    if(!n || n === oldName) return true;
+    if(n.length > 60){ notify("Il nome è troppo lungo (al massimo 60 caratteri)."); return false; }
+    if(isKnown(canonicalPerson(n))){ notify(canonicalPerson(n) + " fa parte del team: scegli un altro nome."); return false; }
+    // due Extra in elenco non si uniscono; un nome scritto solo negli
+    // impegni si', a chi e' gia' in elenco
+    var other = findExtra(n);
+    if(other && findExtra(oldName) && other.name.toLowerCase() !== oldName.toLowerCase()){
+      notify(other.name + " c'è già tra gli Extra."); return false;
+    }
+    if(peopleMode !== "remote"){ notify(EXTRA_SQL_MSG); return false; }
+    var res = await sb.rpc("be_cal_rename_person", { old_name: oldName, new_name: n });
+    if(res.error){
+      notify(isMissingFunction(res.error) ? EXTRA_SQL_MSG : errorText(res.error, "Nome non cambiato"));
+      return false;
+    }
+    n = res.data || n;
+    // subito qui, poi dal database
+    var p = findExtra(oldName);
+    if(p) p.name = n;
+    calEvents.forEach(function(e){
+      if(!e.persons || e.persons.indexOf(oldName) < 0) return;
+      e.persons = e.persons.map(function(x){ return x === oldName ? n : x; })
+        .filter(function(x, i, a){ return a.indexOf(x) === i; });
+    });
+    renameInFilters(oldName, n);
+    keepPeople();
+    render();
+    refresh();
+    return true;
+  }
+  async function orderPeople(list){
+    if(peopleMode !== "remote" || !peopleOrdered){ notify(EXTRA_SQL_MSG); return false; }
+    var names = list.map(function(p){ return p.name; });
+    var res = await sb.rpc("be_cal_order_people", { names: names });
+    if(res.error){
+      notify(isMissingFunction(res.error) ? EXTRA_SQL_MSG : errorText(res.error, "Ordine non salvato"));
+      return false;
+    }
+    extraPeople = list;
+    keepPeople();
+    render();
+    return true;
+  }
+  function moveExtra(p, to){
+    var list = extraPeople.filter(function(x){ return x !== p; });
+    to = Math.max(0, Math.min(list.length, to));
+    list.splice(to, 0, p);
+    return orderPeople(list);
+  }
+  /* La scheda di un Extra: nome, posizione, togli. Chi e' scritto solo
+     negli impegni (non in elenco) si puo' solo rinominare. */
+  function openPersonSheet(name){
+    var p = findExtra(name);
+    var i = p ? extraPeople.indexOf(p) : -1;
+    var bd = document.createElement("div");
+    bd.className = "modal-backdrop";
+    bd.innerHTML =
+      '<div class="modal cal-person-sheet" role="dialog" aria-modal="true">' +
+        '<h2></h2>' +
+        '<label for="ps-name">Nome</label>' +
+        '<input type="text" id="ps-name" maxlength="60">' +
+        '<p class="move-hint move-note">Il nome cambia per tutti, anche negli impegni già segnati.</p>' +
+        (p ? '<label>Posizione tra gli Extra</label>' +
+             '<div class="cal-ps-order">' +
+               '<button type="button" class="btn-cancel" id="ps-up">↑ Più su</button>' +
+               '<button type="button" class="btn-cancel" id="ps-down">↓ Più giù</button>' +
+             '</div>' : '') +
+        '<div class="actions">' +
+          (p ? '<button type="button" class="btn-cancel cal-ps-del" id="ps-del">Togli</button>' : '') +
+          '<button type="button" class="btn-cancel" id="ps-cancel">Annulla</button>' +
+          '<button type="button" class="btn-primary" id="ps-save">Salva</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(bd);
+    bd.querySelector("h2").textContent = name;
+    var $n = bd.querySelector("#ps-name");
+    $n.value = name;
+    setTimeout(function(){ $n.focus(); $n.select(); }, 0);
+    function close(){ bd.remove(); document.removeEventListener("keydown", onKey); }
+    async function save(){
+      if(await renamePerson(name, $n.value)) close();
+    }
+    function onKey(e){
+      if(e.key === "Escape") close();
+      if(e.key === "Enter" && e.target === $n) save();
+    }
+    document.addEventListener("keydown", onKey);
+    bd.addEventListener("click", function(e){ if(e.target === bd) close(); });
+    bd.querySelector("#ps-cancel").addEventListener("click", close);
+    bd.querySelector("#ps-save").addEventListener("click", save);
+    if(p){
+      var $up = bd.querySelector("#ps-up"), $down = bd.querySelector("#ps-down");
+      function paint(){
+        i = extraPeople.indexOf(p);
+        $up.disabled = i <= 0;
+        $down.disabled = i < 0 || i >= extraPeople.length - 1;
+      }
+      paint();
+      $up.addEventListener("click", async function(){ await moveExtra(p, i - 1); paint(); });
+      $down.addEventListener("click", async function(){ await moveExtra(p, i + 1); paint(); });
+      bd.querySelector("#ps-del").addEventListener("click", function(){ close(); removePerson(p); });
+    }
   }
   function promptAddPerson(){
     showInputModal({
@@ -5060,8 +5809,7 @@ window.addEventListener("online", function(){
         if(isKnown(canonicalPerson(n))){ notify(canonicalPerson(n) + " fa già parte del team."); return; }
         var got = await addPerson(n, monthKey(new Date()));
         if(!got) return;
-        hiddenPersons.delete(got);
-        saveFilter();
+        renameInFilters(got, null);
         render();
       }
     });
@@ -5073,7 +5821,10 @@ window.addEventListener("online", function(){
 
   /* ---------- person filter ---------- */
   /* Si ricorda chi e' nascosto, non chi si vede: cosi' chi viene aggiunto
-     dopo compare subito. */
+     dopo compare subito. La scelta e' per mese ed e' solo di questo browser:
+     un mese senza scelta segue l'ultimo mese scelto prima; prima di ogni
+     scelta vale il filtro di sempre (FILTER_KEY). */
+  var MONTH_FILTER_KEY = "brown_calendar_hidden_months_v1";
   var FILTER_KEY = "brown_calendar_hidden_v1";
   var OLD_FILTER_KEY = "brown_calendar_filter_v2";
   var hiddenPersons; // Set<string>
@@ -5089,11 +5840,60 @@ window.addEventListener("online", function(){
     }catch(_){}
     return new Set();
   }
+  function loadMonthFilter(){
+    try{
+      var o = JSON.parse(lsGet(MONTH_FILTER_KEY) || "{}");
+      if(o && typeof o === "object" && !Array.isArray(o)) return o;
+    }catch(_){}
+    return {};
+  }
+  var baseHidden = loadFilter();         // Set: prima di ogni scelta per mese
+  var hiddenByMonth = loadMonthFilter(); // { "2026-11": ["Camilla"], ... }
+  var filterMonth = null;                // il mese che il filtro sta mostrando
+  /* Il mese da cui viene la scelta che vale in mk (null: il filtro di sempre) */
+  function filterSource(mk){
+    var best = null;
+    Object.keys(hiddenByMonth).forEach(function(k){ if(k <= mk && (best === null || k > best)) best = k; });
+    return best;
+  }
+  function hiddenFor(mk){
+    var src = filterSource(mk);
+    return new Set(src ? hiddenByMonth[src] : Array.from(baseHidden));
+  }
+  function useFilterMonth(mk){
+    filterMonth = mk;
+    hiddenPersons = hiddenFor(mk);
+  }
+  function saveMonthFilter(){ lsSet(MONTH_FILTER_KEY, JSON.stringify(hiddenByMonth)); }
+  /* Salva la scelta del mese mostrato; i mesi dopo senza scelta la seguono */
   function saveFilter(){
     var arr = []; hiddenPersons.forEach(function(p){ arr.push(p); });
-    lsSet(FILTER_KEY, JSON.stringify(arr));
+    hiddenByMonth[filterMonth || monthKey(new Date())] = arr;
+    saveMonthFilter();
   }
-  hiddenPersons = loadFilter();
+  function setHiddenIn(mk, set){
+    var arr = []; set.forEach(function(p){ arr.push(p); });
+    hiddenByMonth[mk] = arr;
+    saveMonthFilter();
+    if(mk === filterMonth) hiddenPersons = new Set(arr);
+  }
+  /* Un nome cambiato (o tolto, con to null) in tutte le scelte salvate */
+  function renameInFilters(from, to){
+    function fix(arr){
+      var out = [];
+      arr.forEach(function(x){
+        var y = x === from ? to : x;
+        if(y && out.indexOf(y) < 0) out.push(y);
+      });
+      return out;
+    }
+    Object.keys(hiddenByMonth).forEach(function(k){ hiddenByMonth[k] = fix(hiddenByMonth[k] || []); });
+    baseHidden = new Set(fix(Array.from(baseHidden)));
+    lsSet(FILTER_KEY, JSON.stringify(Array.from(baseHidden)));
+    saveMonthFilter();
+    hiddenPersons = hiddenFor(filterMonth || monthKey(new Date()));
+  }
+  useFilterMonth(monthKey(new Date()));
 
   /* Tutte le righe possibili in [fromStr, toStr]: il team nell'ordine
      fisso, poi chi da fuori c'e' in quel periodo o vi ha impegni, poi i
@@ -5119,6 +5919,19 @@ window.addEventListener("online", function(){
   }
   function visibleRows(evs, fromStr, toStr){
     return allRows(evs, fromStr, toStr).filter(function(r){ return !hiddenPersons.has(r); });
+  }
+  function monthBounds(mk){
+    var d = new Date(+mk.slice(0,4), +mk.slice(5,7) - 1, 1);
+    return { from: fmtDate(d), to: fmtDate(new Date(d.getFullYear(), d.getMonth() + 1, 0)) };
+  }
+  /* Le righe possibili di un mese, e quelle che si vedono */
+  function monthAllRows(mk){
+    var b = monthBounds(mk);
+    return allRows(eventsInRange(b.from, b.to), b.from, b.to);
+  }
+  function monthRows(mk){
+    var hidden = hiddenFor(mk);
+    return monthAllRows(mk).filter(function(r){ return !hidden.has(r); });
   }
   function hasPerson(e, row){
     if(row === NOBODY) return !e.persons || !e.persons.length;
@@ -5307,6 +6120,77 @@ window.addEventListener("online", function(){
     notify("Decidi chi c'è a " + monthName(next) + ": lo trovi in Persone, sotto «Chi c'è».", { warn: false, autoHide: 6000 });
   }
 
+  /* Chi si vede in un mese: dalla fascia del mese nell'Agenda. La scelta e'
+     solo di chi la fa; i mesi dopo senza scelta la seguono. */
+  function openMonthPeople(mk){
+    var label = monthName(mk) + " " + mk.slice(0, 4);
+    var bd = document.createElement("div");
+    bd.className = "modal-backdrop";
+    bd.innerHTML =
+      '<div class="modal cal-mp" role="dialog" aria-modal="true">' +
+        '<h2></h2>' +
+        '<p class="move-hint move-note" id="mp-note"></p>' +
+        '<div class="cal-mp-list" id="mp-list"></div>' +
+        '<div class="cal-side-actions">' +
+          '<button type="button" data-act="all">Tutti</button>' +
+          '<button type="button" data-act="none">Nessuno</button>' +
+          '<button type="button" data-act="prev" id="mp-prev">Come il mese prima</button>' +
+        '</div>' +
+        '<div class="actions"><button type="button" class="btn-primary" id="mp-ok">Fatto</button></div>' +
+      '</div>';
+    document.body.appendChild(bd);
+    bd.querySelector("h2").textContent = "Chi vedi a " + label;
+    var $list = bd.querySelector("#mp-list");
+    var rows = monthAllRows(mk);
+
+    function paint(){
+      var hidden = hiddenFor(mk), src = filterSource(mk);
+      var prevSrc = filterSource(addMonths(mk, -1));
+      bd.querySelector("#mp-note").textContent = src === mk
+        ? "Scelta tua per " + monthName(mk) + ": vale anche per i mesi dopo che non hai cambiato. Gli altri non vedono questa scelta."
+        : "Ora è come " + (src ? "a " + monthName(src) : "il resto del calendario") +
+          ". Cambiando, vale da " + monthName(mk) + " in poi. Gli altri non vedono questa scelta.";
+      bd.querySelector("#mp-prev").hidden = src !== mk;
+      bd.querySelector("#mp-prev").title = "Togli la scelta di " + monthName(mk) + ": torna come " +
+        (prevSrc ? monthName(prevSrc) : "il resto del calendario");
+      $list.innerHTML = "";
+      rows.forEach(function(r){
+        var row = document.createElement("div");
+        row.className = "cal-person-row" + (hidden.has(r) ? "" : " checked");
+        row.style.setProperty("--pc", rowColor(r));
+        row.innerHTML = '<div class="cal-cb"></div><div class="cal-person-name"></div>';
+        row.querySelector(".cal-person-name").textContent = rowLabel(r);
+        row.addEventListener("click", function(){
+          var h = hiddenFor(mk);
+          if(h.has(r)) h.delete(r); else h.add(r);
+          apply(h);
+        });
+        $list.appendChild(row);
+      });
+    }
+    function apply(h){
+      setHiddenIn(mk, h);
+      paint();
+      render();
+    }
+    bd.querySelector('[data-act="all"]').addEventListener("click", function(){ apply(new Set()); });
+    bd.querySelector('[data-act="none"]').addEventListener("click", function(){ apply(new Set(rows)); });
+    bd.querySelector("#mp-prev").addEventListener("click", function(){
+      delete hiddenByMonth[mk];
+      saveMonthFilter();
+      if(mk === filterMonth) hiddenPersons = hiddenFor(mk);
+      paint();
+      render();
+    });
+    function close(){ bd.remove(); document.removeEventListener("keydown", onKey); }
+    function onKey(e){ if(e.key === "Escape"){ e.stopPropagation(); close(); } }
+    document.addEventListener("keydown", onKey);
+    bd.addEventListener("click", function(e){ if(e.target === bd) close(); });
+    bd.querySelector("#mp-ok").addEventListener("click", close);
+    paint();
+  }
+
+  var dragName = null;   // l'Extra che si sta trascinando
   function renderPersonSide(){
     var today = todayKey();
     var cur = monthKey(new Date()), next = addMonths(cur, 1);
@@ -5322,8 +6206,15 @@ window.addEventListener("online", function(){
     $side.innerHTML = "";
 
     var h = document.createElement("h3");
-    h.textContent = "Persone";
+    h.textContent = "Persone · " + monthName(filterMonth) + " " + filterMonth.slice(0, 4);
     $side.appendChild(h);
+    var fh = document.createElement("p");
+    fh.className = "cal-filter-hint";
+    var src = filterSource(filterMonth);
+    fh.textContent = src && src !== filterMonth
+      ? "Come a " + monthName(src) + ": cambiando, vale da " + monthName(filterMonth) + " in poi. Solo per te."
+      : "Chi vedi a " + monthName(filterMonth) + " e nei mesi dopo che non cambi. Solo per te.";
+    $side.appendChild(fh);
 
     var allRow = document.createElement("div");
     allRow.className = "cal-person-row all";
@@ -5360,15 +6251,48 @@ window.addEventListener("online", function(){
         '<div class="cal-cb"></div>'+
         '<div class="cal-person-name">'+ escapeHtml(p) +'</div>'+
         '<div class="cal-person-count">'+ count +'</div>';
+      // gli Extra si rinominano, si spostano e si tolgono dalla loro scheda
+      if(!isKnown(p) && p !== NOBODY){
+        var edit = document.createElement("button");
+        edit.type = "button";
+        edit.className = "cal-person-del cal-person-edit";
+        edit.title = "Modifica " + p;
+        edit.setAttribute("aria-label", "Modifica " + p);
+        edit.innerHTML = ICON_PEN;
+        edit.addEventListener("click", function(ev){ ev.stopPropagation(); openPersonSheet(p); });
+        row.appendChild(edit);
+      }
+      // ...e col mouse si trascinano per cambiare l'ordine (per tutti)
       if(extra){
-        var del = document.createElement("button");
-        del.type = "button";
-        del.className = "cal-person-del";
-        del.title = "Togli " + p;
-        del.setAttribute("aria-label", "Togli " + p);
-        del.textContent = "×";
-        del.addEventListener("click", function(ev){ ev.stopPropagation(); removePerson(extra); });
-        row.appendChild(del);
+        row.draggable = true;
+        row.addEventListener("dragstart", function(ev){
+          dragName = p;
+          ev.dataTransfer.effectAllowed = "move";
+          try{ ev.dataTransfer.setData("text/plain", p); }catch(_){}
+          row.classList.add("dragging");
+        });
+        row.addEventListener("dragend", function(){
+          dragName = null;
+          row.classList.remove("dragging");
+          $side.querySelectorAll(".drop-before,.drop-after").forEach(function(x){ x.classList.remove("drop-before", "drop-after"); });
+        });
+        row.addEventListener("dragover", function(ev){
+          if(!dragName || dragName === p) return;
+          ev.preventDefault();
+          var after = ev.offsetY > row.offsetHeight / 2;
+          row.classList.toggle("drop-after", after);
+          row.classList.toggle("drop-before", !after);
+        });
+        row.addEventListener("dragleave", function(){ row.classList.remove("drop-before", "drop-after"); });
+        row.addEventListener("drop", function(ev){
+          ev.preventDefault();
+          var moving = findExtra(dragName);
+          var after = row.classList.contains("drop-after");
+          row.classList.remove("drop-before", "drop-after");
+          if(!moving || moving === extra) return;
+          var rest = extraPeople.filter(function(x){ return x !== moving; });
+          moveExtra(moving, rest.indexOf(extra) + (after ? 1 : 0));
+        });
       }
       row.addEventListener("click", function(e){
         if(e.shiftKey || e.metaKey || e.ctrlKey){
@@ -5388,7 +6312,8 @@ window.addEventListener("online", function(){
 
     var h2 = document.createElement("h3");
     h2.className = "cal-side-sub";
-    h2.textContent = "Da fuori";
+    h2.textContent = "Extra";
+    h2.title = "Tutti quelli fuori dal team. Nome e ordine valgono per tutti: si cambiano con la matita o trascinando.";
     $side.appendChild(h2);
     outside.forEach(function(p){ $side.appendChild(personRow(p)); });
 
@@ -5484,6 +6409,7 @@ window.addEventListener("online", function(){
   }
 
   function render(){
+    useFilterMonth(monthKey(cursor));
     renderPersonSide();
     $body.innerHTML = "";
     renderBanner();
@@ -5660,13 +6586,19 @@ window.addEventListener("online", function(){
    * attenuati.
    * ===================================================================== */
   var AGENDA_CHUNK = 35;
-  var agenda = { from: null, to: null, jumpTo: null, lastTop: null };
+  var agenda = { from: null, to: null, jumpTo: null, lastTop: null, rows: {}, headMonth: null };
 
   /* L'agenda scorre senza fine: le colonne sono quelle di un paio di mesi
      indietro e un anno avanti */
-  function agendaRows(){
-    var from = fmtDate(addDays(new Date(), -60)), to = fmtDate(addDays(new Date(), 365));
-    return visibleRows(eventsInRange(from, to), from, to);
+  /* Ogni mese dell'agenda ha le sue colonne: chi si vede in quel mese.
+     Calcolate una volta per disegno (agenda.rows si svuota a ogni render). */
+  function agendaRows(mk){
+    agenda.rows = agenda.rows || {};
+    if(!agenda.rows[mk]){
+      var rows = monthRows(mk);
+      agenda.rows[mk] = { rows: rows, tpl: agendaTemplate(rows), all: monthAllRows(mk).length };
+    }
+    return agenda.rows[mk];
   }
   function agendaTemplate(rows){
     return "var(--alabel) var(--ahalf) repeat(" + Math.max(rows.length, 1) + ", minmax(var(--acol), 1fr))";
@@ -5704,9 +6636,16 @@ window.addEventListener("online", function(){
   }
 
   function agendaBand(d, isStart){
+    var mk = monthKey(d), r = agendaRows(mk);
     var b = document.createElement("div");
     b.className = "cal-aband" + (isStart ? " cal-aband-start" : "");
-    b.innerHTML = "<span>" + MONTHS[d.getMonth()] + " " + d.getFullYear() + "</span>";
+    b.style.setProperty("--acols", Math.max(r.rows.length, 1));
+    b.innerHTML = "<span>" + MONTHS[d.getMonth()] + " " + d.getFullYear() +
+      '<button type="button" class="cal-aband-people"></button></span>';
+    var btn = b.querySelector("button");
+    btn.textContent = "Persone " + r.rows.length + "/" + r.all;
+    btn.title = "Scegli chi vedi a " + MONTHS[d.getMonth()];
+    btn.addEventListener("click", function(){ openMonthPeople(mk); });
     return b;
   }
 
@@ -5717,6 +6656,7 @@ window.addEventListener("online", function(){
     block.className = "cal-aday";
     block.dataset.date = ds;
     block.style.gridTemplateColumns = tpl;
+    block.style.setProperty("--acols", Math.max(rows.length, 1));
     if(ds < today) block.classList.add("past");
     if(ds === today) block.classList.add("today");
     var dow = (d.getDay() + 6) % 7;
@@ -5753,14 +6693,14 @@ window.addEventListener("online", function(){
 
   /* I giorni [fromStr, toStr], con la fascia del mese a ogni inizio mese.
      withStart: anche una fascia in cima se il blocco non parte dal 1. */
-  function agendaChunk(fromStr, toStr, rows, tpl, withStart){
+  function agendaChunk(fromStr, toStr, withStart){
     var frag = document.createDocumentFragment();
     var idx = indexByDay(fromStr, toStr);
     for(var d = parseDate(fromStr), first = true; fmtDate(d) <= toStr; d = addDays(d, 1), first = false){
-      var ds = fmtDate(d);
+      var ds = fmtDate(d), r = agendaRows(monthOf(ds));
       if(d.getDate() === 1) frag.appendChild(agendaBand(d, false));
       else if(first && withStart) frag.appendChild(agendaBand(d, true));
-      frag.appendChild(agendaDay(ds, rows, idx[ds] || [], tpl));
+      frag.appendChild(agendaDay(ds, r.rows, idx[ds] || [], r.tpl));
     }
     return frag;
   }
@@ -5769,6 +6709,7 @@ window.addEventListener("online", function(){
     var head = document.createElement("div");
     head.className = "cal-ahead";
     head.style.gridTemplateColumns = tpl;
+    head.style.setProperty("--acols", Math.max(rows.length, 1));
     head.innerHTML = '<div class="cal-ahead-corner">Giorno</div><div class="cal-ahead-half"></div>';
     rows.forEach(function(row){
       var c = document.createElement("div");
@@ -5814,11 +6755,27 @@ window.addEventListener("online", function(){
     $period.textContent = MONTHS[d.getMonth()] + " " + d.getFullYear();
     agenda.lastTop = top.dataset.date;
     cursor = d;
+    agendaSyncHead(scroller, monthKey(d));
+  }
+  /* Passando a un altro mese cambiano le colonne in alto e il filtro a lato */
+  function agendaSyncHead(scroller, mk){
+    if(mk === agenda.headMonth) return;
+    agenda.headMonth = mk;
+    var r = agendaRows(mk);
+    var old = scroller.querySelector(".cal-ahead");
+    if(old) old.replaceWith(agendaHead(r.rows, r.tpl));
+    useFilterMonth(mk);
+    renderPersonSide();
   }
 
   function renderAgenda(){
-    var rows = agendaRows();
-    var tpl = agendaTemplate(rows);
+    agenda.rows = {};
+    // l'intervallo disegnato resta tra un ridisegno e l'altro: si ricomincia
+    // da oggi solo quando si apre il calendario o si salta a un giorno
+    var jump = agenda.jumpTo || agenda.lastTop || todayKey();
+    agenda.headMonth = monthOf(jump);
+    var head = agendaRows(agenda.headMonth);
+    var rows = head.rows, tpl = head.tpl;
 
     var scroller = document.createElement("div");
     scroller.className = "cal-agenda";
@@ -5831,22 +6788,19 @@ window.addEventListener("online", function(){
 
     if(searchFilters()) return renderAgendaResults(scroller, list, rows, tpl);
 
-    // l'intervallo disegnato resta tra un ridisegno e l'altro: si ricomincia
-    // da oggi solo quando si apre il calendario o si salta a un giorno
-    var jump = agenda.jumpTo || agenda.lastTop || todayKey();
     agenda.jumpTo = null;
     if(!agenda.from || jump < agenda.from || jump > agenda.to){
       agenda.from = fmtDate(addDays(parseDate(jump), -21));
       agenda.to = fmtDate(addDays(parseDate(jump), 60));
     }
-    list.appendChild(agendaChunk(agenda.from, agenda.to, rows, tpl, true));
+    list.appendChild(agendaChunk(agenda.from, agenda.to, true));
     agendaScrollTo(scroller, jump, false);
     agendaUpdatePeriod(scroller);
 
     function extendDown(){
       var from = fmtDate(addDays(parseDate(agenda.to), 1));
       var to = fmtDate(addDays(parseDate(agenda.to), AGENDA_CHUNK));
-      list.appendChild(agendaChunk(from, to, rows, tpl, false));
+      list.appendChild(agendaChunk(from, to, false));
       agenda.to = to;
     }
     function extendUp(){
@@ -5856,7 +6810,7 @@ window.addEventListener("online", function(){
       var stale = list.querySelector(".cal-aband-start");
       var before = scroller.scrollHeight;
       if(stale) stale.remove();
-      list.insertBefore(agendaChunk(from, to, rows, tpl, true), list.firstChild);
+      list.insertBefore(agendaChunk(from, to, true), list.firstChild);
       scroller.scrollTop += scroller.scrollHeight - before;   // la vista resta ferma dov'era
       agenda.from = from;
     }
@@ -5912,8 +6866,13 @@ window.addEventListener("online", function(){
       var d = parseDate(ds);
       var mk = d.getFullYear() * 12 + d.getMonth();
       if(mk !== lastMonth){ list.appendChild(agendaBand(d, false)); lastMonth = mk; }
-      list.appendChild(agendaDay(ds, rows, days[ds], tpl));
+      var r = agendaRows(monthOf(ds));
+      list.appendChild(agendaDay(ds, r.rows, days[ds], r.tpl));
     });
+    scroller.addEventListener("scroll", function(){
+      var top = agendaTopDay(scroller);
+      if(top) agendaSyncHead(scroller, monthOf(top.dataset.date));
+    }, { passive: true });
     $period.textContent = count ? "Risultati della ricerca" : "—";
     // si parte dal primo risultato da oggi in poi
     var today = todayKey();
@@ -6254,14 +7213,15 @@ window.addEventListener("online", function(){
     return o;
   }
   function projectOptions(current){
-    var projs = (state.projects || []).slice().sort(function(a,b){ return a.name.localeCompare(b.name, "it"); });
+    var projs = (state.projects || []).filter(function(p){ return !p.archived_at; })
+      .sort(function(a,b){ return a.name.localeCompare(b.name, "it"); });
     var o = '<option value="">— Scegli il progetto —</option>';
     var found = false;
     projs.forEach(function(p){
       if(current && current.project_id === p.id) found = true;
       o += '<option value="'+ escapeHtml(p.id) +'">'+ escapeHtml(p.name) +'</option>';
     });
-    // un progetto di qualcun altro, che chi modifica non vede: resta com'era
+    // un progetto di qualcun altro (o archiviato), che qui non si offre: resta com'era
     if(current && current.project_id && !found){
       o += '<option value="'+ escapeHtml(current.project_id) +'">'+ escapeHtml(current.project_name || "Progetto") +'</option>';
     }
@@ -6305,6 +7265,13 @@ window.addEventListener("online", function(){
 
         '<div id="cm-project-box">' +
           '<label for="cm-project">Progetto *</label>' +
+          '<div class="cm-dd" id="cm-dd" hidden>' +
+            '<button type="button" class="col-select cm-dd-btn" id="cm-dd-btn" aria-haspopup="true" aria-expanded="false"></button>' +
+            '<div class="cm-dd-pop" id="cm-dd-pop" data-col="cats" hidden>' +
+              '<div class="cm-dd-col" id="cm-dd-cats" aria-label="Categorie"></div>' +
+              '<div class="cm-dd-col" id="cm-dd-projs" aria-label="Progetti"></div>' +
+            '</div>' +
+          '</div>' +
           '<select id="cm-project" class="col-select"></select>' +
           '<input type="text" id="cm-project-other" placeholder="Specifica a cosa si riferisce" maxlength="120" hidden>' +
         '</div>' +
@@ -6388,6 +7355,201 @@ window.addEventListener("online", function(){
     $project.innerHTML = projectOptions(data);
     if(data.project_id) $project.value = data.project_id;
     else if(data.project_name){ $project.value = "__altro__"; $projOther.value = data.project_name; }
+
+    /* --- progetto: tendina a colonne. A sinistra le categorie (passandoci
+       sopra o cliccando si aprono i loro progetti a destra), in fondo «Altro».
+       Gli Archiviati non ci sono; i Preferiti, se ce ne sono, vengono per
+       primi. Senza sql/categorie.sql resta la tendina di sempre. --- */
+    var ALTRO = "__altro__";
+    var groups = state.categoriesError ? null
+      : projectGroups({ sort: true }).filter(function(g){ return g.projects.length; });
+    var openGroup = null, popOpen = false;
+    var $dd = $("cm-dd"), $ddBtn = $("cm-dd-btn"), $pop = $("cm-dd-pop");
+    var $ddCats = $("cm-dd-cats"), $ddProjs = $("cm-dd-projs");
+    function groupOfProject(pid){
+      var g = (groups || []).find(function(g){
+        return g.id !== GROUP_FAV && g.projects.some(function(p){ return p.id === pid; });
+      });
+      return g || null;
+    }
+    if(groups){
+      $project.hidden = true;
+      $dd.hidden = false;
+      $("cm-project-box").querySelector("label").htmlFor = "cm-dd-btn";
+    }
+    function ddRow(text, extra){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "cm-dd-row";
+      b.tabIndex = -1;
+      var t = document.createElement("span");
+      t.textContent = text;
+      b.appendChild(t);
+      if(extra) b.appendChild(extra);
+      return b;
+    }
+    function renderPicker(){
+      if(!groups) return;
+      var pv = $project.value;
+      var g = pv && pv !== ALTRO ? groupOfProject(pv) : null;
+      var opt = pv ? $project.querySelector('option[value="' + pv + '"]') : null;
+      $ddBtn.innerHTML = "";
+      var l = document.createElement("span");
+      l.className = "cm-dd-label";
+      if(!opt || !pv){
+        l.classList.add("empty");
+        l.textContent = "Scegli il progetto";
+      } else {
+        if(g){
+          var path = document.createElement("span");
+          path.className = "cm-dd-path";
+          path.textContent = g.name + " › ";
+          l.appendChild(path);
+        }
+        l.appendChild(document.createTextNode(pv === ALTRO ? "Altro (specificare)" : opt.textContent));
+      }
+      $ddBtn.appendChild(l);
+      if(popOpen) renderCats();
+    }
+    function renderCats(){
+      $ddCats.innerHTML = "";
+      groups.forEach(function(g){
+        var n = document.createElement("span");
+        n.className = "cm-dd-n";
+        n.textContent = g.projects.length;
+        var b = ddRow(g.name, n);
+        var go = document.createElement("i");
+        go.className = "cm-dd-go";
+        b.appendChild(go);
+        b.dataset.g = g.id;
+        b.setAttribute("aria-haspopup", "true");
+        b.addEventListener("mouseenter", function(e){
+          if(e.pointerType !== "touch") openCat(g.id, false);
+        });
+        b.addEventListener("click", function(){ openCat(g.id, true); });
+        $ddCats.appendChild(b);
+      });
+      var sep = document.createElement("div");
+      sep.className = "cm-dd-sep";
+      $ddCats.appendChild(sep);
+      var altro = ddRow("Altro (specificare)…");
+      if($project.value === ALTRO) altro.classList.add("on");
+      altro.addEventListener("mouseenter", function(){ openCat(null, false); });
+      altro.addEventListener("click", function(){ choose(ALTRO); });
+      $ddCats.appendChild(altro);
+      markCats();
+      renderProjs();
+    }
+    function markCats(){
+      $ddCats.querySelectorAll("[data-g]").forEach(function(b){
+        b.classList.toggle("open", b.dataset.g === openGroup);
+        b.setAttribute("aria-expanded", b.dataset.g === openGroup ? "true" : "false");
+      });
+    }
+    function renderProjs(){
+      $ddProjs.innerHTML = "";
+      var g = groups.find(function(x){ return x.id === openGroup; });
+      var back = ddRow(g ? g.name : "Categorie");
+      back.classList.add("cm-dd-back");
+      back.addEventListener("click", function(){ showCol("cats"); focusRow($ddCats, openGroup); });
+      $ddProjs.appendChild(back);
+      if(!g){
+        var e = document.createElement("div");
+        e.className = "cm-dd-empty";
+        e.textContent = "Scegli una categoria";
+        $ddProjs.appendChild(e);
+        return;
+      }
+      g.projects.forEach(function(p){
+        var b = ddRow(p.name);
+        b.dataset.p = p.id;
+        if($project.value === p.id) b.classList.add("on");
+        b.addEventListener("click", function(){ choose(p.id); });
+        $ddProjs.appendChild(b);
+      });
+    }
+    function openCat(gid, enter){
+      if(gid !== openGroup){
+        openGroup = gid;
+        markCats();
+        renderProjs();
+      }
+      if(enter && gid){
+        showCol("projs");
+        focusRow($ddProjs, $project.value);
+      }
+    }
+    function showCol(col){ $pop.dataset.col = col; }
+    // mette il focus sulla riga scelta (o sulla prima) di una colonna
+    function focusRow($col, key){
+      var rows = [].slice.call($col.querySelectorAll(".cm-dd-row:not(.cm-dd-back)"));
+      var r = rows.find(function(b){ return key && (b.dataset.g === key || b.dataset.p === key); }) || rows[0];
+      if(r){ r.focus(); r.scrollIntoView({ block: "nearest" }); }
+    }
+    function choose(v){
+      $project.value = v;
+      closePop(true);
+      sync();
+      if(v === ALTRO) $projOther.focus();
+    }
+    function openPop(){
+      if(popOpen) return;
+      popOpen = true;
+      var g = groupOfProject($project.value);
+      openGroup = g ? g.id : (groups[0] && groups[0].id);
+      $pop.hidden = false;
+      $ddBtn.setAttribute("aria-expanded", "true");
+      renderCats();
+      showCol(g ? "projs" : "cats");
+      if(g) focusRow($ddProjs, $project.value);
+      else focusRow($ddCats, openGroup);
+      // la colonna delle categorie mostra anche quella aperta
+      var cur = $ddCats.querySelector('[data-g="' + openGroup + '"]');
+      if(cur) cur.scrollIntoView({ block: "nearest" });
+    }
+    function closePop(refocus){
+      if(!popOpen) return;
+      popOpen = false;
+      $pop.hidden = true;
+      $ddBtn.setAttribute("aria-expanded", "false");
+      if(refocus) $ddBtn.focus();
+    }
+    if(groups){
+      $ddBtn.addEventListener("click", function(){ popOpen ? closePop(true) : openPop(); });
+      $ddBtn.addEventListener("keydown", function(e){
+        if(e.key === "ArrowDown" || e.key === "ArrowUp"){ e.preventDefault(); openPop(); }
+      });
+      $pop.addEventListener("keydown", function(e){
+        var row = e.target.closest(".cm-dd-row");
+        if(!row) return;
+        var $col = row.parentNode;
+        var rows = [].slice.call($col.querySelectorAll(".cm-dd-row")).filter(function(b){
+          return b.offsetParent !== null;
+        });
+        var i = rows.indexOf(row);
+        if(e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); closePop(true); }
+        else if(e.key === "Tab"){ closePop(false); }
+        else if(e.key === "ArrowDown" || e.key === "ArrowUp"){
+          e.preventDefault();
+          var next = rows[Math.min(rows.length - 1, Math.max(0, i + (e.key === "ArrowDown" ? 1 : -1)))];
+          if(next){
+            next.focus();
+            next.scrollIntoView({ block: "nearest" });
+            if($col === $ddCats && next.dataset.g) openCat(next.dataset.g, false);
+          }
+        }
+        else if(e.key === "ArrowRight" && row.dataset.g){ e.preventDefault(); openCat(row.dataset.g, true); }
+        else if(e.key === "ArrowLeft" && $col === $ddProjs){
+          e.preventDefault();
+          showCol("cats");
+          focusRow($ddCats, openGroup);
+        }
+      });
+      // un clic fuori dalla tendina la chiude
+      bd.addEventListener("mousedown", function(e){
+        if(popOpen && !$dd.contains(e.target)) closePop(false);
+      });
+    }
     $date.value = data.date;
     $dateEnd.value = data.date_end || data.date;
     function setTime($h, $m, v){
@@ -6458,7 +7620,7 @@ window.addEventListener("online", function(){
       add.className = "cm-person cm-person-add";
       add.title = "Aggiungi una persona fuori dal team";
       add.setAttribute("aria-label", add.title);
-      add.innerHTML = "+" + (names.length ? "" : " Persona da fuori");
+      add.innerHTML = "+" + (names.length ? "" : " Persona extra");
       add.addEventListener("click", function(){
         $addBox.hidden = false;
         $addName.value = "";
@@ -6556,7 +7718,9 @@ window.addEventListener("online", function(){
 
       var ferie = kind === "ferie";
       $("cm-project-box").hidden = kind !== "lavoro";
+      if(kind !== "lavoro" && groups) closePop(false);
       $projOther.hidden = $project.value !== "__altro__";
+      renderPicker();
       $("cm-end-box").hidden = !ferie;
       $("cm-date-label").textContent = ferie ? "Dal" : "Data";
       $("cm-times").hidden = ferie;
@@ -6594,7 +7758,8 @@ window.addEventListener("online", function(){
       if(!out.title) return fail("Scrivi un titolo.", $title);
       if(kind === "lavoro"){
         var pv = $project.value;
-        if(!pv) return fail("Scegli a quale progetto si riferisce: senza progetto l'impegno non si salva.", $project);
+        if(!pv) return fail("Scegli a quale progetto si riferisce: senza progetto l'impegno non si salva.",
+                            groups ? $ddBtn : $project);
         if(pv === "__altro__"){
           var other = $projOther.value.trim();
           if(!other) return fail("Hai scelto «Altro»: specifica a cosa si riferisce.", $projOther);

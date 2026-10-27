@@ -15,7 +15,8 @@ del team, «Mario Project Manager».
   («Brown Coding Enterprises») in `software/`.
 - **Area riservata**: `login.html` + `app.html`, una single page in HTML, CSS
   e JavaScript inline (circa 7000 righe) che parla direttamente con Supabase
-  dal browser. Progetti, schede To Do / In Progress / Done, label, Archivio
+  dal browser. Progetti divisi in categorie del team (più «Personale»,
+  Preferiti e Archiviati), schede To Do / In Progress / Done, Archivio
   (file e link Drive), Panoramica, scadenze e il calendario «Chi fa cosa».
 - **Funzioni serverless** in `api/` (Vercel, Node): il feed `.ics` per Apple
   Calendar e la lettura dei calendari pubblici iCloud.
@@ -84,10 +85,11 @@ node --test tests/*.test.js
 Test di `api/` e `api/_lib/ics.js` con `node:test`, senza dipendenze e con la
 rete simulata. Devono passare prima di ogni commit che tocca `api/`.
 
-`tests/calendario.test.sql` prova `sql/calendario.sql` sul database vero
+`tests/calendario.test.sql`, `tests/calendario_extra.test.sql` e
+`tests/categorie.test.sql` provano i file omonimi di `sql/` sul database vero
 dentro una transazione annullata alla fine. Si lancia via SSH sul Mac mini
-(l'intestazione del file usa l'alias `mac-mini`; usa quello configurato sulla
-tua macchina) e va eseguito solo se richiesto.
+(l'intestazione dei file usa l'alias `mac-mini`; usa quello configurato sulla
+tua macchina) e vanno eseguiti solo se richiesto.
 
 `tests/` è nel repository ma non viene pubblicata (`.vercelignore`).
 
