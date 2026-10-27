@@ -1598,6 +1598,9 @@
     text-transform:capitalize;
   }
   .cal-day-view-head.today h3 span.daynum{color:#579dff}
+  .cal-amonth{padding-top:12px;padding-bottom:12px}
+  .cal-amonth h3{display:flex;align-items:center;justify-content:center;gap:8px}
+  .cal-amonth .cal-aband-people{margin-left:6px}
   .cal-dgrid .cal-week-head{cursor:default;text-align:center;border-right:1px solid #2c3338;border-bottom:1px solid #38414b}
   .cal-dgrid .cal-week-head .cal-week-day-num{font-size:14px}
   .cal-dgrid .cal-plabel{grid-row:auto}
@@ -2045,6 +2048,7 @@
     .cal-dgrid{--plabel:76px}
     .cal-day-view-head{padding:14px 14px}
     .cal-day-view-head h3{font-size:18px}
+    .cal-amonth{padding-top:9px;padding-bottom:9px}
     .cal-dgrid .cal-pcell{padding:4px}
     .cal-plabel{font-size:11px;padding:6px 6px}
     .cal-wlabel{font-size:11px;padding:6px 6px}
@@ -7024,8 +7028,22 @@ window.addEventListener("online", function(){
     var r = agendaRows(mk);
     var old = scroller.querySelector(".cal-ahead");
     if(old) old.replaceWith(agendaHead(r.rows, r.tpl));
+    agendaMonthTitle(scroller.previousElementSibling, mk);
     useFilterMonth(mk);
     renderPersonSide();
+  }
+  /* In alto, grande e fermo mentre si scorre, il mese in cui si e'
+     (come il giorno nella vista Giorno) */
+  function agendaMonthTitle(head, mk){
+    if(!head || !head.classList.contains("cal-amonth")) return;
+    var r = agendaRows(mk);
+    head.classList.toggle("today", mk === monthOf(todayKey()));
+    head.innerHTML = '<h3><span class="daynum">' + monthName(mk) + '</span> ' + mk.slice(0, 4) +
+      '<button type="button" class="cal-aband-people"></button></h3>';
+    var btn = head.querySelector("button");
+    btn.textContent = "Persone · " + r.rows.length;
+    btn.title = "Scegli chi vedi a " + monthName(mk);
+    btn.addEventListener("click", function(){ openMonthPeople(mk); });
   }
 
   function renderAgenda(){
@@ -7037,6 +7055,11 @@ window.addEventListener("online", function(){
     var head = agendaRows(agenda.headMonth);
     var rows = head.rows, tpl = head.tpl;
 
+    var view = document.createElement("div");
+    view.className = "cal-day-view";
+    var month = document.createElement("div");
+    month.className = "cal-day-view-head cal-amonth";
+    view.appendChild(month);
     var scroller = document.createElement("div");
     scroller.className = "cal-agenda";
     scroller.style.setProperty("--acols", Math.max(rows.length, 1));
@@ -7044,7 +7067,9 @@ window.addEventListener("online", function(){
     var list = document.createElement("div");
     list.className = "cal-alist";
     scroller.appendChild(list);
-    $body.appendChild(scroller);
+    view.appendChild(scroller);
+    $body.appendChild(view);
+    agendaMonthTitle(month, agenda.headMonth);
 
     if(searchFilters()) return renderAgendaResults(scroller, list, rows, tpl);
 
@@ -7092,6 +7117,17 @@ window.addEventListener("online", function(){
       else periodTimer = setTimeout(function(){ agendaUpdatePeriod(scroller); }, 90);
     }, { passive: true });
   }
+
+  // cambiando larghezza (telefono girato, finestra stretta) i giorni cambiano
+  // altezza senza che si scorra: il mese in alto va ricalcolato
+  var agendaResizeTimer = null;
+  window.addEventListener("resize", function(){
+    clearTimeout(agendaResizeTimer);
+    agendaResizeTimer = setTimeout(function(){
+      var sc = $body.querySelector(".cal-agenda");
+      if(sc && view === "agenda" && !searchFilters()) agendaUpdatePeriod(sc);
+    }, 120);
+  });
 
   /* Con una ricerca attiva: solo i giorni con impegni che corrispondono */
   function renderAgendaResults(scroller, list, rows, tpl){
