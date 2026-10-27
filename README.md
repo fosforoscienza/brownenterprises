@@ -48,9 +48,10 @@ Le funzioni in `api/` girano su Vercel (in locale con `vercel dev`).
 node --test tests/*.test.js
 ```
 
-Servono solo Node 18 o più recente. I test SQL del calendario, degli Extra
-e delle categorie (`tests/calendario.test.sql`,
-`tests/calendario_extra.test.sql`, `tests/categorie.test.sql`) girano sul
+Servono solo Node 18 o più recente. I test SQL del calendario, degli Extra,
+delle categorie e del coordinatore (`tests/calendario.test.sql`,
+`tests/calendario_extra.test.sql`, `tests/categorie.test.sql`,
+`tests/coordinatore.test.sql`) girano sul
 database vero dentro una transazione annullata; il comando è
 nell'intestazione dei file.
 
