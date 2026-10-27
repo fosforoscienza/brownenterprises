@@ -11,7 +11,7 @@ del team, **Mario Project Manager**.
 | Parte | Dove | Cosa fa |
 |---|---|---|
 | Sito pubblico | `index.html`, `en/`, `product/`, `software/` | Mirror statico del vecchio sito WordPress, in italiano e inglese, installabile come PWA |
-| Area riservata | `login.html`, `app.html` | Progetti e schede, label, Archivio, Panoramica, scadenze e il calendario condiviso «Chi fa cosa» |
+| Area riservata | `login.html`, `app.html` | Progetti in categorie (più Personale, Preferiti e Archiviati) e schede, Archivio, Panoramica, scadenze e il calendario condiviso «Chi fa cosa» |
 | Funzioni | `api/` | Feed `.ics` per Apple Calendar e lettura dei calendari pubblici iCloud |
 | Database | `sql/` | Le modifiche allo schema Supabase, da eseguire a mano |
 | Test | `tests/` | Test delle funzioni e del calendario |
@@ -48,9 +48,11 @@ Le funzioni in `api/` girano su Vercel (in locale con `vercel dev`).
 node --test tests/*.test.js
 ```
 
-Servono solo Node 18 o più recente. Il test SQL del calendario
-(`tests/calendario.test.sql`) gira sul database vero dentro una transazione
-annullata; il comando è nell'intestazione del file.
+Servono solo Node 18 o più recente. I test SQL del calendario, degli Extra
+e delle categorie (`tests/calendario.test.sql`,
+`tests/calendario_extra.test.sql`, `tests/categorie.test.sql`) girano sul
+database vero dentro una transazione annullata; il comando è
+nell'intestazione dei file.
 
 ## Modificare il database
 
