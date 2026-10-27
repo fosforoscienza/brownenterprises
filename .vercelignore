@@ -1,2 +1,7 @@
 # I test restano nel repo ma non vanno pubblicati sul sito
 tests/
+
+# Documentazione per chi sviluppa, non per il sito
+README.md
+AGENTS.md
+CLAUDE.md
