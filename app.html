@@ -6472,7 +6472,6 @@ window.addEventListener("online", function(){
   /* La sezione Extra a sinistra: chiusa di base, ognuno la apre per se' */
   var EXTRA_OPEN_KEY = "brown_calendar_extra_open_v1";
   function renderPersonSide(){
-    var today = todayKey();
     var mk = filterMonth;
     var outside = outsideNames();
     var mine = KNOWN_PERSONS.slice();
@@ -6506,19 +6505,21 @@ window.addEventListener("online", function(){
     divider.className = "cal-side-divider";
     $side.appendChild(divider);
 
-    function countFrom(p){
-      return calEvents.reduce(function(n,e){
-        if((e.date_end || e.date) < today) return n;
+    // il numero accanto al nome: gli impegni nel mese mostrato
+    var mb = monthBounds(mk);
+    function countIn(p){
+      return eventsInRange(mb.from, mb.to).reduce(function(n,e){
         return n + (hasPerson(e, p) ? 1 : 0);
       }, 0);
     }
+    var countTip = " a " + monthName(mk);
     function socioRow(p){
       var row = document.createElement("div");
       row.className = "cal-person-row";
       if(!hiddenPersons.has(p)) row.classList.add("checked");
       row.style.setProperty("--pc", rowColor(p));
-      var count = countFrom(p);
-      row.title = count + " impegni da oggi in poi";
+      var count = countIn(p);
+      row.title = plural(count, "impegno", "impegni") + countTip;
       row.innerHTML =
         '<div class="cal-cb"></div>'+
         '<div class="cal-person-name">'+ escapeHtml(p) +'</div>'+
@@ -6540,11 +6541,11 @@ window.addEventListener("online", function(){
     function outsideRow(p){
       var row = extraRow(p, mk);
       var extra = findExtra(p);
-      var count = countFrom(p);
+      var count = countIn(p);
       var c = document.createElement("div");
       c.className = "cal-person-count";
       c.textContent = count;
-      c.title = count + " impegni da oggi in poi";
+      c.title = plural(count, "impegno", "impegni") + countTip;
       row.appendChild(c);
       if(!extra) row.classList.add("inactive");
       // gli Extra si rinominano, si spostano e si tolgono dalla loro scheda
