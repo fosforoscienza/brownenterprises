@@ -982,6 +982,11 @@
   }
   .cm-person .dot{width:9px;height:9px;border-radius:50%;background:var(--pc)}
   .cm-person.on{background:var(--pcbg);border-color:var(--pc);color:#f4f5f7}
+  .cm-person-add{border-style:dashed;color:#9fadbc;padding:6px 12px;font-size:14px}
+  .cm-person-add:hover{border-color:#579dff;color:#cce0ff}
+  .cm-add-person{display:flex;gap:6px;margin-bottom:10px}
+  .modal .cm-add-person input{flex:1;min-width:0;margin:0}
+  .cm-add-person button{flex-shrink:0;padding:8px 12px}
   .cm-row{display:flex;gap:10px;flex-wrap:wrap}
   .cm-row > div{flex:1 1 160px;min-width:0}
   .modal .cm-row input[type=date]{width:100%;min-width:0}
@@ -1226,6 +1231,53 @@
     transition:background 0.12s,color 0.12s;
   }
   .cal-side-actions button:hover{background:#2c3338;color:#f4f5f7}
+  .cal-side h3.cal-side-sub{margin:12px 0 6px}
+  .cal-person-row.inactive .cal-person-name{color:#738496;font-style:italic}
+  .cal-person-del{
+    background:none;border:0;color:#738496;
+    width:20px;height:20px;border-radius:4px;flex-shrink:0;
+    font-size:15px;line-height:1;padding:0;
+    opacity:0;transition:opacity 0.12s,background 0.12s,color 0.12s;
+  }
+  .cal-person-row:hover .cal-person-del,.cal-person-del:focus-visible{opacity:1}
+  .cal-person-del:hover{background:#3d2a2a;color:#f87168}
+  .cal-add-person{
+    display:flex;align-items:center;gap:10px;
+    background:none;border:1px dashed #38414b;border-radius:6px;
+    color:#9fadbc;font-size:13px;font-weight:600;
+    padding:6px 8px;margin-top:4px;text-align:left;
+    transition:background 0.12s,border-color 0.12s,color 0.12s;
+  }
+  .cal-add-person:hover{background:#22272b;border-color:#579dff;color:#cce0ff}
+  .cal-add-plus{width:16px;text-align:center;font-size:16px;line-height:1}
+  .cal-months{
+    margin-top:12px;padding:10px 8px 8px;
+    border:1px solid #2c3338;border-radius:8px;
+  }
+  .cal-months h3{padding:0;margin-bottom:6px}
+  .cal-months.ask{border-color:#f5cd47;background:rgba(245,205,71,0.06)}
+  .cal-months-ask{margin:0 0 8px;font-size:12px;font-weight:600;color:#f5cd47}
+  .cal-months-grid{
+    display:grid;grid-template-columns:1fr 34px 34px;gap:4px 6px;align-items:center;
+    font-size:12px;color:#b6c2cf;
+  }
+  .cal-months-grid > span:not(.cal-months-name){font-size:10px;font-weight:700;color:#9fadbc;text-transform:uppercase;text-align:center}
+  .cal-months-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal-months-cell{
+    height:24px;border-radius:4px;padding:0;
+    background:#22272b;border:1px solid #38414b;color:#738496;
+    font-size:12px;font-weight:700;
+  }
+  .cal-months-cell.on{background:rgba(75,206,151,0.16);border-color:#4bce97;color:#4bce97}
+  .cal-months-cell.open{border-style:dashed;border-color:#f5cd47;color:#f5cd47;background:transparent}
+  .cal-months-cell:hover{filter:brightness(1.3)}
+  .cal-months-hint{margin:8px 0 0;font-size:11px;color:#738496;line-height:1.35}
+  .cal-acell.off,.cal-wcell.off,.cal-mslot.off,.cal-dfree.off{
+    background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(159,173,188,0.06) 5px 10px);
+    cursor:default;
+  }
+  .cal-acell.off:hover,.cal-wcell.off:hover{background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(159,173,188,0.06) 5px 10px)}
+  .cal-dfree.off{color:#738496;border-style:solid}
 
   .cal-body{flex:1;overflow:hidden;display:flex;flex-direction:column;background:#101204}
 
@@ -1763,6 +1815,7 @@
     .cal-side-backdrop{display:block}
     .cal-side-backdrop.show{opacity:1;pointer-events:auto}
     .cal-person-row{padding:9px 8px}
+    .cal-person-del{opacity:1}
     .cal-person-name{font-size:13px}
 
     /* Month view */
@@ -4548,9 +4601,10 @@ window.addEventListener("online", function(){
     "Mattia":     "#9f8fef",
     "Camilla":    "#ec407a"
   };
-  // Chi non e' del team finisce nella riga "Altri", sempre in fondo
-  var OTHERS = "__altri__";
-  var OTHERS_COLOR = "#8c9bab";
+  // Chi non e' del team ha una riga sua, dopo il team (vedi "persone
+  // fuori dal team"). Gli impegni rimasti senza persona finiscono qui.
+  var NOBODY = "__nessuno__";
+  var NOBODY_COLOR = "#8c9bab";
 
   /* ---------- date helpers ---------- */
   function pad(n){ return n < 10 ? "0"+n : ""+n; }
@@ -4580,10 +4634,15 @@ window.addEventListener("online", function(){
     for(var k in USER_COLORS){
       if(k.toLowerCase() === trimmed.toLowerCase()) return USER_COLORS[k];
     }
+    // chi e' da fuori non prende il colore di qualcuno del team
+    var free = PALETTE.filter(function(c){
+      for(var k in USER_COLORS) if(USER_COLORS[k] === c) return false;
+      return true;
+    });
     var key = trimmed.toLowerCase();
     var hash = 0;
     for(var i=0;i<key.length;i++){ hash = ((hash<<5)-hash) + key.charCodeAt(i); hash |= 0; }
-    return PALETTE[Math.abs(hash) % PALETTE.length];
+    return free[Math.abs(hash) % free.length];
   }
 
   /* ---------- seed data (Aprile/Maggio/Giugno 2026) ----------
@@ -4603,7 +4662,8 @@ window.addEventListener("online", function(){
     for(var i=0;i<KNOWN_PERSONS.length;i++){
       if(KNOWN_PERSONS[i].toLowerCase() === t.toLowerCase()) return KNOWN_PERSONS[i];
     }
-    return t;
+    var p = findExtra(t);
+    return p ? p.name : t;
   }
   /* La persona del calendario che corrisponde a chi ha fatto login */
   function myPerson(){
@@ -4806,13 +4866,148 @@ window.addEventListener("online", function(){
     return true;
   }
 
+  /* ---------- persone fuori dal team ----------
+   * Al posto della vecchia riga "Altri": chi lavora con noi da fuori si
+   * aggiunge col "+" e diventa una riga come quelle del team. Per ogni
+   * mese si decide se c'e' (months: { "2026-11": true, "2026-12": false });
+   * un mese senza scelta eredita l'ultima scelta fatta prima. Stanno in
+   * be_cal_people, condivisa come gli impegni; senza la tabella
+   * (sql/calendario_persone.sql non eseguito) restano nel browser. */
+  var PEOPLE_KEY = "brown_calendar_people_v1";
+  var PEOPLE_CACHE_KEY = "brown_calendar_people_cache_v1";
+  var extraPeople = [];       // [{ name, months }] nell'ordine in cui sono arrivate
+  var peopleMode = null;      // "remote" | "local"
+
+  function monthKey(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1); }
+  function monthOf(ds){ return ds.slice(0, 7); }
+  function addMonths(mk, n){ return monthKey(new Date(+mk.slice(0,4), +mk.slice(5,7) - 1 + n, 1)); }
+  function monthName(mk){ return MONTHS[+mk.slice(5,7) - 1]; }
+  function findExtra(name){
+    var k = String(name || "").trim().toLowerCase();
+    if(!k) return null;
+    for(var i=0;i<extraPeople.length;i++) if(extraPeople[i].name.toLowerCase() === k) return extraPeople[i];
+    return null;
+  }
+  function decided(p, mk){ return !!p.months && Object.prototype.hasOwnProperty.call(p.months, mk); }
+  /* C'e' in quel mese? L'ultima scelta fatta fino a quel mese */
+  function activeIn(p, mk){
+    var best = null, val = false;
+    Object.keys(p.months || {}).forEach(function(k){
+      if(k <= mk && (best === null || k > best)){ best = k; val = !!p.months[k]; }
+    });
+    return val;
+  }
+  function activeBetween(p, fromStr, toStr){
+    for(var mk = monthOf(fromStr), last = monthOf(toStr); mk <= last; mk = addMonths(mk, 1)){
+      if(activeIn(p, mk)) return true;
+    }
+    return false;
+  }
+  /* Una casella di chi quel mese non c'e': niente impegni nuovi */
+  function rowOff(row, ds){
+    var p = findExtra(row);
+    return !!p && !activeIn(p, monthOf(ds));
+  }
+
+  async function loadPeople(){
+    var res = await sb.from("be_cal_people").select("name, months").order("created_at", { ascending: true });
+    if(res.error && isMissingTable(res.error)){
+      peopleMode = "local";
+      try{ extraPeople = JSON.parse(lsGet(PEOPLE_KEY) || "[]"); }catch(_){ extraPeople = []; }
+      return;
+    }
+    if(res.error){
+      // offline: l'ultima copia nota
+      peopleMode = "remote";
+      if(!extraPeople.length){
+        try{ extraPeople = JSON.parse(lsGet(PEOPLE_CACHE_KEY) || "[]"); }catch(_){ extraPeople = []; }
+      }
+      return;
+    }
+    peopleMode = "remote";
+    extraPeople = (res.data || []).map(function(r){ return { name: r.name, months: r.months || {} }; });
+    lsSet(PEOPLE_CACHE_KEY, JSON.stringify(extraPeople));
+  }
+  function keepPeople(){
+    lsSet(peopleMode === "local" ? PEOPLE_KEY : PEOPLE_CACHE_KEY, JSON.stringify(extraPeople));
+  }
+  async function savePerson(p){
+    if(peopleMode === "remote"){
+      var res = await sb.from("be_cal_people").upsert({ name: p.name, months: p.months }, { onConflict: "name" });
+      if(res.error){ notify(errorText(res.error, "Persona non salvata")); return false; }
+    }
+    var old = findExtra(p.name);
+    if(old) old.months = p.months;
+    else extraPeople.push(p);
+    keepPeople();
+    return true;
+  }
+  /* Aggiunge (o rimette) una persona da quel mese in poi. Restituisce il
+     nome da usare, null se non si e' potuto. */
+  async function addPerson(name, mk){
+    var n = String(name || "").trim().replace(/\s+/g, " ");
+    if(!n) return null;
+    if(n.length > 60){ notify("Il nome è troppo lungo (al massimo 60 caratteri)."); return null; }
+    if(isKnown(canonicalPerson(n))) return canonicalPerson(n);
+    var p = findExtra(n);
+    if(p && activeIn(p, mk)) return p.name;
+    var months = Object.assign({}, p ? p.months : {});
+    months[mk] = true;
+    if(!(await savePerson({ name: p ? p.name : n, months: months }))) return null;
+    if(peopleMode === "local") notify("Per ora " + n + " resta solo in questo browser: va eseguito sql/calendario_persone.sql su Supabase.");
+    return p ? p.name : n;
+  }
+  async function setMonth(p, mk, on){
+    var months = Object.assign({}, p.months);
+    months[mk] = on;
+    return savePerson({ name: p.name, months: months });
+  }
+  async function removePerson(p){
+    var ok = await askChoice("Togliere " + p.name + "?",
+      "Non si potranno più assegnare impegni a " + p.name + ". Quelli già segnati restano nel calendario.", [
+      { label: "Annulla", value: null },
+      { label: "Togli", value: "yes", danger: true }
+    ]);
+    if(!ok) return;
+    if(peopleMode === "remote"){
+      var res = await sb.from("be_cal_people").delete().eq("name", p.name);
+      if(res.error){ notify(errorText(res.error, "Persona non tolta")); return; }
+    }
+    extraPeople = extraPeople.filter(function(x){ return x !== p; });
+    hiddenPersons.delete(p.name);
+    saveFilter();
+    keepPeople();
+    render();
+  }
+  function promptAddPerson(){
+    showInputModal({
+      title: "Aggiungi una persona",
+      label: "Nome · potrà ricevere impegni da " + monthName(monthKey(new Date())),
+      placeholder: "Es. Giulia Rossi",
+      confirmText: "Aggiungi",
+      onConfirm: async function(name){
+        var n = String(name || "").trim();
+        if(!n) return;
+        if(isKnown(canonicalPerson(n))){ notify(canonicalPerson(n) + " fa già parte del team."); return; }
+        var got = await addPerson(n, monthKey(new Date()));
+        if(!got) return;
+        hiddenPersons.delete(got);
+        saveFilter();
+        render();
+      }
+    });
+  }
+
   /* ---------- state ---------- */
   var view = "agenda";        // 'agenda' | 'day' | 'week' | 'month'
   var cursor = new Date();    // anchor date for current view
 
   /* ---------- person filter ---------- */
-  var FILTER_KEY = "brown_calendar_filter_v2";
-  var selectedPersons; // Set<string>; OTHERS = la riga "Altri"
+  /* Si ricorda chi e' nascosto, non chi si vede: cosi' chi viene aggiunto
+     dopo compare subito. */
+  var FILTER_KEY = "brown_calendar_hidden_v1";
+  var OLD_FILTER_KEY = "brown_calendar_filter_v2";
+  var hiddenPersons; // Set<string>
   function loadFilter(){
     try{
       var raw = localStorage.getItem(FILTER_KEY);
@@ -4820,32 +5015,48 @@ window.addEventListener("online", function(){
         var arr = JSON.parse(raw);
         if(Array.isArray(arr)) return new Set(arr);
       }
+      var old = JSON.parse(localStorage.getItem(OLD_FILTER_KEY) || "null");
+      if(Array.isArray(old)) return new Set(KNOWN_PERSONS.filter(function(p){ return old.indexOf(p) < 0; }));
     }catch(_){}
-    return new Set(KNOWN_PERSONS.concat([OTHERS]));
+    return new Set();
   }
   function saveFilter(){
-    var arr = []; selectedPersons.forEach(function(p){ arr.push(p); });
+    var arr = []; hiddenPersons.forEach(function(p){ arr.push(p); });
     lsSet(FILTER_KEY, JSON.stringify(arr));
   }
-  selectedPersons = loadFilter();
+  hiddenPersons = loadFilter();
 
-  /* Le righe da disegnare: le persone del team selezionate, nell'ordine
-     fisso, piu' "Altri" se selezionata e se nel periodo c'e' qualcuno
-     da fuori. */
-  function visibleRows(evsInRange){
-    var rows = KNOWN_PERSONS.filter(function(p){ return selectedPersons.has(p); });
-    if(selectedPersons.has(OTHERS) && evsInRange.some(hasOutsider)) rows.push(OTHERS);
+  /* Tutte le righe possibili in [fromStr, toStr]: il team nell'ordine
+     fisso, poi chi da fuori c'e' in quel periodo o vi ha impegni, poi i
+     nomi scritti a mano prima del "+" (finche' hanno impegni) e in fondo
+     "Senza persona", se serve. */
+  function allRows(evs, fromStr, toStr){
+    var rows = KNOWN_PERSONS.slice(), seen = {};
+    rows.forEach(function(p){ seen[p.toLowerCase()] = 1; });
+    function add(n){ var k = n.toLowerCase(); if(!seen[k]){ seen[k] = 1; rows.push(n); } }
+    function inEvents(n){ return evs.some(function(e){ return e.persons && e.persons.indexOf(n) >= 0; }); }
+    extraPeople.forEach(function(p){
+      if(activeBetween(p, fromStr, toStr) || inEvents(p.name)) add(p.name);
+    });
+    var loose = [];
+    evs.forEach(function(e){
+      (e.persons || []).forEach(function(n){
+        if(!isKnown(n) && !findExtra(n) && loose.indexOf(n) < 0) loose.push(n);
+      });
+    });
+    loose.sort(function(a, b){ return a.localeCompare(b, "it"); }).forEach(add);
+    if(evs.some(function(e){ return !e.persons || !e.persons.length; })) rows.push(NOBODY);
     return rows;
   }
-  function hasOutsider(e){
-    return !e.persons || !e.persons.length || e.persons.some(function(p){ return !isKnown(p); });
+  function visibleRows(evs, fromStr, toStr){
+    return allRows(evs, fromStr, toStr).filter(function(r){ return !hiddenPersons.has(r); });
   }
-  function outsiders(e){
-    if(!e.persons || !e.persons.length) return ["Senza persona"];
-    return e.persons.filter(function(p){ return !isKnown(p); });
+  function hasPerson(e, row){
+    if(row === NOBODY) return !e.persons || !e.persons.length;
+    return !!e.persons && e.persons.indexOf(row) >= 0;
   }
-  function rowColor(row){ return row === OTHERS ? OTHERS_COLOR : personColor(row); }
-  function rowLabel(row){ return row === OTHERS ? "Altri" : row; }
+  function rowColor(row){ return row === NOBODY ? NOBODY_COLOR : personColor(row); }
+  function rowLabel(row){ return row === NOBODY ? "Senza persona" : row; }
 
   /* ---------- DOM refs ---------- */
   var $overlay = document.getElementById("cal-overlay");
@@ -4858,9 +5069,9 @@ window.addEventListener("online", function(){
   var loadingPromise = null;
   function refresh(){
     if(!loadingPromise){
-      loadingPromise = loadEvents().then(function(){
+      loadingPromise = Promise.all([loadEvents(), loadPeople()]).then(function(){
         loadingPromise = null;
-        if($overlay.classList.contains("show")) render();
+        if($overlay.classList.contains("show")){ render(); askNextMonth(); }
         maybeAutoSyncApple();
       });
     }
@@ -4974,16 +5185,16 @@ window.addEventListener("online", function(){
     var kb = (b.kind === "ferie" ? "0" : "1") + (b.start_time || "99:99");
     return ka.localeCompare(kb);
   }
-  /* Gli impegni di una casella: persona (o "Altri") x giorno x mezza giornata */
+  /* Gli impegni di una casella: persona x giorno x mezza giornata */
   function slotEvents(evs, row, dateStr, half){
     return evs.filter(function(e){
       if(!covers(e, dateStr)) return false;
       if(half && e.half !== half && e.half !== "day") return false;
       if(!eventShownOn(e, dateStr)) return false;
-      if(row === OTHERS) return hasOutsider(e);
-      return e.persons && e.persons.indexOf(row) >= 0;
+      return hasPerson(e, row);
     }).sort(byTime);
   }
+  function offTitle(row, ds){ return row + " non c'è a " + monthName(monthOf(ds)); }
   function fmtTimeRange(ev){
     if(!ev.start_time) return HALF_LABEL[ev.half] || "";
     if(ev.end_time && ev.end_time !== ev.start_time) return ev.start_time + " – " + ev.end_time;
@@ -4998,7 +5209,7 @@ window.addEventListener("online", function(){
            (e.source === "apple" ? " from-apple" : "");
   }
   function paintChip(el, e, row){
-    var c = row === OTHERS ? OTHERS_COLOR : personColor(row);
+    var c = rowColor(row);
     el.style.setProperty("--pc", c);
     el.style.setProperty("--pcbg", hexA(c, 0.22));
   }
@@ -5011,8 +5222,34 @@ window.addEventListener("online", function(){
   }
 
   /* ---------- rendering ---------- */
+  /* Il mese prossimo: dal 20 si chiede chi ci sara' */
+  function asksNextMonth(){ return new Date().getDate() >= 20; }
+  function undecidedNext(){
+    var next = addMonths(monthKey(new Date()), 1);
+    return extraPeople.filter(function(p){ return !decided(p, next); });
+  }
+  /* Una volta al mese, aprendo il calendario, un promemoria */
+  function askNextMonth(){
+    if(!asksNextMonth() || !undecidedNext().length) return;
+    var next = addMonths(monthKey(new Date()), 1);
+    var k = "brown_calendar_asked_" + next;
+    if(lsGet(k)) return;
+    lsSet(k, "1");
+    notify("Decidi chi c'è a " + monthName(next) + ": lo trovi in Persone, sotto «Chi c'è».", { warn: false, autoHide: 6000 });
+  }
+
   function renderPersonSide(){
-    var people = KNOWN_PERSONS.concat([OTHERS]);
+    var today = todayKey();
+    var cur = monthKey(new Date()), next = addMonths(cur, 1);
+    // da fuori: chi e' in elenco, piu' i nomi scritti a mano con impegni in arrivo
+    var outside = extraPeople.map(function(p){ return p.name; });
+    calEvents.forEach(function(e){
+      if((e.date_end || e.date) < today) return;
+      (e.persons || []).forEach(function(n){
+        if(!isKnown(n) && !findExtra(n) && outside.indexOf(n) < 0) outside.push(n);
+      });
+    });
+    var people = KNOWN_PERSONS.concat(outside);
     $side.innerHTML = "";
 
     var h = document.createElement("h3");
@@ -5021,12 +5258,12 @@ window.addEventListener("online", function(){
 
     var allRow = document.createElement("div");
     allRow.className = "cal-person-row all";
-    var allOn = people.every(function(p){ return selectedPersons.has(p); });
+    var allOn = people.every(function(p){ return !hiddenPersons.has(p); });
     if(allOn) allRow.classList.add("checked");
     allRow.innerHTML = '<div class="cal-cb"></div><div class="cal-person-name">Tutti</div>';
     allRow.addEventListener("click", function(){
-      if(allOn) selectedPersons.clear();
-      else people.forEach(function(p){ selectedPersons.add(p); });
+      if(allOn) people.forEach(function(p){ hiddenPersons.add(p); });
+      else hiddenPersons.clear();
       saveFilter();
       render();
     });
@@ -5036,36 +5273,102 @@ window.addEventListener("online", function(){
     divider.className = "cal-side-divider";
     $side.appendChild(divider);
 
-    var today = todayKey();
-    people.forEach(function(p){
+    function personRow(p){
       var row = document.createElement("div");
       row.className = "cal-person-row";
-      if(selectedPersons.has(p)) row.classList.add("checked");
+      if(!hiddenPersons.has(p)) row.classList.add("checked");
       row.style.setProperty("--pc", rowColor(p));
       var count = calEvents.reduce(function(n,e){
         if((e.date_end || e.date) < today) return n;
-        var mine = p === OTHERS ? hasOutsider(e) : (e.persons && e.persons.indexOf(p) >= 0);
-        return n + (mine ? 1 : 0);
+        return n + (hasPerson(e, p) ? 1 : 0);
       }, 0);
-      row.title = count + " impegni da oggi in poi";
+      var extra = findExtra(p);
+      var tip = count + " impegni da oggi in poi";
+      if(extra && !activeIn(extra, cur)) { row.classList.add("inactive"); tip += " · non c'è a " + monthName(cur); }
+      if(!extra && !isKnown(p)) { row.classList.add("inactive"); tip += " · non in elenco: si aggiunge col +"; }
+      row.title = tip;
       row.innerHTML =
         '<div class="cal-cb"></div>'+
-        '<div class="cal-person-name">'+ escapeHtml(p === OTHERS ? "Altri (fuori dal team)" : p) +'</div>'+
+        '<div class="cal-person-name">'+ escapeHtml(p) +'</div>'+
         '<div class="cal-person-count">'+ count +'</div>';
+      if(extra){
+        var del = document.createElement("button");
+        del.type = "button";
+        del.className = "cal-person-del";
+        del.title = "Togli " + p;
+        del.setAttribute("aria-label", "Togli " + p);
+        del.textContent = "×";
+        del.addEventListener("click", function(ev){ ev.stopPropagation(); removePerson(extra); });
+        row.appendChild(del);
+      }
       row.addEventListener("click", function(e){
         if(e.shiftKey || e.metaKey || e.ctrlKey){
           // modifier-click: solo questa persona
-          selectedPersons.clear();
-          selectedPersons.add(p);
+          people.forEach(function(x){ hiddenPersons.add(x); });
+          hiddenPersons.delete(p);
         } else {
-          if(selectedPersons.has(p)) selectedPersons.delete(p);
-          else selectedPersons.add(p);
+          if(hiddenPersons.has(p)) hiddenPersons.delete(p);
+          else hiddenPersons.add(p);
         }
         saveFilter();
         render();
       });
-      $side.appendChild(row);
-    });
+      return row;
+    }
+    KNOWN_PERSONS.forEach(function(p){ $side.appendChild(personRow(p)); });
+
+    var h2 = document.createElement("h3");
+    h2.className = "cal-side-sub";
+    h2.textContent = "Da fuori";
+    $side.appendChild(h2);
+    outside.forEach(function(p){ $side.appendChild(personRow(p)); });
+
+    var add = document.createElement("button");
+    add.type = "button";
+    add.className = "cal-add-person";
+    add.innerHTML = '<span class="cal-add-plus">+</span>Aggiungi persona';
+    add.addEventListener("click", promptAddPerson);
+    $side.appendChild(add);
+
+    // ogni mese si decide se chi e' da fuori c'e' anche il mese dopo
+    if(extraPeople.length){
+      var pending = asksNextMonth() && undecidedNext().length > 0;
+      var box = document.createElement("div");
+      box.className = "cal-months" + (pending ? " ask" : "");
+      box.innerHTML =
+        '<h3>Chi c\'è</h3>' +
+        (pending ? '<p class="cal-months-ask">Decidi chi c\'è a ' + monthName(next) + '.</p>' : '') +
+        '<div class="cal-months-grid"><span></span><span>' + MONTH_ABBR[+cur.slice(5,7)-1] + '</span>' +
+        '<span>' + MONTH_ABBR[+next.slice(5,7)-1] + '</span></div>';
+      var grid = box.querySelector(".cal-months-grid");
+      extraPeople.forEach(function(p){
+        var name = document.createElement("span");
+        name.className = "cal-months-name";
+        name.textContent = p.name;
+        grid.appendChild(name);
+        [cur, next].forEach(function(mk){
+          var on = activeIn(p, mk), open = mk === next && !decided(p, mk);
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "cal-months-cell" + (on ? " on" : "") + (open ? " open" : "");
+          b.textContent = open ? "?" : (on ? "✓" : "–");
+          b.title = p.name + " a " + monthName(mk) + ": " +
+            (open ? "da decidere (se non scegli, " + (on ? "c'è" : "non c'è") + " come ora)" : (on ? "c'è" : "non c'è")) +
+            ". Clic per " + (open ? "confermare" : "cambiare") + ".";
+          b.setAttribute("aria-label", b.title);
+          b.addEventListener("click", async function(){
+            // il primo clic su "?" conferma come ora; poi alterna
+            if(await setMonth(p, mk, open ? on : !on)) render();
+          });
+          grid.appendChild(b);
+        });
+      });
+      var hint = document.createElement("p");
+      hint.className = "cal-months-hint";
+      hint.textContent = "✓ c'è · – non c'è · ? da decidere. Se non scegli, il mese dopo resta come questo.";
+      box.appendChild(hint);
+      $side.appendChild(box);
+    }
 
     var actions = document.createElement("div");
     actions.className = "cal-side-actions";
@@ -5073,11 +5376,12 @@ window.addEventListener("online", function(){
       '<button data-act="all">Tutti</button>'+
       '<button data-act="none">Nessuno</button>';
     actions.querySelector('[data-act="all"]').addEventListener("click", function(){
-      people.forEach(function(p){ selectedPersons.add(p); });
+      hiddenPersons.clear();
       saveFilter(); render();
     });
     actions.querySelector('[data-act="none"]').addEventListener("click", function(){
-      selectedPersons.clear();
+      people.forEach(function(p){ hiddenPersons.add(p); });
+      hiddenPersons.add(NOBODY);
       saveFilter(); render();
     });
     $side.appendChild(actions);
@@ -5123,9 +5427,13 @@ window.addEventListener("online", function(){
   /* Una casella vuota ma cliccabile: apre un impegno gia' compilato
      con persona, giorno e mezza giornata */
   function newFor(row, dateStr, half){
+    if(row && rowOff(row, dateStr)){
+      notify(offTitle(row, dateStr) + ": si cambia in Persone, sotto «Chi c'è».", { warn: false, autoHide: 3500 });
+      return;
+    }
     openEventModal(null, {
       date: dateStr, half: half || "am",
-      persons: row && row !== OTHERS ? [row] : []
+      persons: row && row !== NOBODY ? [row] : []
     });
   }
 
@@ -5285,8 +5593,11 @@ window.addEventListener("online", function(){
   var AGENDA_CHUNK = 35;
   var agenda = { from: null, to: null, jumpTo: null, lastTop: null };
 
+  /* L'agenda scorre senza fine: le colonne sono quelle di un paio di mesi
+     indietro e un anno avanti */
   function agendaRows(){
-    return visibleRows(calEvents);
+    var from = fmtDate(addDays(new Date(), -60)), to = fmtDate(addDays(new Date(), 365));
+    return visibleRows(eventsInRange(from, to), from, to);
   }
   function agendaTemplate(rows){
     return "var(--alabel) var(--ahalf) repeat(" + Math.max(rows.length, 1) + ", minmax(var(--acol), 1fr))";
@@ -5315,7 +5626,6 @@ window.addEventListener("online", function(){
     var html = "";
     if(e.start_time) html += '<span class="cal-chip-time">' + escapeHtml(fmtTimeRange(e)) + '</span>';
     if(e.kind === "extra") html += '<span class="cal-tag">Extra</span>';
-    if(row === OTHERS) html += '<b>' + escapeHtml(outsiders(e).join(", ")) + ':</b> ';
     html += escapeHtml(displayTitle(e));
     if(e.project_name) html += '<span class="cal-chip-proj">' + escapeHtml(e.project_name) + '</span>';
     chip.innerHTML = html;
@@ -5363,7 +5673,8 @@ window.addEventListener("online", function(){
         cell.className = "cal-acell" + (hi ? " pm" : "");
         var se = slotEvents(evs, row, ds, h.key);
         se.forEach(function(e){ cell.appendChild(agendaChip(e, row)); });
-        if(!se.length) cell.title = rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
+        if(!se.length && rowOff(row, ds)){ cell.classList.add("off"); cell.title = offTitle(row, ds); }
+        else if(!se.length) cell.title = rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
         cell.addEventListener("click", function(){ newFor(row, ds, h.key); });
         block.appendChild(cell);
       });
@@ -5563,7 +5874,7 @@ window.addEventListener("online", function(){
     var gridStart = startOfWeek(firstOfMonth);
     var today = new Date();
     var evs = eventsInRange(fmtDate(gridStart), fmtDate(addDays(gridStart, 41)));
-    var rows = visibleRows(evs);
+    var rows = visibleRows(evs, fmtDate(gridStart), fmtDate(addDays(gridStart, 41)));
 
     for(var i=0;i<42;i++){
       var d = addDays(gridStart, i);
@@ -5592,10 +5903,12 @@ window.addEventListener("online", function(){
             slot.className += " full " + chipClass(e);
             paintChip(slot, e, row);
             slot.textContent = (e.status === "da_confermare" ? "? " : "") +
-              (row === OTHERS ? outsiders(e).join(", ") + ": " : "") +
               (e.kind === "ferie" ? "Ferie" : e.title) + (se.length > 1 ? " +" + (se.length - 1) : "");
             slot.title = rowLabel(row) + " · " + h.label + "\n" + se.map(eventTooltip).join("\n\n");
             slot.addEventListener("click", function(ev){ ev.stopPropagation(); openEventModal(e); });
+          } else if(rowOff(row, ds)){
+            slot.className += " off";
+            slot.title = offTitle(row, ds);
           } else {
             slot.title = rowLabel(row) + " · " + h.label + ": libero";
           }
@@ -5627,7 +5940,7 @@ window.addEventListener("online", function(){
     }
 
     var evs = eventsInRange(fmtDate(ws), fmtDate(we));
-    var rows = visibleRows(evs);
+    var rows = visibleRows(evs, fmtDate(ws), fmtDate(we));
     var today = new Date();
 
     var wrap = document.createElement("div");
@@ -5686,7 +5999,6 @@ window.addEventListener("online", function(){
             var html = "";
             if(e.start_time) html += '<span class="cal-chip-time">' + escapeHtml(fmtTimeRange(e)) + '</span>';
             if(e.kind === "extra") html += '<span class="cal-tag">Extra</span>';
-            if(row === OTHERS) html += '<b>' + escapeHtml(outsiders(e).join(", ")) + ':</b> ';
             html += escapeHtml(displayTitle(e));
             if(e.project_name) html += '<span class="cal-chip-proj">' + escapeHtml(e.project_name) + '</span>';
             chip.innerHTML = html;
@@ -5694,7 +6006,8 @@ window.addEventListener("online", function(){
             chip.addEventListener("click", function(ev){ ev.stopPropagation(); openEventModal(e); });
             cell.appendChild(chip);
           });
-          cell.title = se.length ? "" : rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
+          if(!se.length && rowOff(row, ds)){ cell.classList.add("off"); cell.title = offTitle(row, ds); }
+          else cell.title = se.length ? "" : rowLabel(row) + " · " + h.label + ": libero (clic per aggiungere)";
           (function(row, ds, half){
             cell.addEventListener("click", function(){ newFor(row, ds, half); });
           })(row, ds, h.key);
@@ -5724,7 +6037,7 @@ window.addEventListener("online", function(){
     list.className = "cal-day-scroll";
 
     var evs = eventsInRange(ds, ds);
-    var rows = visibleRows(evs);
+    var rows = visibleRows(evs, ds, ds);
 
     HALVES.forEach(function(h){
       var sec = document.createElement("section");
@@ -5744,7 +6057,12 @@ window.addEventListener("online", function(){
         var cards = document.createElement("div");
         cards.className = "cal-dcards";
         var se = slotEvents(evs, row, ds, h.key);
-        if(!se.length){
+        if(!se.length && rowOff(row, ds)){
+          var off = document.createElement("div");
+          off.className = "cal-dfree off";
+          off.textContent = "Non c'è questo mese";
+          cards.appendChild(off);
+        } else if(!se.length){
           var free = document.createElement("button");
           free.type = "button";
           free.className = "cal-dfree";
@@ -5782,7 +6100,7 @@ window.addEventListener("online", function(){
     body.className = "cal-day-event-body";
     var title = document.createElement("div");
     title.className = "cal-day-event-title";
-    title.textContent = (row === OTHERS ? outsiders(e).join(", ") + ": " : "") + displayTitle(e);
+    title.textContent = displayTitle(e);
     body.appendChild(title);
 
     var meta = document.createElement("div");
@@ -5924,7 +6242,12 @@ window.addEventListener("online", function(){
 
         '<label>Persone *</label>' +
         '<div class="cm-people" id="cm-people"></div>' +
-        '<input type="text" id="cm-outsiders" placeholder="Altri, fuori dal team (nomi separati da virgola)" maxlength="200">' +
+        '<div class="cm-people" id="cm-extra"></div>' +
+        '<div class="cm-add-person" id="cm-add-person" hidden>' +
+          '<input type="text" id="cm-add-name" placeholder="Nome di chi è fuori dal team" maxlength="60">' +
+          '<button type="button" class="btn-primary" id="cm-add-ok">Aggiungi</button>' +
+          '<button type="button" class="btn-cancel" id="cm-add-no">Annulla</button>' +
+        '</div>' +
 
         '<div class="cm-row">' +
           '<div><label for="cm-date" id="cm-date-label">Data</label><input type="date" id="cm-date"></div>' +
@@ -5984,20 +6307,18 @@ window.addEventListener("online", function(){
     var $date = $("cm-date"), $dateEnd = $("cm-date-end");
     var $sh = $("cm-sh"), $sm = $("cm-sm"), $eh = $("cm-eh"), $em = $("cm-em");
     var $recur = $("cm-recur"), $recurTo = $("cm-recur-to"), $notes = $("cm-notes"), $err = $("cm-error");
-    var $outsiders = $("cm-outsiders");
 
     /* --- valori iniziali --- */
     var kind = data.kind || "lavoro";
     var half = data.half || "am";
     var status = data.status || "confermato";
-    var persons = (data.persons || []).filter(isKnown);
+    var persons = (data.persons || []).slice();
     var recurDays = new Set();
 
     $title.value = data.title || "";
     $project.innerHTML = projectOptions(data);
     if(data.project_id) $project.value = data.project_id;
     else if(data.project_name){ $project.value = "__altro__"; $projOther.value = data.project_name; }
-    $outsiders.value = (data.persons || []).filter(function(p){ return !isKnown(p); }).join(", ");
     $date.value = data.date;
     $dateEnd.value = data.date_end || data.date;
     function setTime($h, $m, v){
@@ -6037,6 +6358,65 @@ window.addEventListener("online", function(){
       });
       $people.appendChild(b);
     });
+
+    /* --- persone da fuori: chi c'e' nel mese dell'impegno, piu' chi e'
+       gia' segnato; col "+" se ne aggiunge una --- */
+    var $extra = $("cm-extra"), $addBox = $("cm-add-person"), $addName = $("cm-add-name");
+    function renderExtra(){
+      var mk = monthOf($date.value || data.date);
+      var names = extraPeople.filter(function(p){ return activeIn(p, mk); }).map(function(p){ return p.name; });
+      persons.forEach(function(n){ if(!isKnown(n) && names.indexOf(n) < 0) names.push(n); });
+      $extra.innerHTML = "";
+      names.forEach(function(n){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "cm-person";
+        b.dataset.p = n;
+        b.style.setProperty("--pc", personColor(n));
+        b.style.setProperty("--pcbg", hexA(personColor(n), 0.22));
+        var p = findExtra(n);
+        if(!p || !activeIn(p, mk)) b.title = n + " non c'è a " + monthName(mk);
+        b.innerHTML = '<span class="dot"></span>' + escapeHtml(n);
+        b.addEventListener("click", function(){
+          var i = persons.indexOf(n);
+          if(i >= 0) persons.splice(i, 1); else persons.push(n);
+          sync();
+        });
+        $extra.appendChild(b);
+      });
+      var add = document.createElement("button");
+      add.type = "button";
+      add.className = "cm-person cm-person-add";
+      add.title = "Aggiungi una persona fuori dal team";
+      add.setAttribute("aria-label", add.title);
+      add.innerHTML = "+" + (names.length ? "" : " Persona da fuori");
+      add.addEventListener("click", function(){
+        $addBox.hidden = false;
+        $addName.value = "";
+        $addName.focus();
+      });
+      $extra.appendChild(add);
+    }
+    function closeAdd(){ $addBox.hidden = true; }
+    async function confirmAdd(){
+      var n = $addName.value.trim();
+      if(!n){ $addName.focus(); return; }
+      var got = await addPerson(n, monthOf($date.value || data.date));
+      if(!got) return;
+      if(persons.indexOf(got) < 0) persons.push(got);
+      closeAdd();
+      renderExtra();
+      sync();
+      if(isKnown(got)) notify(got + " fa già parte del team ed è tra le persone selezionate.", { warn: false, autoHide: 3000 });
+    }
+    $("cm-add-ok").addEventListener("click", confirmAdd);
+    $("cm-add-no").addEventListener("click", closeAdd);
+    $addName.addEventListener("keydown", function(e){
+      // Invio ed Esc riguardano solo il campo, non tutto l'impegno
+      if(e.key === "Enter"){ e.preventDefault(); e.stopPropagation(); confirmAdd(); }
+      if(e.key === "Escape"){ e.stopPropagation(); closeAdd(); }
+    });
+    renderExtra();
 
     /* --- giorni della ricorrenza --- */
     var $days = $("cm-days");
@@ -6090,6 +6470,7 @@ window.addEventListener("online", function(){
         recurDays.clear();
         if($date.value) recurDays.add(isoDow(parseDate($date.value)));
       }
+      if($date.value) renderExtra();
       sync();
     });
 
@@ -6098,7 +6479,7 @@ window.addEventListener("online", function(){
       bd.querySelectorAll("#cm-kind button").forEach(function(b){ b.classList.toggle("on", b.dataset.v === kind); b.setAttribute("aria-pressed", b.dataset.v === kind); });
       bd.querySelectorAll("#cm-half button").forEach(function(b){ b.classList.toggle("on", b.dataset.v === half); b.setAttribute("aria-pressed", b.dataset.v === half); });
       bd.querySelectorAll("#cm-status button").forEach(function(b){ b.classList.toggle("on", b.dataset.v === status); b.setAttribute("aria-pressed", b.dataset.v === status); });
-      $people.querySelectorAll(".cm-person").forEach(function(b){
+      bd.querySelectorAll(".cm-person[data-p]").forEach(function(b){
         var on = persons.indexOf(b.dataset.p) >= 0;
         b.classList.toggle("on", on); b.setAttribute("aria-pressed", on);
       });
@@ -6137,9 +6518,8 @@ window.addEventListener("online", function(){
         start_time: null, end_time: null,
         project_id: null, project_name: null
       };
-      var extra = $outsiders.value.split(",").map(function(s){ return s.trim(); }).filter(Boolean)
-        .map(canonicalPerson).filter(function(p){ return persons.indexOf(p) < 0; });
-      out.persons = KNOWN_PERSONS.filter(function(p){ return persons.indexOf(p) >= 0; }).concat(extra);
+      out.persons = KNOWN_PERSONS.filter(function(p){ return persons.indexOf(p) >= 0; })
+        .concat(persons.filter(function(p){ return !isKnown(p); }));
 
       if(kind === "ferie" && !out.title) out.title = "Ferie";
       if(!out.title) return fail("Scrivi un titolo.", $title);
@@ -6156,7 +6536,7 @@ window.addEventListener("online", function(){
           out.project_name = p ? p.name : (data.project_name || null);
         }
       }
-      if(!out.persons.length) return fail("Scegli almeno una persona.", $outsiders);
+      if(!out.persons.length) return fail("Scegli almeno una persona.", $people.querySelector("button"));
       if(!out.date) return fail("Scegli la data.", $date);
       if(kind === "ferie"){
         var de = $dateEnd.value || out.date;
