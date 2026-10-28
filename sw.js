@@ -47,6 +47,8 @@ const APP_SHELL = [
   // offline finiva sulla pagina di errore invece che sul login.
   '/login.html',
   '/app.html',
+  '/app.webmanifest',
+  '/chi-fa-cosa.webmanifest',
   '/js/be-config.js',
   '/vendor/supabase-js.min.js',
 ];
