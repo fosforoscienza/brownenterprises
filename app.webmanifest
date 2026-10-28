@@ -62,7 +62,7 @@
       "name": "Chi fa cosa",
       "short_name": "Chi fa cosa",
       "description": "Apri il calendario di chi fa cosa, sul giorno di oggi",
-      "url": "/app.html?utm_source=pwa_shortcut#chi-fa-cosa",
+      "url": "/app.html?apri=chi-fa-cosa",
       "icons": [
         {
           "src": "/icons/shortcut-area-riservata-192.png",
