@@ -759,7 +759,7 @@
   .msg-badge.quiet{background:#f5cd47}
   .msg-panel{
     position:fixed;
-    top:50px;right:16px;
+    top:calc(50px + env(safe-area-inset-top,0px));right:16px;
     width:344px;max-width:calc(100vw - 24px);
     max-height:min(72vh,540px);
     background:#22272b;
@@ -1246,6 +1246,11 @@
   /* --- calendar overlay ------------------------------------------------- */
   .cal-overlay{
     position:fixed;inset:0;
+    /* copre tutto lo schermo: lo spazio della barra di stato (e della tacca
+       in orizzontale) va lasciato qui, come fa il body per il resto dell'app */
+    padding-top:env(safe-area-inset-top,0px);
+    padding-left:env(safe-area-inset-left,0px);
+    padding-right:env(safe-area-inset-right,0px);
     background:#1d2125;
     z-index:50;
     display:flex;flex-direction:column;
@@ -2163,6 +2168,8 @@
     .board-content{overscroll-behavior-x:contain;overscroll-behavior-y:none}
     .sidebar,.modal,.cal-side,.cards{overscroll-behavior:contain}
     .modal{max-height:92vh;max-height:92dvh}
+    /* sopra la finestra resta sempre la barra di stato */
+    .modal{max-height:calc(100dvh - env(safe-area-inset-top,0px) - 16px)}
   }
 
   /* Il lampo grigio del tap e il menu contestuale al long-press tradiscono
