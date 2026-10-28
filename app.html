@@ -2126,11 +2126,28 @@
   }
   .card,.project-item{-webkit-touch-callout:none}
 </style>
-<link rel="manifest" href="/manifest.webmanifest">
+<link rel="manifest" id="be-manifest" href="/app.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Progetti">
+<meta name="apple-mobile-web-app-title" id="be-app-title" content="Progetti">
+<script>
+/* Aggiunta alla schermata Home, l'icona apre la sezione in cui si e':
+   da #chi-fa-cosa il calendario, altrimenti i progetti. Il manifest del
+   sito pubblico (manifest.webmanifest) apriva invece la home del sito. */
+(function(){
+  var link = document.getElementById("be-manifest");
+  var title = document.getElementById("be-app-title");
+  function sync(){
+    var cal = location.hash === "#chi-fa-cosa";
+    link.href = cal ? "/chi-fa-cosa.webmanifest" : "/app.webmanifest";
+    title.content = cal ? "Chi fa cosa" : "Progetti";
+  }
+  sync();
+  window.addEventListener("hashchange", sync);
+  window.beSyncManifest = sync;
+})();
+</script>
 <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="/css/pwa.css">
 </head>
@@ -6215,6 +6232,8 @@ window.addEventListener("online", function(){
     if(fromUrl !== true && location.hash !== CAL_HASH){
       history.pushState(null, "", CAL_HASH);
       pushedHash = true;
+      // pushState non manda hashchange: il manifest si aggiorna a mano
+      if(window.beSyncManifest) window.beSyncManifest();
     }
     cursor = new Date();
     view = defaultView();
@@ -6234,6 +6253,7 @@ window.addEventListener("online", function(){
       // si torna alla voce di prima; chiude poi l'evento hashchange
       if(pushedHash){ pushedHash = false; history.back(); return; }
       history.replaceState(null, "", urlWithoutHash());
+      if(window.beSyncManifest) window.beSyncManifest();
     }
     $overlay.classList.remove("show");
     $overlay.setAttribute("aria-hidden","true");

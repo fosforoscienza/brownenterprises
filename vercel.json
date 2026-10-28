@@ -30,6 +30,32 @@
       ]
     },
     {
+      "source": "/app.webmanifest",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
+      "source": "/chi-fa-cosa.webmanifest",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
       "source": "/icons/(.*)",
       "headers": [
         {

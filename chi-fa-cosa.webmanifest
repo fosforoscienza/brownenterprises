@@ -1,0 +1,75 @@
+{
+  "name": "Brown · Chi fa cosa",
+  "short_name": "Chi fa cosa",
+  "description": "Il calendario del team Brown Enterprises: chi fa cosa, giorno per giorno.",
+  "lang": "it-IT",
+  "dir": "ltr",
+  "id": "/chi-fa-cosa",
+  "start_url": "/app.html?utm_source=pwa#chi-fa-cosa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0E1217",
+  "theme_color": "#0E1217",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-monochrome-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "monochrome"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Progetti",
+      "short_name": "Progetti",
+      "description": "Apri i progetti del team",
+      "url": "/app.html?utm_source=pwa_shortcut",
+      "icons": [
+        {
+          "src": "/icons/shortcut-area-riservata-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Chi fa cosa",
+      "short_name": "Chi fa cosa",
+      "description": "Apri il calendario di chi fa cosa, sul giorno di oggi",
+      "url": "/app.html?utm_source=pwa_shortcut#chi-fa-cosa",
+      "icons": [
+        {
+          "src": "/icons/shortcut-area-riservata-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
