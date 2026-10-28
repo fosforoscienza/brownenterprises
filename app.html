@@ -1319,6 +1319,15 @@
     transition:background 0.12s,color 0.12s;
   }
   .cal-close:hover{background:#412a2a;color:#f87168}
+  /* Al posto della X: chiude il calendario e porta alla Panoramica */
+  .cal-home-btn{
+    background:#22272b;border:1px solid #38414b;color:#cce0ff;
+    padding:6px 12px;border-radius:6px;
+    font-size:12px;font-weight:700;
+    display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+    transition:background 0.12s,color 0.12s;
+  }
+  .cal-home-btn:hover{background:#2c3338;color:#f4f5f7}
 
   .cal-main{flex:1;display:flex;overflow:hidden}
 
@@ -2025,6 +2034,7 @@
     .cal-add-btn{padding:7px 11px;font-size:12px;order:6}
     .cal-add-btn svg{width:13px;height:13px}
     .cal-close{width:34px;height:34px;flex-shrink:0}
+    .cal-home-btn{height:34px;padding:0 10px}
     .cal-select-btn{order:8}
     .cal-selbar{padding:8px 12px calc(8px + env(safe-area-inset-bottom, 0px));gap:6px}
     .cal-selbar-count{flex:1 1 100%}
@@ -2174,6 +2184,13 @@
    da #chi-fa-cosa il calendario, altrimenti i progetti. Il manifest del
    sito pubblico (manifest.webmanifest) apriva invece la home del sito. */
 (function(){
+  /* L'icona di «Chi fa cosa» parte da app.html?apri=chi-fa-cosa e non da
+     #chi-fa-cosa: aperta dalla schermata Home, iOS perde il frammento e
+     dopo il login si finiva sui progetti. Qui il parametro torna frammento,
+     che il resto della pagina (e il passaggio dal login) gia' conosce. */
+  if(/[?&]apri=chi-fa-cosa(&|$)/.test(location.search)){
+    history.replaceState(null, "", location.pathname + "#chi-fa-cosa");
+  }
   var link = document.getElementById("be-manifest");
   var title = document.getElementById("be-app-title");
   function sync(){
@@ -2299,8 +2316,9 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       <span>Nuovo impegno</span>
     </button>
-    <button class="cal-close" id="cal-close" title="Chiudi">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    <button class="cal-home-btn" id="cal-close" type="button" title="Torna alla home, nella Panoramica dei progetti" aria-label="Torna alla home">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v12h14V9"/><path d="M10 21v-6h4v6"/></svg>
+      <span>Home</span>
     </button>
   </div>
   <div class="cal-main">
@@ -3268,6 +3286,13 @@ function buildGroup(g){
 
   return group;
 }
+
+/* La «home» dell'area riservata: la Panoramica. Ci porta il bottone
+   Home di «Chi fa cosa». */
+window.beGoHome = function(){
+  state.view = "overview";
+  render();
+};
 
 /* Voce fissa in cima: To Do / In Progress / Done di tutti i progetti */
 function buildOverviewItem(){
@@ -8867,7 +8892,10 @@ window.addEventListener("online", function(){
 
   /* ---------- wire up ---------- */
   document.getElementById("open-calendar-btn").addEventListener("click", function(){ open(); });
-  document.getElementById("cal-close").addEventListener("click", function(){ close(); });
+  document.getElementById("cal-close").addEventListener("click", function(){
+    close();
+    if(window.beGoHome) window.beGoHome();
+  });
   window.addEventListener("hashchange", function(){
     if(location.hash === CAL_HASH){ if(!isOpen()) open(true); }
     else if(isOpen()){ pushedHash = false; close(true); }

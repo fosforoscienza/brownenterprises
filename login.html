@@ -161,6 +161,13 @@
    da #chi-fa-cosa il calendario, altrimenti i progetti. Il manifest del
    sito pubblico (manifest.webmanifest) apriva invece la home del sito. */
 (function(){
+  /* L'icona di «Chi fa cosa» parte da app.html?apri=chi-fa-cosa e non da
+     #chi-fa-cosa: aperta dalla schermata Home, iOS perde il frammento e
+     dopo il login si finiva sui progetti. Qui il parametro torna frammento,
+     che il resto della pagina (e il passaggio dal login) gia' conosce. */
+  if(/[?&]apri=chi-fa-cosa(&|$)/.test(location.search)){
+    history.replaceState(null, "", location.pathname + "#chi-fa-cosa");
+  }
   var link = document.getElementById("be-manifest");
   var title = document.getElementById("be-app-title");
   function sync(){
