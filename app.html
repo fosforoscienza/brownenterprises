@@ -1534,6 +1534,7 @@
   .cal-mslot.k-extra{background:repeating-linear-gradient(135deg,#323a41 0 4px,#22272b 4px 8px);color:#b6c2cf}
   .cal-mslot.k-ferie{background:repeating-linear-gradient(45deg,var(--pcbg) 0 4px,transparent 4px 8px);font-weight:700}
   .cal-mslot.tentative{outline:1px dashed var(--pc);outline-offset:-1px;font-style:italic}
+  .cal-mslot.full.tentative{background:#ff1f3d;color:#fff;font-weight:700}
 
   /* Week view: la griglia del vecchio foglio "chi fa cosa". Una riga per
      persona, sempre nello stesso ordine, divisa in mattina e pomeriggio:
@@ -1644,6 +1645,14 @@
   .cal-chip.k-extra,.cal-day-event-card.k-extra{background:repeating-linear-gradient(135deg,#323a41 0 6px,#22272b 6px 12px);color:#b6c2cf}
   .cal-chip.k-ferie,.cal-day-event-card.k-ferie{background:repeating-linear-gradient(45deg,var(--pcbg) 0 6px,transparent 6px 12px);font-weight:700}
   .cal-chip.tentative{outline:1px dashed var(--pc);outline-offset:-1px;font-style:italic}
+  /* Da confermare: il titolo bianco su rosso acceso, perche' salti all'occhio */
+  .cal-chip-title{overflow-wrap:anywhere}
+  .tentative .cal-chip-title,.cal-day-event-card.tentative .cal-day-event-title{
+    background:#ff1f3d;color:#fff;font-weight:700;font-style:normal;
+    padding:0 4px;border-radius:3px;
+    -webkit-box-decoration-break:clone;box-decoration-break:clone;
+  }
+  .cal-day-event-card.tentative .cal-day-event-title{display:inline-block}
   .cal-tag{
     display:inline-block;
     font-size:9px;font-weight:800;letter-spacing:0.4px;text-transform:uppercase;
@@ -1793,7 +1802,7 @@
   }
   .cal-legend-sw.k-extra{background:repeating-linear-gradient(135deg,#4a545e 0 3px,#22272b 3px 6px)}
   .cal-legend-sw.k-ferie{background:repeating-linear-gradient(45deg,var(--pcbg) 0 3px,transparent 3px 6px)}
-  .cal-legend-sw.tentative{outline:1px dashed var(--pc);outline-offset:-1px}
+  .cal-legend-sw.tentative{outline:1px dashed var(--pc);outline-offset:-1px;background:#ff1f3d}
 
   /* Day view */
   .cal-dnone{color:#738496;font-size:13px}
@@ -1810,7 +1819,6 @@
   }
   .cal-day-event-card:hover{background:#22272b;border-color:#38414b}
   .cal-day-event-card.tentative{border-style:dashed;border-left-style:solid}
-  .cal-day-event-card.tentative .cal-day-event-title{font-style:italic}
   .cal-day-event-time{
     color:#cce0ff;font-weight:700;font-size:13px;
     min-width:90px;flex-shrink:0;
@@ -2372,7 +2380,8 @@ function notify(message, opts){
       kind: opts.kind || "app",
       html: String(message).replace(/</g, "&lt;"),
       warn: opts.warn !== false,
-      autoHide: opts.autoHide || 6000
+      autoHide: opts.autoHide || 6000,
+      action: opts.action
     });
     return;
   }
@@ -5477,10 +5486,10 @@ window.addEventListener("online", function(){
   var DAYS_SHORT = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
   var PALETTE = ["#f87168","#f5cd47","#4bce97","#579dff","#9f8fef","#f5a623","#94c748","#ec407a","#26a69a","#ff7043","#ab47bc","#42a5f5"];
 
-  // Ordine fisso delle caselle, uguale per tutti: Alessandro, poi Lollo,
-  // Doro e Vale, poi Mattia e Camilla. Un giorno in cui c'e' solo Doro
+  // Ordine fisso delle caselle, uguale per tutti: Alessandro, poi Doro,
+  // Lollo e Vale, poi Mattia e Camilla. Un giorno in cui c'e' solo Lollo
   // lascia vuote le prime due caselle invece di compattarle.
-  var KNOWN_PERSONS = ["Alessandro","Lorenzo","Luca","Valeria","Mattia","Camilla"];
+  var KNOWN_PERSONS = ["Alessandro","Luca","Lorenzo","Valeria","Mattia","Camilla"];
   var USER_COLORS = {
     "Alessandro": "#f87168",
     "Luca":       "#f5cd47",
@@ -6892,7 +6901,7 @@ window.addEventListener("online", function(){
     var html = "";
     if(e.start_time) html += '<span class="cal-chip-time">' + escapeHtml(fmtTimeRange(e)) + '</span>';
     if(e.kind === "extra") html += '<span class="cal-tag">Extra</span>';
-    html += escapeHtml(displayTitle(e));
+    html += '<span class="cal-chip-title">' + escapeHtml(displayTitle(e)) + '</span>';
     if(e.project_name) html += '<span class="cal-chip-proj">' + escapeHtml(e.project_name) + '</span>';
     chip.innerHTML = html;
     chip.title = eventTooltip(e);
@@ -7531,12 +7540,15 @@ window.addEventListener("online", function(){
     return o;
   }
 
+  /* preset.copy: un impegno da duplicare. Si apre come nuovo, con gli
+     stessi campi, e si salva come impegno a se' (fuori da ogni serie). */
   function openEventModal(existing, preset){
     if(existing && existing.source === "apple") return openAppleEventInfo(existing);
     var isEdit = !!existing;
     preset = preset || {};
     var me = myPerson();
-    var data = existing ? JSON.parse(JSON.stringify(existing)) : {
+    var src = existing || preset.copy;
+    var data = src ? JSON.parse(JSON.stringify(src)) : {
       id: null,
       date: preset.date || fmtDate(cursor),
       date_end: null,
@@ -7549,12 +7561,15 @@ window.addEventListener("online", function(){
       project_id: null, project_name: null,
       notes: null, series_id: null, recur: null, source: "mario"
     };
+    if(!isEdit && preset.copy){
+      data.id = null; data.series_id = null; data.recur = null; data.source = "mario";
+    }
 
     var bd = document.createElement("div");
     bd.className = "modal-backdrop";
     bd.innerHTML =
       '<div class="modal cm-modal" role="dialog" aria-modal="true">' +
-        '<h2>'+ (isEdit ? "Modifica impegno" : "Nuovo impegno") +'</h2>' +
+        '<h2>'+ (isEdit ? "Modifica impegno" : preset.copy ? "Copia dell'impegno" : "Nuovo impegno") +'</h2>' +
 
         '<div class="cm-seg" id="cm-kind" role="radiogroup" aria-label="Tipo di impegno">' +
           '<button type="button" data-v="lavoro">Lavoro</button>' +
@@ -7632,7 +7647,8 @@ window.addEventListener("online", function(){
 
         '<div class="actions" style="justify-content:space-between">' +
           '<div>' +
-            (isEdit ? '<button class="btn-cancel" id="cm-delete" style="color:#f87168">Elimina</button>' : '') +
+            (isEdit ? '<button class="btn-cancel" id="cm-delete" style="color:#f87168">Elimina</button>' +
+                      '<button class="btn-cancel" id="cm-copy" title="Crea un nuovo impegno uguale a questo, da modificare prima di salvarlo">Duplica</button>' : '') +
           '</div>' +
           '<div style="display:flex;gap:8px">' +
             '<button class="btn-cancel" id="cm-cancel">Annulla</button>' +
@@ -7870,9 +7886,11 @@ window.addEventListener("online", function(){
       $("cm-recur").closest(".cm-check").hidden = true;
       var r = data.recur || {};
       var dn = (r.days || []).map(function(n){ return DAYS_SHORT[n-1]; }).join(", ");
+      // l'ultimo impegno rimasto: chi ha eliminato i successivi accorcia la serie
+      var lastDate = seriesOf(data).reduce(function(m, e){ return e.date > m ? e.date : m; }, "");
       $("cm-series-note").hidden = false;
       $("cm-series-note").textContent = "Fa parte di una serie" + (dn ? " (ogni " + dn + ")" : "") +
-        (r.to ? " fino al " + fmtShort(r.to) : "") + ". Salvando potrai scegliere se cambiare solo questo o tutta la serie.";
+        (lastDate ? " fino al " + fmtShort(lastDate) : "") + ". Salvando potrai scegliere se cambiare solo questo o tutta la serie.";
     }
 
     /* --- persone --- */
@@ -8170,18 +8188,28 @@ window.addEventListener("online", function(){
       if(!ok) return;
       teardown();
       render();
-      if(rows.length > 1) notify(rows.length + " impegni creati.", { warn: false, autoHide: 3000 });
+      if(!isEdit) offerUndo(rows);
     }
     async function del(){
       var ids = [data.id];
-      if(data.series_id){
-        var scope = await askChoice("Elimina impegno ricorrente", "Vuoi eliminare solo questo impegno o tutta la serie?", [
-          { label: "Annulla", value: null },
-          { label: "Tutta la serie", value: "all", danger: true },
-          { label: "Solo questo", value: "one", primary: true }
-        ]);
+      var series = data.series_id ? seriesOf(data) : [];
+      if(series.length > 1){
+        var before = series.filter(function(e){ return e.date < data.date; }).length;
+        var after = series.filter(function(e){ return e.date > data.date; }).length;
+        var choices = [{ label: "Annulla", value: null }];
+        choices.push({ label: "Tutta la serie (" + series.length + ")", value: "all", danger: true });
+        if(before) choices.push({ label: "Questo e i precedenti (" + (before + 1) + ")", value: "before", danger: true });
+        if(after) choices.push({ label: "Questo e i successivi (" + (after + 1) + ")", value: "after", danger: true });
+        choices.push({ label: "Solo questo", value: "one", primary: true });
+        var scope = await askChoice("Elimina impegno ricorrente",
+          "Questo impegno si ripete: vuoi eliminare solo questo o anche gli altri della serie?", choices);
         if(!scope) return;
-        if(scope === "all") ids = calEvents.filter(function(e){ return e.series_id === data.series_id; }).map(function(e){ return e.id; });
+        if(scope !== "one"){
+          ids = series.filter(function(e){
+            return e.id === data.id || scope === "all" ||
+                   (scope === "before" ? e.date < data.date : e.date > data.date);
+          }).map(function(e){ return e.id; });
+        }
       } else if(!confirm("Eliminare questo impegno?")) return;
       if(!(await deleteRows(ids))) return;
       teardown();
@@ -8198,6 +8226,29 @@ window.addEventListener("online", function(){
     $("cm-save").addEventListener("click", save);
     var $del = $("cm-delete");
     if($del) $del.addEventListener("click", del);
+    var $copy = $("cm-copy");
+    if($copy) $copy.addEventListener("click", function(){
+      teardown();
+      openEventModal(null, { copy: data });
+    });
+  }
+
+  function seriesOf(e){
+    return calEvents.filter(function(x){ return x.series_id === e.series_id; });
+  }
+
+  /* Subito dopo aver aggiunto un impegno (o una serie) lo si puo' togliere
+     con «Annulla» nell'avviso, finche' resta a schermo. */
+  function offerUndo(rows){
+    var ids = rows.map(function(r){ return r.id; });
+    notify(rows.length > 1 ? rows.length + " impegni aggiunti." : "Impegno aggiunto.", {
+      warn: false, autoHide: 8000,
+      action: { label: "Annulla", run: async function(){
+        if(!(await deleteRows(ids, "Impegno non tolto"))) return;
+        render();
+        notify(rows.length > 1 ? "Impegni tolti." : "Impegno tolto.", { warn: false, autoHide: 2500 });
+      } }
+    });
   }
 
   /* Gli impegni arrivati da Apple si cambiano da Apple: qui solo lettura */
