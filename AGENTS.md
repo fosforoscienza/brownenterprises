@@ -21,7 +21,9 @@ del team, «Mario Project Manager».
   Alessandro è il coordinatore (`be_profiles.coordinator`): vede i progetti
   nuovi del team e può eliminarli.
 - **Funzioni serverless** in `api/` (Vercel, Node): il feed `.ics` per Apple
-  Calendar e la lettura dei calendari pubblici iCloud.
+  Calendar, la lettura dei calendari pubblici iCloud e il riepilogo email
+  giornaliero dei task (`api/task-digest`, lanciato dal cron di `vercel.json`,
+  spedisce con Resend).
 
 ## Stack e vincoli
 

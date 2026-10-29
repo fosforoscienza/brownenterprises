@@ -12,7 +12,7 @@ del team, **Mario Project Manager**.
 |---|---|---|
 | Sito pubblico | `index.html`, `en/`, `product/`, `software/` | Mirror statico del vecchio sito WordPress, in italiano e inglese, installabile come PWA |
 | Area riservata | `login.html`, `app.html` | Progetti in categorie (più Personale, Preferiti e Archiviati) e schede, Archivio, Panoramica, scadenze e il calendario condiviso «Chi fa cosa» |
-| Funzioni | `api/` | Feed `.ics` per Apple Calendar e lettura dei calendari pubblici iCloud |
+| Funzioni | `api/` | Feed `.ics` per Apple Calendar, lettura dei calendari pubblici iCloud e riepilogo email giornaliero dei task |
 | Database | `sql/` | Le modifiche allo schema Supabase, da eseguire a mano |
 | Test | `tests/` | Test delle funzioni e del calendario |
 
@@ -41,6 +41,9 @@ L'area riservata in locale usa comunque il database vero: attenzione a
 quello che si modifica.
 
 Le funzioni in `api/` girano su Vercel (in locale con `vercel dev`).
+`api/task-digest` parte ogni mattina dal cron di `vercel.json` e ha bisogno
+di `CRON_SECRET`, `BE_SUPABASE_SERVICE_KEY`, `RESEND_API_KEY` e
+`BE_DIGEST_FROM` nelle variabili d'ambiente di Vercel.
 
 ## Test
 
