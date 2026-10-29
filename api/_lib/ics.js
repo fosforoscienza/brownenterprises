@@ -435,6 +435,11 @@ function buildIcs(rows, opts){
     }
     L.push("SUMMARY:" + escapeText(summary));
     if(desc.length) L.push("DESCRIPTION:" + escapeText(desc.join("\n")));
+    // il luogo (sql/luogo.sql): Apple Calendar lo mostra e lo apre in Mappe
+    if(r.location) L.push("LOCATION:" + escapeText(r.location));
+    if(r.location && r.location_lat != null && r.location_lon != null){
+      L.push("GEO:" + Number(r.location_lat).toFixed(6) + ";" + Number(r.location_lon).toFixed(6));
+    }
     L.push("STATUS:" + (tentative ? "TENTATIVE" : "CONFIRMED"));
     L.push("TRANSP:OPAQUE");
     if(r.kind === "ferie") L.push("CATEGORIES:Ferie");
