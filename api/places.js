@@ -14,7 +14,6 @@
 var SUPABASE_URL = process.env.BE_SUPABASE_URL || "https://api.fosforo.info";
 var SUPABASE_KEY = process.env.BE_SUPABASE_ANON_KEY || "sb_publishable_U5-k5ljKyv3Edwlyt3brS5_0DLCA7Kq";
 var GOOGLE_URL = "https://places.googleapis.com/v1/places:autocomplete";
-var FIELDS = "suggestions.placePrediction.placeId,suggestions.placePrediction.text.text";
 
 /* Si cerca mentre si scrive: un token gia' verificato vale qualche minuto,
    cosi' non serve chiedere a Supabase a ogni lettera. */
@@ -75,8 +74,7 @@ module.exports = async function(req, res){
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Goog-Api-Key": key,
-        "X-Goog-FieldMask": FIELDS
+        "X-Goog-Api-Key": key
       },
       body: JSON.stringify({
         input: q,
@@ -87,15 +85,22 @@ module.exports = async function(req, res){
       }),
       signal: AbortSignal.timeout(8000)
     });
-  } catch(_){
+  } catch(err){
+    console.error("places: Google non raggiungibile", err && err.message);
     return res.status(502).json({ error: "Google Maps non raggiungibile" });
   }
+  var json = await r.json().catch(function(){ return null; });
   if(!r.ok){
-    // 403: chiave sbagliata o API non abilitata; 429: quota esaurita
+    // 403: chiave sbagliata o API non abilitata; 429: quota esaurita.
+    // Il messaggio di Google finisce nei log di Vercel, non al browser.
+    console.error("places: Google ha risposto", r.status, JSON.stringify(json && json.error || json).slice(0, 500));
     return res.status(502).json({ error: "Google Maps ha risposto " + r.status });
   }
-  var json = await r.json().catch(function(){ return null; });
-  return res.status(200).json({ places: toPlaces(json) });
+  var list = toPlaces(json);
+  var raw = (json && json.suggestions || []).length;
+  if(raw && !list.length) console.error("places: suggerimenti senza testo o place_id", JSON.stringify(json).slice(0, 500));
+  console.log("places:", raw, "suggerimenti,", list.length, "luoghi");
+  return res.status(200).json({ places: list });
 };
 
 module.exports.toPlaces = toPlaces;

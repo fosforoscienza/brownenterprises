@@ -117,3 +117,16 @@ test("places: errore di Google (chiave o quota) -> 502", async function(){
   assert.equal(res.code, 502);
   assert.match(res.body.error, /403/);
 });
+
+test("places: senza filtro dei campi, Google restituisce tutta la previsione", async function(){
+  var headers;
+  global.fetch = async function(url, opts){
+    if(/googleapis/.test(url)){ headers = opts.headers; return response(200, {}); }
+    return response(200, {});
+  };
+  var res = fakeRes();
+  await places(req("fermo"), res);
+  assert.equal(res.code, 200);
+  assert.deepEqual(res.body.places, []);
+  assert.ok(!("X-Goog-FieldMask" in headers));
+});
