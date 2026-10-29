@@ -473,6 +473,42 @@
     color:#8c9bab;
     font-size:12px;
   }
+  /* --- abstract del progetto: interruttore accanto al nome e riquadro ---- */
+  .abstract-toggle{
+    display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+    background:transparent;border:1px solid #38414b;border-radius:12px;
+    color:#9fadbc;font:inherit;font-size:12px;
+    padding:3px 10px 3px 4px;cursor:pointer;
+    transition:background 0.12s,color 0.12s,border-color 0.12s;
+  }
+  .abstract-toggle:hover{background:#2c3338;color:#f4f5f7}
+  .abstract-switch{
+    width:24px;height:14px;border-radius:7px;flex-shrink:0;
+    background:#38414b;position:relative;transition:background 0.15s;
+  }
+  .abstract-switch::after{
+    content:"";position:absolute;left:2px;top:2px;
+    width:10px;height:10px;border-radius:50%;background:#9fadbc;
+    transition:transform 0.15s,background 0.15s;
+  }
+  .abstract-toggle.on{border-color:#579dff;color:#cce0ff;background:#1c2b41}
+  .abstract-toggle.on .abstract-switch{background:#579dff}
+  .abstract-toggle.on .abstract-switch::after{transform:translateX(10px);background:#fff}
+  /* spento ma con un abstract scritto: un puntino lo segnala */
+  .abstract-toggle.filled:not(.on) .abstract-label::after{
+    content:"";display:inline-block;vertical-align:middle;
+    width:6px;height:6px;border-radius:50%;background:#579dff;margin-left:6px;
+  }
+  .board-abstract{margin:0 24px 12px;max-width:760px;flex-shrink:0}
+  .board-abstract-text{
+    display:block;width:100%;box-sizing:border-box;
+    min-height:52px;max-height:40vh;resize:vertical;
+    background:#22272b;color:#dee4ea;
+    border:1px solid #38414b;border-radius:8px;outline:none;
+    padding:8px 12px;font:inherit;font-size:13px;line-height:1.5;
+  }
+  .board-abstract-text:focus{border-color:#579dff}
+  .board-abstract-text::placeholder{color:#738496}
   .board-content{
     flex:1;
     overflow-x:auto;
@@ -2045,6 +2081,8 @@
     .board-header{padding:12px 14px;gap:8px}
     .board-title{font-size:17px;min-width:0;flex:1;max-width:none}
     .board-meta{display:none}
+    .board-abstract{margin:0 14px 10px}
+    .board-abstract-text{font-size:16px}
     .board-content{
       padding:0 14px 16px;gap:10px;
       scroll-snap-type:x mandatory;
@@ -2296,7 +2334,6 @@
     <div class="area-tabs" id="area-tabs" role="tablist">
       <button type="button" data-area="in_progettazione">In progettazione</button>
       <button type="button" data-area="in_corso">In corso</button>
-      <button type="button" data-area="amministrazione">Amministrazione</button>
     </div>
     <div class="topbar-spacer"></div>
     <button class="topbar-btn topbar-msg" id="open-msgs-btn" type="button" title="Messaggi" aria-haspopup="dialog" aria-expanded="false" aria-controls="msg-panel">
@@ -2428,7 +2465,10 @@ function uid(prefix){
 /* =====================================================================
  * State
  * ===================================================================== */
-var AREAS = ["in_progettazione", "in_corso", "amministrazione"];
+/* «Amministrazione» era la terza area: ora e' una categoria del team
+   (sql/amministrazione_categoria.sql). Un progetto rimasto con quell'area
+   finisce in «In corso». */
+var AREAS = ["in_progettazione", "in_corso"];
 var DEFAULT_AREA = "in_corso";
 function normalizeArea(a){ return AREAS.indexOf(a) >= 0 ? a : DEFAULT_AREA; }
 
@@ -2438,7 +2478,7 @@ var state = {
   view: "board",                                   /* "board" | "overview" */
   overviewFilter: { projectId: "", onlyDue: false, person: "", groupBy: "status" },
   alerts: [], msgHighlight: [],
-  library: {}, libraryError: null, cardDatesError: null, areaError: null,
+  library: {}, libraryError: null, cardDatesError: null, areaError: null, abstractError: null,
   startDateError: null, assigneesError: null,      /* sql/task.sql non ancora eseguito */
   isTeam: false,                                   /* email @brown.internal */
   teamIds: [],                                     /* chi vede i progetti del team */
@@ -3029,8 +3069,19 @@ async function loadEverything(){
 
   syncActiveProject();
 
-  await Promise.all([loadLibrary(), loadCategories(), loadCoordinator(), loadAssignees()]);
+  await Promise.all([loadLibrary(), loadCategories(), loadCoordinator(), loadAssignees(), loadAbstracts()]);
   return true;
+}
+
+/* L'abstract dei progetti (sql/abstract.sql) si legge a parte: senza la
+   colonna nuova il resto dell'app si carica lo stesso. */
+async function loadAbstracts(){
+  var res = await sb.from("be_projects").select("id, abstract");
+  if(res.error){ state.abstractError = res.error.message; return; }
+  state.abstractError = null;
+  var byId = {};
+  (res.data || []).forEach(function(r){ byId[r.id] = r.abstract || ""; });
+  state.projects.forEach(function(p){ p.abstract = byId[p.id] || ""; });
 }
 
 /* Il coordinatore (sql/coordinatore.sql): vede i progetti nuovi degli
@@ -3890,8 +3941,7 @@ function renderSidebarContent(){
 
 var AREA_LABELS = {
   in_progettazione: "In progettazione",
-  in_corso: "In corso",
-  amministrazione: "Amministrazione"
+  in_corso: "In corso"
 };
 
 /* Le scelte "dove va": le categorie del team, Personale e + Nuova categoria */
@@ -4201,6 +4251,59 @@ async function toggleShare(proj, userId, add, $row){
   }
 }
 
+/* --- abstract del progetto ---------------------------------------------- */
+var ABSTRACT_OPEN_KEY = "be_abstract_open_v1";
+var ABSTRACT_MAX = 2000;   // lo stesso limite di sql/abstract.sql
+function abstractOpen(){
+  try { return localStorage.getItem(ABSTRACT_OPEN_KEY) === "1"; } catch(e){ return false; }
+}
+function setAbstractOpen(on){
+  try { localStorage.setItem(ABSTRACT_OPEN_KEY, on ? "1" : "0"); } catch(e){}
+}
+
+/* Il riquadro sotto al titolo: lo scrive chiunque veda il progetto e si
+   salva quando si esce dal campo (be_set_project_abstract). */
+function buildAbstract(proj){
+  var box = document.createElement("div");
+  if(state.abstractError){
+    box.className = "board-warning";
+    box.textContent = "Abstract non attivo: " + state.abstractError +
+      " — esegui sql/abstract.sql sul database Supabase.";
+    return box;
+  }
+  box.className = "board-abstract";
+  var ta = document.createElement("textarea");
+  ta.className = "board-abstract-text";
+  ta.maxLength = ABSTRACT_MAX;
+  ta.rows = 2;
+  ta.placeholder = "Scrivi un abstract: di cosa parla il progetto, per chi è, a che punto è…";
+  ta.setAttribute("aria-label", "Abstract del progetto");
+  ta.value = proj.abstract || "";
+  function fit(){
+    ta.style.height = "auto";
+    ta.style.height = (ta.scrollHeight + 2) + "px";
+  }
+  ta.addEventListener("input", fit);
+  ta.addEventListener("change", async function(){
+    var v = ta.value.trim();
+    var prev = proj.abstract || "";
+    if(v === prev) return;
+    proj.abstract = v;
+    var res = await sb.rpc("be_set_project_abstract", { p_project: proj.id, p_abstract: v });
+    // il testo resta nel campo: si puo' riprovare senza riscriverlo
+    if(res.error){
+      proj.abstract = prev;
+      notify(errorText(res.error, "Abstract non salvato"));
+      return;
+    }
+    var $t = $board.querySelector(".abstract-toggle");
+    if($t) $t.classList.toggle("filled", !!v);
+  });
+  box.appendChild(ta);
+  requestAnimationFrame(fit);
+  return box;
+}
+
 function renderBoard(){
   $board.innerHTML = "";
 
@@ -4257,9 +4360,23 @@ function renderBoard(){
     (docCount === 1 ? " elemento in Archivio" : " elementi in Archivio") +
     (proj.isOwner ? "" : (proj.personal ? " · condiviso da " : " · di ") + profileName(proj.owner_id)) +
     (proj.archived_at ? " · archiviato" : "");
+  // l'interruttore dell'abstract: acceso o spento per me, su tutti i progetti
+  var absOpen = abstractOpen();
+  var absBtn = document.createElement("button");
+  absBtn.type = "button";
+  absBtn.className = "abstract-toggle" + (absOpen ? " on" : "") + (proj.abstract ? " filled" : "");
+  absBtn.setAttribute("aria-pressed", absOpen ? "true" : "false");
+  absBtn.title = absOpen ? "Nascondi l'abstract del progetto" : "Mostra l'abstract del progetto";
+  absBtn.innerHTML = '<span class="abstract-switch"></span><span class="abstract-label">Abstract</span>';
+  absBtn.addEventListener("click", function(){
+    setAbstractOpen(!absOpen);
+    renderBoard();
+  });
   header.appendChild(title);
+  header.appendChild(absBtn);
   header.appendChild(meta);
   $board.appendChild(header);
+  if(absOpen) $board.appendChild(buildAbstract(proj));
 
   if(state.cardDatesError){
     var $warn = document.createElement("div");
@@ -5056,7 +5173,7 @@ function openNewProjectModal(groupId){
       area: normalizeArea(project.area),
       personal: project.personal === undefined ? !state.isTeam : !!project.personal,
       category_id: project.category_id || null,
-      archived_at: null,
+      archived_at: null, abstract: "",
       isOwner: true, shares: [], columns: columns
     });
     state.activeProjectId = project.id;
