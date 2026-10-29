@@ -1215,6 +1215,31 @@
   }
   .cm-days button.on{background:#1c2b41;border-color:#579dff;color:#cce0ff}
   .cm-series-note{font-size:12.5px;color:#9fadbc;margin:0 0 14px;line-height:1.45}
+  /* Luogo: suggerimenti sotto la casella e link a Google Maps */
+  .cm-place{position:relative}
+  .modal .cm-place input{margin-bottom:6px}
+  .cm-place-list{
+    position:absolute;left:0;right:0;top:calc(100% - 4px);z-index:5;
+    list-style:none;margin:0;padding:4px;
+    background:#282e33;border:1px solid #38414b;border-radius:8px;
+    box-shadow:0 10px 24px rgba(0,0,0,0.5);
+    max-height:240px;overflow-y:auto;
+  }
+  .cm-place-list li{
+    display:flex;align-items:flex-start;gap:8px;
+    padding:8px 10px;border-radius:5px;
+    color:#dee4ea;font-size:13px;line-height:1.35;cursor:pointer;
+  }
+  .cm-place-list li svg{flex-shrink:0;margin-top:3px;color:#9fadbc}
+  .cm-place-list li:hover,.cm-place-list li.on{background:#1c2b41;color:#fff}
+  .cm-place-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;min-height:18px}
+  .cm-place-credit{margin-left:auto;font-size:10.5px;color:#738496}
+  .cal-place{
+    display:inline-flex;align-items:center;gap:4px;
+    color:#85b8ff;font-size:12.5px;font-weight:600;text-decoration:none;
+  }
+  .cal-place[hidden]{display:none}
+  .cal-place:hover{text-decoration:underline;color:#cce0ff}
   .cm-error{color:#f87168;font-size:13px;font-weight:600;min-height:18px;margin:0 0 6px}
   .modal .cm-invalid{border-color:#f87168 !important}
   .cm-ask-text{color:#b6c2cf;font-size:14px;line-height:1.5;margin:0 0 12px;white-space:pre-line}
@@ -1730,6 +1755,7 @@
   .cal-chip:hover{filter:brightness(1.2)}
   .cal-chip-time{display:block;font-size:10px;font-weight:700;color:#9fadbc;letter-spacing:0.2px}
   .cal-chip-proj{display:block;font-size:10px;color:#9fadbc;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal-chip-place svg{width:9px;height:9px;vertical-align:-1px;margin-right:3px}
   .cal-chip.k-extra,.cal-day-event-card.k-extra{background:repeating-linear-gradient(135deg,#323a41 0 6px,#22272b 6px 12px);color:#b6c2cf}
   .cal-chip.k-ferie,.cal-day-event-card.k-ferie{background:repeating-linear-gradient(45deg,var(--pcbg) 0 6px,transparent 6px 12px);font-weight:700}
   .cal-chip.tentative{outline:1px dashed var(--pc);outline-offset:-1px;font-style:italic}
@@ -6198,6 +6224,11 @@ window.addEventListener("online", function(){
   var APPLE_SYNC_KEY = "brown_calendar_apple_sync_v1";
   var DB_FIELDS = ["id","date","date_end","half","start_time","end_time","title","persons","kind",
                    "status","project_id","project_name","notes","series_id","recur","source"];
+  // Il luogo (sql/luogo.sql). Finche' il file non e' eseguito le colonne
+  // mancano: il calendario si carica senza e la casella Luogo non c'e'.
+  var LOCATION_FIELDS = ["location","location_lat","location_lon"];
+  var hasLocation = true;
+  function dbFields(){ return hasLocation ? DB_FIELDS.concat(LOCATION_FIELDS) : DB_FIELDS; }
 
   var calEvents = [];
   var mode = null;            // "remote" | "local"
@@ -6267,7 +6298,7 @@ window.addEventListener("online", function(){
   }
   function toDb(e){
     var o = {};
-    DB_FIELDS.forEach(function(k){ o[k] = e[k] === undefined ? null : e[k]; });
+    dbFields().forEach(function(k){ o[k] = e[k] === undefined ? null : e[k]; });
     if(!o.persons) o.persons = [];
     if(!o.source) o.source = "mario";
     return o;
@@ -6281,9 +6312,13 @@ window.addEventListener("online", function(){
   async function fetchRemote(){
     var all = [];
     for(var from = 0; ; from += 1000){
-      var res = await sb.from("be_cal_events").select(DB_FIELDS.join(","))
+      var res = await sb.from("be_cal_events").select(dbFields().join(","))
         .order("date", { ascending: true }).order("id", { ascending: true })
         .range(from, from + 999);
+      if(res.error && hasLocation && res.error.code === "42703" && /location/.test(res.error.message || "")){
+        hasLocation = false;    // sql/luogo.sql non ancora eseguito
+        return fetchRemote();
+      }
       if(res.error) return { error: res.error };
       all = all.concat(res.data || []);
       if(!res.data || res.data.length < 1000) break;
@@ -7211,6 +7246,7 @@ window.addEventListener("online", function(){
   function eventTooltip(e){
     var bits = [displayTitle(e), fmtTimeRange(e)];
     if(e.project_name) bits.push("Progetto: " + e.project_name);
+    if(e.location) bits.push("Luogo: " + e.location);
     if(e.persons && e.persons.length) bits.push(e.persons.join(", "));
     if(e.kind === "extra") bits.push("Extra fosforo" + (e.source === "apple" ? " (da Apple Calendar)" : ""));
     return bits.filter(Boolean).join("\n");
@@ -7659,7 +7695,7 @@ window.addEventListener("online", function(){
     if(!search || !search.words.length) return true;
     if(!e._hay){
       e._hay = norm([
-        e.title, e.project_name, e.notes, (e.persons || []).join(" "),
+        e.title, e.project_name, e.notes, e.location, (e.persons || []).join(" "),
         e.kind === "extra" ? "extra fosforo" : e.kind,
         e.status === "da_confermare" ? "da confermare ?" : "confermato",
         e.source === "apple" ? "apple" : "",
@@ -7776,6 +7812,7 @@ window.addEventListener("online", function(){
     if(e.kind === "extra") html += '<span class="cal-tag">Extra</span>';
     html += '<span class="cal-chip-title">' + escapeHtml(displayTitle(e)) + '</span>';
     if(e.project_name) html += '<span class="cal-chip-proj">' + escapeHtml(e.project_name) + '</span>';
+    if(e.location) html += '<span class="cal-chip-proj cal-chip-place">' + ICON_PIN + escapeHtml(e.location) + '</span>';
     chip.innerHTML = html;
     chip.title = eventTooltip(e);
     chip.dataset.ev = e.id;
@@ -8334,7 +8371,14 @@ window.addEventListener("online", function(){
       bits.push('<span>Dal ' + escapeHtml(fmtShort(e.date)) + ' al ' + escapeHtml(fmtShort(e.date_end)) + '</span>');
     }
     if(e.series_id) bits.push('<span>Ricorrente</span>');
+    if(e.location){
+      bits.push('<a class="cal-place" href="' + escapeHtml(mapsUrl(e)) + '" target="_blank" rel="noopener" title="Apri in Google Maps">' +
+                ICON_PIN + escapeHtml(e.location) + '</a>');
+    }
     meta.innerHTML = bits.join("");
+    // il luogo apre Google Maps, non l'impegno
+    var place = meta.querySelector(".cal-place");
+    if(place) place.addEventListener("click", function(ev){ ev.stopPropagation(); });
     if(bits.length) body.appendChild(meta);
 
     if(e.notes){
@@ -8352,6 +8396,45 @@ window.addEventListener("online", function(){
   function fmtShort(s){
     var d = parseDate(s);
     return d.getDate() + " " + MONTHS[d.getMonth()];
+  }
+
+  /* ---------- luogo ----------
+   * Si scrive a mano o si sceglie tra i suggerimenti di OpenStreetMap,
+   * presi da Photon (photon.komoot.io): fatto apposta per cercare mentre
+   * si scrive, gratuito e senza chiave. Nominatim, l'altro servizio di
+   * OpenStreetMap, vieta di usarlo cosi'. Google Places vorrebbe una
+   * chiave a pagamento; Google Maps serve solo per aprire il luogo. */
+  var ICON_PIN = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+  var PHOTON_URL = "https://photon.komoot.io/api/";
+  function mapsUrl(e){
+    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(e.location);
+  }
+  /* "Teatro dell'Aquila, Corso Cefalonia 69, Fermo" da una risposta di Photon */
+  function placeLabel(p){
+    var street = p.street ? p.street + (p.housenumber ? " " + p.housenumber : "") : "";
+    var city = p.city || p.town || p.village || p.county || "";
+    var parts = [p.name, street, city].filter(function(x, i, a){ return x && a.indexOf(x) === i; });
+    if(!parts.length && p.state) parts.push(p.state);
+    return parts.join(", ");
+  }
+  var placeAbort = null;
+  async function searchPlaces(q){
+    if(placeAbort) placeAbort.abort();
+    placeAbort = window.AbortController ? new AbortController() : null;
+    // vicino a Fermo i risultati vengono prima, ma si trova anche altrove
+    var url = PHOTON_URL + "?limit=6&lat=43.16&lon=13.72&q=" + encodeURIComponent(q);
+    var r = await fetch(url, placeAbort ? { signal: placeAbort.signal } : {});
+    if(!r.ok) throw new Error("errore " + r.status);
+    var j = await r.json();
+    var seen = {};
+    return (j.features || []).map(function(f){
+      var c = f.geometry && f.geometry.coordinates || [];
+      return { label: placeLabel(f.properties || {}), lat: c[1], lon: c[0] };
+    }).filter(function(x){
+      if(!x.label || seen[x.label]) return false;
+      seen[x.label] = 1;
+      return true;
+    });
   }
 
   function escapeHtml(s){
@@ -8503,6 +8586,19 @@ window.addEventListener("online", function(){
           '<div><label for="cm-eh">Fine</label><div class="cm-time">' +
             '<select id="cm-eh" class="col-select" aria-label="Ora di fine">'+ hourOptions() +'</select><span>:</span>' +
             '<select id="cm-em" class="col-select" aria-label="Minuti di fine">'+ minuteOptions() +'</select></div></div>' +
+        '</div>' +
+
+        '<div id="cm-place-box">' +
+          '<label for="cm-place">Luogo (opzionale)</label>' +
+          '<div class="cm-place">' +
+            '<input type="text" id="cm-place" placeholder="Cerca un indirizzo o un posto" maxlength="300" autocomplete="off" ' +
+              'role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cm-place-list">' +
+            '<ul class="cm-place-list" id="cm-place-list" role="listbox" hidden></ul>' +
+          '</div>' +
+          '<div class="cm-place-foot">' +
+            '<a class="cal-place" id="cm-place-map" target="_blank" rel="noopener" hidden>' + ICON_PIN + 'Apri in Google Maps</a>' +
+            '<span class="cm-place-credit">Suggerimenti © OpenStreetMap</span>' +
+          '</div>' +
         '</div>' +
 
         '<div id="cm-recur-box">' +
@@ -8759,6 +8855,76 @@ window.addEventListener("online", function(){
     setTime($sh, $sm, data.start_time);
     setTime($eh, $em, data.end_time);
     $notes.value = data.notes || "";
+
+    /* --- luogo: suggerimenti mentre si scrive, link a Google Maps --- */
+    var $place = $("cm-place"), $placeList = $("cm-place-list"), $placeMap = $("cm-place-map");
+    var placePick = data.location && data.location_lat != null
+      ? { label: data.location, lat: data.location_lat, lon: data.location_lon } : null;
+    var placeHits = [], placeIdx = -1, placeTimer = null;
+    $place.value = data.location || "";
+    if(mode === "remote" && !hasLocation) $("cm-place-box").hidden = true;
+    function syncPlaceMap(){
+      var v = $place.value.trim();
+      $placeMap.hidden = !v;
+      if(v) $placeMap.href = mapsUrl({ location: v });
+    }
+    function showPlaces(list){
+      placeHits = list; placeIdx = -1;
+      $placeList.innerHTML = "";
+      list.forEach(function(h, i){
+        var li = document.createElement("li");
+        li.setAttribute("role", "option");
+        li.id = "cm-place-opt-" + i;
+        li.innerHTML = ICON_PIN + "<span></span>";
+        li.querySelector("span").textContent = h.label;
+        // mousedown: arriva prima che il campo perda il fuoco
+        li.addEventListener("mousedown", function(ev){ ev.preventDefault(); choosePlace(h); });
+        $placeList.appendChild(li);
+      });
+      $placeList.hidden = !list.length;
+      $place.setAttribute("aria-expanded", list.length ? "true" : "false");
+    }
+    function markPlace(){
+      $placeList.querySelectorAll("li").forEach(function(li, i){ li.classList.toggle("on", i === placeIdx); });
+      if(placeIdx >= 0) $place.setAttribute("aria-activedescendant", "cm-place-opt-" + placeIdx);
+      else $place.removeAttribute("aria-activedescendant");
+    }
+    function choosePlace(h){
+      placePick = h;
+      $place.value = h.label;
+      showPlaces([]);
+      syncPlaceMap();
+    }
+    $place.addEventListener("input", function(){
+      placePick = null;           // scritto a mano: niente coordinate
+      syncPlaceMap();
+      clearTimeout(placeTimer);
+      var q = $place.value.trim();
+      if(q.length < 3){ showPlaces([]); return; }
+      placeTimer = setTimeout(function(){
+        searchPlaces(q).then(function(list){
+          if($place.value.trim() === q && document.activeElement === $place) showPlaces(list);
+        }).catch(function(){ /* senza suggerimenti si scrive a mano */ });
+      }, 350);
+    });
+    $place.addEventListener("keydown", function(ev){
+      if($placeList.hidden) return;
+      if(ev.key === "ArrowDown" || ev.key === "ArrowUp"){
+        ev.preventDefault();
+        var n = placeHits.length;
+        placeIdx = ev.key === "ArrowDown" ? (placeIdx + 1) % n : (placeIdx - 1 + n) % n;
+        markPlace();
+      } else if(ev.key === "Enter" && placeIdx >= 0){
+        ev.preventDefault();
+        choosePlace(placeHits[placeIdx]);
+      } else if(ev.key === "Escape"){
+        // chiude i suggerimenti, non la finestra
+        ev.stopPropagation();
+        showPlaces([]);
+      }
+    });
+    $place.addEventListener("blur", function(){ setTimeout(function(){ showPlaces([]); }, 120); });
+    syncPlaceMap();
     recurDays.add(isoDow(parseDate(data.date)));
     $recurTo.value = fmtDate(addDays(parseDate(data.date), 7 * 8));
 
@@ -8939,6 +9105,7 @@ window.addEventListener("online", function(){
 
       var ferie = kind === "ferie";
       $("cm-project-box").hidden = kind !== "lavoro";
+      if(!(mode === "remote" && !hasLocation)) $("cm-place-box").hidden = ferie;
       if(kind !== "lavoro" && groups) closePop(false);
       $projOther.hidden = $project.value !== "__altro__";
       renderPicker();
@@ -8967,6 +9134,7 @@ window.addEventListener("online", function(){
         kind: kind, half: half, status: status,
         title: $title.value.trim(),
         notes: $notes.value.trim() || null,
+        location: null, location_lat: null, location_lon: null,
         date: $date.value,
         date_end: null,
         start_time: null, end_time: null,
@@ -8975,6 +9143,12 @@ window.addEventListener("online", function(){
       out.persons = KNOWN_PERSONS.filter(function(p){ return persons.indexOf(p) >= 0; })
         .concat(persons.filter(function(p){ return !isKnown(p); }));
 
+      if(kind !== "ferie"){
+        out.location = $place.value.trim().slice(0, 300) || null;
+        if(out.location && placePick && placePick.label === out.location){
+          out.location_lat = placePick.lat; out.location_lon = placePick.lon;
+        }
+      }
       if(kind === "ferie" && !out.title) out.title = "Ferie";
       if(!out.title) return fail("Scrivi un titolo.", $title);
       if(kind === "lavoro"){

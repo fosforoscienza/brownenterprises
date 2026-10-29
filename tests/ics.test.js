@@ -434,3 +434,16 @@ test("andata e ritorno: orari, giornate intere, stato", function(){
   assert.equal(byUid["4"].title, "? Lab ?");
   assert.equal(byUid["5"].date, "2026-03-29");
 });
+
+test("luogo: LOCATION con escape e GEO solo con le coordinate", function(){
+  var ev = vevents(ics.buildIcs([
+    row({ id: "a", location: "Teatro dell'Aquila, Corso Cefalonia 69, Fermo", location_lat: 43.1607, location_lon: 13.7189 }),
+    row({ id: "b", location: "Da Mario; sala grande" }),
+    row({ id: "c" })
+  ]));
+  assert.ok(ev[0].includes("LOCATION:Teatro dell'Aquila\\, Corso Cefalonia 69\\, Fermo\r\n"));
+  assert.ok(ev[0].includes("GEO:43.160700;13.718900\r\n"));
+  assert.ok(ev[1].includes("LOCATION:Da Mario\\; sala grande\r\n"));
+  assert.ok(!ev[1].includes("GEO:"));
+  assert.ok(!ev[2].includes("LOCATION:") && !ev[2].includes("GEO:"));
+});
