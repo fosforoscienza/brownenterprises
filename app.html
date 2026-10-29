@@ -8440,7 +8440,7 @@ window.addEventListener("online", function(){
     if(googlePlaces && mode === "remote"){
       try{
         var list = await searchGoogle(q, signal);
-        if(list) return list;
+        if(list && list.length) return list;    // vuota: proviamo OpenStreetMap
       }catch(err){
         if(err && err.name === "AbortError") throw err;
       }
@@ -8459,7 +8459,7 @@ window.addEventListener("online", function(){
     });
     // 503: manca la chiave; 404/405/501: nessuna funzione (server statico)
     if([404, 405, 501, 503].indexOf(r.status) >= 0){ googlePlaces = false; return null; }
-    if(!r.ok) return null;
+    if(!r.ok){ console.warn("Luogo: /api/places ha risposto", r.status); return null; }
     var j = await r.json();
     return (j.places || []).map(function(p){
       return { label: p.label, place_id: p.place_id, source: "google" };
@@ -8958,9 +8958,15 @@ window.addEventListener("online", function(){
       var q = $place.value.trim();
       if(q.length < 3){ showPlaces([]); return; }
       placeTimer = setTimeout(function(){
+        $placeCredit.textContent = "Cerco…";
         searchPlaces(q).then(function(list){
-          if($place.value.trim() === q && document.activeElement === $place) showPlaces(list);
-        }).catch(function(){ /* senza suggerimenti si scrive a mano */ });
+          if($place.value.trim() !== q) return;
+          if(!list.length) $placeCredit.textContent = "Nessun suggerimento";
+          if(document.activeElement === $place) showPlaces(list);
+        }).catch(function(err){
+          // senza suggerimenti si scrive a mano
+          if(!(err && err.name === "AbortError")) $placeCredit.textContent = "Suggerimenti non disponibili";
+        });
       }, 350);
     });
     $place.addEventListener("keydown", function(ev){
