@@ -83,7 +83,9 @@
     color:#1d2125;
     font-weight:700;font-size:12px;
     display:flex;align-items:center;justify-content:center;
+    border:0;padding:0;font-family:inherit;cursor:pointer;
   }
+  .topbar-user .avatar:hover{box-shadow:0 0 0 2px #38414b}
   .icon-btn{
     background:transparent;border:0;color:#9fadbc;
     width:32px;height:32px;border-radius:4px;
@@ -733,6 +735,43 @@
     font-size:11px;padding:4px 7px;border-radius:4px;
   }
   .date-clear:hover{background:#2c3338;color:#f4f5f7}
+
+  /* --- task: date di inizio/fine e destinatari --------------------------- */
+  .task-dates,.assignee-row{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;
+  }
+  .task-dates .label,.assignee-row .label{
+    font-size:11px;color:#9fadbc;text-transform:uppercase;
+    letter-spacing:0.5px;font-weight:700;
+    flex:0 0 100%;margin-bottom:-2px;
+  }
+  .date-modes{display:flex;flex-wrap:wrap;gap:6px;flex:0 0 100%}
+  .date-picks{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px}
+  .date-pick{display:flex;flex-direction:column;gap:3px;margin:0}
+  .date-pick[hidden],.modal label.date-pick[hidden]{display:none}
+  .date-pick span{font-size:11px;color:#8c9bab;font-weight:600}
+  .modal label.date-pick{display:flex;margin:0;text-transform:none;letter-spacing:0;font-weight:600}
+  .modal .date-pick input[type=date]{margin-bottom:0;min-width:150px}
+  .person-pill{padding:2px 9px 2px 3px}
+  .person-pill .person-dot{width:18px;height:18px;font-size:8.5px;border:0}
+  .assignee-hint{font-size:11.5px;color:#8c9bab}
+  .person-dot{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;
+    font-size:9.5px;font-weight:800;letter-spacing:0;color:#1d2125;
+    border:2px solid #22272b;flex-shrink:0;
+  }
+  .person-dot.more{background:#38414b;color:#b6c2cf}
+  .card-people{display:inline-flex;margin-left:auto}
+  .card-people .person-dot + .person-dot{margin-left:-6px}
+  .seg{display:inline-flex;border:1px solid #38414b;border-radius:6px;overflow:hidden}
+  .seg button{
+    background:#22272b;border:0;color:#b6c2cf;
+    font-family:inherit;font-size:12.5px;padding:6px 10px;
+  }
+  .seg button + button{border-left:1px solid #38414b}
+  .seg button.on{background:#1c2b41;color:#cce0ff;font-weight:600}
+  .seg button:hover:not(.on){background:#2c3338}
   .board-warning{
     margin:0 24px 12px;
     background:#412a2a;
@@ -2240,7 +2279,7 @@
       <span>Chi fa cosa</span>
     </button>
     <div class="topbar-user">
-      <div class="avatar" id="avatar">A</div>
+      <button class="avatar" id="avatar" type="button" title="Riepilogo email dei task" aria-label="Riepilogo email dei task">A</button>
     </div>
   </header>
 
@@ -2367,9 +2406,10 @@ var state = {
   me: null, profiles: [], projects: [], activeProjectId: null,
   area: DEFAULT_AREA,                              /* dashboard attiva in topbar */
   view: "board",                                   /* "board" | "overview" */
-  overviewFilter: { projectId: "", onlyDue: false },
+  overviewFilter: { projectId: "", onlyDue: false, person: "", groupBy: "status" },
   alerts: [], msgHighlight: [],
   library: {}, libraryError: null, cardDatesError: null, areaError: null,
+  startDateError: null, assigneesError: null,      /* sql/task.sql non ancora eseguito */
   isTeam: false,                                   /* email @brown.internal */
   teamIds: [],                                     /* chi vede i progetti del team */
   categories: [],                                  /* le categorie del team */
@@ -2480,6 +2520,12 @@ function notify(message, opts){
 /* Le colonne due_date/done_at potrebbero non essere ancora state migrate:
    in quel caso si ricarica senza, e la UI delle date resta nascosta. */
 async function fetchCards(){
+  /* start_date arriva con sql/task.sql */
+  var withStart = await sb.from("be_cards")
+    .select("id, project_id, column_id, title, priority, position, start_date, due_date, done_at")
+    .order("position", { ascending: true });
+  if(!withStart.error){ state.cardDatesError = null; state.startDateError = null; return withStart; }
+  state.startDateError = withStart.error.message;
   var full = await sb.from("be_cards")
     .select("id, project_id, column_id, title, priority, position, due_date, done_at")
     .order("position", { ascending: true });
@@ -2582,6 +2628,294 @@ function buildDateField(value, isDone, inModal){
   return wrap;
 }
 
+/* =====================================================================
+ * Task: date di inizio/fine e destinatari (sql/task.sql)
+ *
+ * Una card puo' avere solo l'inizio, inizio e fine, oppure solo la fine
+ * (la scadenza di sempre, due_date). I destinatari sono le persone che
+ * vedono il progetto: proprietario piu' chi ha la condivisione.
+ * ===================================================================== */
+var DATE_MODES = [
+  { key: "end",   label: "Fine" },
+  { key: "start", label: "Inizio" },
+  { key: "range", label: "Inizio e fine" }
+];
+
+function dateModeOf(start, due){
+  if(start && due) return "range";
+  if(start) return "start";
+  return "end";
+}
+
+/* Badge di una card ancora aperta: scadenza, inizio, o intervallo */
+function buildTaskDateBadge(start, due){
+  if(!start) return buildDateBadge(due, false);
+  var $b = document.createElement("span");
+  $b.className = "card-badge";
+  var label;
+  if(due){
+    var n = daysUntil(due);
+    if(n < 0) $b.classList.add("overdue");
+    else if(n <= 3) $b.classList.add("soon");
+    var end = n === 0 ? "oggi" : n === 1 ? "domani" : formatDateIT(due);
+    label = formatDateIT(start) + " → " + end;
+    $b.title = "Dal " + formatDateIT(start) + " al " + formatDateIT(due) + (n < 0 ? " (scaduta)" : "");
+  } else {
+    var s = daysUntil(start);
+    if(s === 0){ $b.classList.add("soon"); label = "Inizia oggi"; }
+    else if(s === 1){ label = "Inizia domani"; }
+    else label = (s > 0 ? "Inizia " : "Dal ") + formatDateIT(start);
+    $b.title = "Inizio: " + formatDateIT(start);
+  }
+  $b.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span></span>';
+  $b.querySelector("span").textContent = label;
+  return $b;
+}
+
+/* Date di una card aperta: si sceglie il tipo, poi una o due date.
+   Senza la colonna start_date resta la sola scadenza di prima. */
+function buildTaskDateField(start, due, inModal){
+  if(state.startDateError){
+    var single = buildDateField(due, false, inModal);
+    var getDue = single.getValue;
+    single.getValue = function(){ return { start: null, due: getDue() }; };
+    return single;
+  }
+  var wrap = document.createElement("div");
+  wrap.className = "task-dates";
+  if(!inModal){
+    var lab = document.createElement("span");
+    lab.className = "label";
+    lab.textContent = "Date";
+    wrap.appendChild(lab);
+  }
+  var mode = dateModeOf(start, due);
+  var $modes = document.createElement("div");
+  $modes.className = "date-modes";
+  $modes.setAttribute("role", "radiogroup");
+  DATE_MODES.forEach(function(m){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "priority-pill";
+    b.dataset.mode = m.key;
+    b.textContent = m.label;
+    b.setAttribute("role", "radio");
+    $modes.appendChild(b);
+  });
+  wrap.appendChild($modes);
+
+  function input(value, text){
+    var row = document.createElement("label");
+    row.className = "date-pick";
+    var t = document.createElement("span");
+    t.textContent = text;
+    var i = document.createElement("input");
+    i.type = "date";
+    i.className = "date-input";
+    i.value = value || "";
+    row.appendChild(t);
+    row.appendChild(i);
+    row.input = i;
+    return row;
+  }
+  var $inputs = document.createElement("div");
+  $inputs.className = "date-picks";
+  var $start = input(start, "Inizio"), $due = input(due, "Fine");
+  $inputs.appendChild($start);
+  $inputs.appendChild($due);
+  var clear = document.createElement("button");
+  clear.type = "button";
+  clear.className = "date-clear";
+  clear.textContent = "Rimuovi";
+  clear.addEventListener("click", function(){ $start.input.value = ""; $due.input.value = ""; });
+  $inputs.appendChild(clear);
+  wrap.appendChild($inputs);
+
+  function draw(){
+    $modes.querySelectorAll(".priority-pill").forEach(function(b){
+      var on = b.dataset.mode === mode;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-checked", on);
+    });
+    $start.hidden = mode === "end";
+    $due.hidden = mode === "start";
+    $due.querySelector("span").textContent = mode === "end" ? "Scadenza" : "Fine";
+  }
+  $modes.addEventListener("click", function(e){
+    var b = e.target.closest(".priority-pill");
+    if(!b) return;
+    mode = b.dataset.mode;
+    draw();
+  });
+  /* la fine non puo' venire prima dell'inizio */
+  $start.input.addEventListener("change", function(){
+    $due.input.min = $start.input.value || "";
+    if($due.input.value && $start.input.value && $due.input.value < $start.input.value) $due.input.value = $start.input.value;
+  });
+  $due.input.min = start || "";
+  draw();
+
+  wrap.getValue = function(){
+    var s = mode === "end" ? null : ($start.input.value || null);
+    var d = mode === "start" ? null : ($due.input.value || null);
+    if(s && d && d < s){ var t = s; s = d; d = t; }
+    return { start: s, due: d };
+  };
+  return wrap;
+}
+
+function forEachCard(fn){
+  state.projects.forEach(function(p){
+    (p.columns || []).forEach(function(col){
+      col.cards.forEach(function(card){ fn(card, col, p); });
+    });
+  });
+}
+
+async function loadAssignees(){
+  var res = await sb.from("be_card_assignees").select("card_id, user_id");
+  if(res.error){ state.assigneesError = res.error.message; return; }
+  state.assigneesError = null;
+  var byCard = {};
+  (res.data || []).forEach(function(r){
+    (byCard[r.card_id] = byCard[r.card_id] || []).push(r.user_id);
+  });
+  forEachCard(function(card){ card.assignees = byCard[card.id] || []; });
+}
+
+/* Chi puo' ricevere un task del progetto, cioe' chi lo vede: proprietario,
+   condivisioni e, se non e' Personale, tutto il team. Io per primo, poi per nome. */
+function projectPeople(proj){
+  var ids = [proj.owner_id].concat(proj.shares || [], proj.personal ? [] : state.teamIds);
+  var seen = {};
+  return ids.filter(function(id){
+    if(!id || seen[id]) return false;
+    seen[id] = true;
+    return true;
+  }).map(function(id){
+    return { id: id, name: id === state.me.id ? state.me.display_name : profileName(id) };
+  }).sort(function(a, b){
+    if(a.id === state.me.id) return -1;
+    if(b.id === state.me.id) return 1;
+    return a.name.localeCompare(b.name, "it");
+  });
+}
+
+/* Le persone di tutte le card dell'area, per il filtro della Panoramica */
+function teamPeople(){
+  var seen = {}, out = [];
+  liveAreaProjects().forEach(function(p){
+    projectPeople(p).forEach(function(x){
+      if(!seen[x.id]){ seen[x.id] = true; out.push(x); }
+    });
+  });
+  return out.sort(function(a, b){
+    if(a.id === state.me.id) return -1;
+    if(b.id === state.me.id) return 1;
+    return a.name.localeCompare(b.name, "it");
+  });
+}
+
+var PERSON_HUES = ["#579dff", "#4bce97", "#f5cd47", "#f87168", "#9f8fef", "#6cc3e0", "#fea362", "#e774bb"];
+function personHue(id){
+  var h = 0;
+  for(var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return PERSON_HUES[h % PERSON_HUES.length];
+}
+function personInitials(name){
+  var parts = String(name || "?").trim().split(/\s+/);
+  return ((parts[0] || "?").charAt(0) + (parts[1] ? parts[1].charAt(0) : "")).toUpperCase();
+}
+function assigneeName(id){
+  return id === (state.me && state.me.id) ? state.me.display_name : profileName(id);
+}
+
+function buildAssigneeAvatars(ids){
+  var $w = document.createElement("span");
+  $w.className = "card-people";
+  var names = ids.map(assigneeName);
+  $w.title = "Destinatari: " + names.join(", ");
+  var max = 3;
+  ids.slice(0, ids.length > max ? max - 1 : max).forEach(function(id, i){
+    var a = document.createElement("span");
+    a.className = "person-dot";
+    a.style.background = personHue(id);
+    a.textContent = personInitials(names[i]);
+    $w.appendChild(a);
+  });
+  if(ids.length > max){
+    var more = document.createElement("span");
+    more.className = "person-dot more";
+    more.textContent = "+" + (ids.length - max + 1);
+    $w.appendChild(more);
+  }
+  return $w;
+}
+
+/* Selettore dei destinatari: una pillola per persona, se ne accendono quante si vuole */
+function buildAssigneePicker(proj, selected, inModal){
+  var chosen = {};
+  (selected || []).forEach(function(id){ chosen[id] = true; });
+  var wrap = document.createElement("div");
+  wrap.className = "assignee-row";
+  if(!inModal){
+    var lab = document.createElement("span");
+    lab.className = "label";
+    lab.textContent = "Destinatari";
+    wrap.appendChild(lab);
+  }
+  var people = projectPeople(proj);
+  people.forEach(function(p){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "priority-pill person-pill";
+    b.setAttribute("aria-pressed", !!chosen[p.id]);
+    if(chosen[p.id]) b.classList.add("active");
+    b.innerHTML = '<span class="person-dot"></span><span class="pn"></span>';
+    b.querySelector(".person-dot").style.background = personHue(p.id);
+    b.querySelector(".person-dot").textContent = personInitials(p.name);
+    b.querySelector(".pn").textContent = p.id === state.me.id ? p.name + " (io)" : p.name;
+    b.addEventListener("click", function(){
+      chosen[p.id] = !chosen[p.id];
+      b.classList.toggle("active", chosen[p.id]);
+      b.setAttribute("aria-pressed", chosen[p.id]);
+    });
+    wrap.appendChild(b);
+  });
+  if(people.length <= 1){
+    var hint = document.createElement("span");
+    hint.className = "assignee-hint";
+    hint.textContent = proj.personal ? "Progetto personale: condividilo per assegnare il task ad altri." : "";
+    if(hint.textContent) wrap.appendChild(hint);
+  }
+  /* l'ordine segue quello delle persone, non dei clic */
+  wrap.getValue = function(){
+    return people.filter(function(p){ return chosen[p.id]; }).map(function(p){ return p.id; });
+  };
+  return wrap;
+}
+
+async function saveAssignees(card, ids){
+  var before = card.assignees || [];
+  var add = ids.filter(function(id){ return before.indexOf(id) < 0; });
+  var del = before.filter(function(id){ return ids.indexOf(id) < 0; });
+  if(!add.length && !del.length) return;
+  var jobs = [];
+  if(add.length){
+    jobs.push(sb.from("be_card_assignees").insert(add.map(function(id){
+      return { card_id: card.id, user_id: id };
+    })));
+  }
+  if(del.length){
+    jobs.push(sb.from("be_card_assignees").delete().eq("card_id", card.id).in("user_id", del));
+  }
+  var results = await Promise.all(jobs);
+  var failed = results.find(function(r){ return r.error; });
+  if(failed){ notify(errorText(failed.error, "Destinatari non salvati")); return; }
+  card.assignees = ids.slice();
+  renderBoard();
+}
+
 async function loadEverything(){
   var sessionRes = await sb.auth.getSession();
   var session = sessionRes.data && sessionRes.data.session;
@@ -2640,7 +2974,8 @@ async function loadEverything(){
     var col = columnById[c.column_id];
     if(col) col.cards.push({
       id: c.id, title: c.title, priority: c.priority, position: c.position,
-      due_date: c.due_date || null, done_at: c.done_at || null
+      start_date: c.start_date || null, due_date: c.due_date || null, done_at: c.done_at || null,
+      assignees: []
     });
   });
 
@@ -2664,7 +2999,7 @@ async function loadEverything(){
 
   syncActiveProject();
 
-  await Promise.all([loadLibrary(), loadCategories(), loadCoordinator()]);
+  await Promise.all([loadLibrary(), loadCategories(), loadCoordinator(), loadAssignees()]);
   return true;
 }
 
@@ -3912,6 +4247,15 @@ var OVERVIEW_LISTS = [
   { key: "done",  label: "Done" }
 ];
 
+var NO_ASSIGNEE = "__none__";
+
+/* Filtro per persona: le sue card, oppure quelle senza destinatari */
+function matchesPerson(card, person){
+  if(!person || state.assigneesError) return true;
+  var ids = card.assignees || [];
+  return person === NO_ASSIGNEE ? !ids.length : ids.indexOf(person) >= 0;
+}
+
 /* Le card di ogni progetto vengono raggruppate nelle tre voci standard:
    l'ultima lista (o quella chiamata Done) e' "done", la prima delle altre
    e' "todo", le rimanenti "doing". */
@@ -3929,9 +4273,10 @@ function overviewEntries(){
       if(col.id === doneId){ key = "done"; }
       else { key = workIndex === 0 ? "todo" : "doing"; workIndex++; }
       col.cards.slice().sort(function(a,b){ return a.position - b.position; }).forEach(function(card){
-        var date = key === "done" ? card.done_at : card.due_date;
+        var date = key === "done" ? card.done_at : (card.due_date || card.start_date);
         if(filter.onlyDue && !date) return;
-        out[key].push({ card: card, proj: proj, col: col, isDone: key === "done", date: date });
+        if(!matchesPerson(card, filter.person)) return;
+        out[key].push({ card: card, proj: proj, col: col, key: key, isDone: key === "done", date: date });
       });
     });
   });
@@ -3992,7 +4337,49 @@ function renderOverview(){
     state.overviewFilter.projectId = $sel.value;
     renderBoard();
   });
+
+  /* Per stato (To Do / In Progress / Done) o una colonna per progetto */
+  var $group = document.createElement("div");
+  $group.className = "seg";
+  $group.setAttribute("role", "radiogroup");
+  $group.setAttribute("aria-label", "Raggruppa");
+  [["status", "Per stato"], ["project", "Per progetto"]].forEach(function(g){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = g[1];
+    var on = state.overviewFilter.groupBy === g[0];
+    b.className = on ? "on" : "";
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", on);
+    b.addEventListener("click", function(){
+      state.overviewFilter.groupBy = g[0];
+      renderBoard();
+    });
+    $group.appendChild(b);
+  });
+  $filters.appendChild($group);
   $filters.appendChild($sel);
+
+  if(!state.assigneesError){
+    var $who = document.createElement("select");
+    $who.setAttribute("aria-label", "Persona");
+    var people = [{ id: "", name: "Tutte le persone" }].concat(teamPeople().map(function(x){
+      return { id: x.id, name: x.id === state.me.id ? x.name + " (io)" : x.name };
+    }), [{ id: NO_ASSIGNEE, name: "Senza destinatari" }]);
+    people.forEach(function(x){
+      var o = document.createElement("option");
+      o.value = x.id;
+      o.textContent = x.name;
+      if(x.id === state.overviewFilter.person) o.selected = true;
+      $who.appendChild(o);
+    });
+    $who.addEventListener("change", function(){
+      state.overviewFilter.person = $who.value;
+      renderBoard();
+    });
+    $filters.appendChild($who);
+  }
+
 
   var $lab = document.createElement("label");
   $lab.className = "chk";
@@ -4019,8 +4406,37 @@ function renderOverview(){
   var content = document.createElement("div");
   content.className = "board-content";
 
-  OVERVIEW_LISTS.forEach(function(list){
-    var items = entries[list.key];
+  var groups;
+  if(state.overviewFilter.groupBy === "project"){
+    var labelOf = {};
+    OVERVIEW_LISTS.forEach(function(l){ labelOf[l.key] = l.label; });
+    var rank = { todo: 0, doing: 1, done: 2 };
+    var byProject = {};
+    OVERVIEW_LISTS.forEach(function(l){
+      entries[l.key].forEach(function(e){
+        (byProject[e.proj.id] = byProject[e.proj.id] || []).push(e);
+      });
+    });
+    groups = liveAreaProjects().filter(function(p){
+      if(state.overviewFilter.projectId) return p.id === state.overviewFilter.projectId;
+      return byProject[p.id];
+    }).map(function(p){
+      var items = (byProject[p.id] || []).slice().sort(function(a, b){ return rank[a.key] - rank[b.key]; });
+      items.forEach(function(e){ e.statusLabel = e.col.name || labelOf[e.key]; });
+      return { label: p.name, items: items };
+    });
+  } else {
+    groups = OVERVIEW_LISTS.map(function(l){ return { label: l.label, items: entries[l.key] }; });
+  }
+  if(!groups.length){
+    var $none = document.createElement("div");
+    $none.className = "column-empty";
+    $none.textContent = "Nessuna card con questi filtri.";
+    content.appendChild($none);
+  }
+
+  groups.forEach(function(list){
+    var items = list.items;
 
     var $col = document.createElement("section");
     $col.className = "column overview";
@@ -4041,7 +4457,7 @@ function renderOverview(){
     }
     items.forEach(function(entry){
       $cards.appendChild(buildCardEl(entry.card, entry.col.id, entry.isDone, {
-        proj: entry.proj, showProject: true
+        proj: entry.proj, showProject: true, statusLabel: entry.statusLabel
       }));
     });
     $col.appendChild($cards);
@@ -4063,11 +4479,11 @@ function buildCardEl(card, columnId, isDoneCol, ctx){
   $card.dataset.cardId = card.id;
   $card.dataset.columnId = columnId;
 
-  if(isStatic && proj){
+  if(isStatic && (ctx.statusLabel || proj)){
     var $pj = document.createElement("div");
     $pj.className = "card-project";
-    $pj.textContent = proj.name;
-    $pj.title = proj.name;
+    $pj.textContent = ctx.statusLabel || proj.name;
+    $pj.title = ctx.statusLabel ? "Lista: " + ctx.statusLabel : proj.name;
     $card.appendChild($pj);
   }
 
@@ -4082,11 +4498,16 @@ function buildCardEl(card, columnId, isDoneCol, ctx){
   $t.textContent = card.title;
   $card.appendChild($t);
 
-  var dateValue = isDoneCol ? card.done_at : card.due_date;
-  if(!state.cardDatesError && dateValue){
+  var dateValue = isDoneCol ? card.done_at : (card.due_date || card.start_date);
+  var people = state.assigneesError ? [] : (card.assignees || []);
+  if((!state.cardDatesError && dateValue) || people.length){
     var $badges = document.createElement("div");
     $badges.className = "card-badges";
-    $badges.appendChild(buildDateBadge(dateValue, isDoneCol));
+    if(!state.cardDatesError && dateValue){
+      $badges.appendChild(isDoneCol ? buildDateBadge(card.done_at, true)
+                                    : buildTaskDateBadge(card.start_date, card.due_date));
+    }
+    if(people.length) $badges.appendChild(buildAssigneeAvatars(people));
     $card.appendChild($badges);
   }
 
@@ -4228,7 +4649,8 @@ async function deleteCard(cardId, columnId, projArg){
   renderBoard();
 }
 
-async function addCard(columnId, title, priority, dateValue, isDoneCol){
+/* dateValue: la data di completamento nella lista Done, altrimenti { start, due } */
+async function addCard(columnId, title, priority, dateValue, isDoneCol, assigneeIds){
   var proj = getActiveProject(); if(!proj) return;
   var col = proj.columns.find(function(c){ return c.id === columnId; });
   if(!col) return;
@@ -4241,16 +4663,21 @@ async function addCard(columnId, title, priority, dateValue, isDoneCol){
     created_by: state.me.id
   };
   if(!state.cardDatesError){
-    payload.due_date = isDoneCol ? null : (dateValue || null);
+    var dates = isDoneCol ? { start: null, due: null } : (dateValue || {});
+    payload.due_date = dates.due || null;
+    if(!state.startDateError) payload.start_date = dates.start || null;
     payload.done_at  = isDoneCol ? (dateValue || null) : null;
   }
   var res = await sb.from("be_cards").insert(payload).select().single();
   if(res.error){ notify(errorText(res.error)); return; }
-  col.cards.push({
+  var card = {
     id: res.data.id, title: res.data.title, priority: res.data.priority, position: res.data.position,
-    due_date: res.data.due_date || null, done_at: res.data.done_at || null
-  });
+    start_date: res.data.start_date || null, due_date: res.data.due_date || null, done_at: res.data.done_at || null,
+    assignees: []
+  };
+  col.cards.push(card);
   renderBoard();
+  if(assigneeIds && assigneeIds.length && !state.assigneesError) saveAssignees(card, assigneeIds);
 }
 
 async function updateCard(cardId, columnId, title, priority, dateValue, isDoneCol, projArg){
@@ -4262,7 +4689,10 @@ async function updateCard(cardId, columnId, title, priority, dateValue, isDoneCo
   var payload = { title: title.trim(), priority: priority || null };
   if(!state.cardDatesError){
     if(isDoneCol) payload.done_at = dateValue || null;
-    else payload.due_date = dateValue || null;
+    else {
+      payload.due_date = (dateValue && dateValue.due) || null;
+      if(!state.startDateError) payload.start_date = (dateValue && dateValue.start) || null;
+    }
   }
   var res = await sb.from("be_cards").update(payload).eq("id", cardId);
   if(res.error){ notify(errorText(res.error)); return; }
@@ -4270,7 +4700,10 @@ async function updateCard(cardId, columnId, title, priority, dateValue, isDoneCo
   card.priority = payload.priority;
   if(!state.cardDatesError){
     if(isDoneCol) card.done_at = payload.done_at;
-    else card.due_date = payload.due_date;
+    else {
+      card.due_date = payload.due_date;
+      if(!state.startDateError) card.start_date = payload.start_date;
+    }
   }
   renderBoard();
 }
@@ -4565,14 +4998,19 @@ function openAddCardForm($col, columnId, isDoneCol){
 
   var $dateField = null;
   if(!state.cardDatesError){
-    $dateField = buildDateField(isDoneCol ? todayISO() : "", isDoneCol, false);
+    $dateField = isDoneCol ? buildDateField(todayISO(), true, false) : buildTaskDateField(null, null, false);
     form.insertBefore($dateField, form.querySelector(".actions"));
+  }
+  var $people = null, proj = getActiveProject();
+  if(!state.assigneesError && proj){
+    $people = buildAssigneePicker(proj, [], false);
+    form.insertBefore($people, form.querySelector(".actions"));
   }
 
   var $ta      = form.querySelector("textarea");
   var $confirm = form.querySelector(".btn-primary");
   var $cancel  = form.querySelector(".btn-cancel");
-  var $pills   = form.querySelectorAll(".priority-pill");
+  var $pills   = form.querySelectorAll(".priority-row .priority-pill");
   var priority = "green";
 
   $pills.forEach(function(p){
@@ -4590,7 +5028,8 @@ function openAddCardForm($col, columnId, isDoneCol){
   function commit(){
     var v = $ta.value.trim();
     if(!v){ $ta.focus(); return; }
-    addCard(columnId, v, priority, $dateField ? $dateField.getValue() : null, isDoneCol);
+    addCard(columnId, v, priority, $dateField ? $dateField.getValue() : null, isDoneCol,
+            $people ? $people.getValue() : []);
   }
   $confirm.addEventListener("click", commit);
   $cancel.addEventListener("click", close);
@@ -4624,6 +5063,7 @@ function openEditCardModal(cardId, columnId, isDoneCol, projArg){
         '<button class="priority-pill" data-priority="green" ><span class="dot green"></span>Bassa</button>' +
       '</div>' +
       '<div id="m-date-slot"></div>' +
+      '<div id="m-people-slot"></div>' +
       '<label for="m-col">Lista</label>' +
       '<select id="m-col" class="col-select"></select>' +
       '<div class="actions">' +
@@ -4655,16 +5095,30 @@ function openEditCardModal(cardId, columnId, isDoneCol, projArg){
     $slot.remove();
   } else {
     var lab = document.createElement("label");
-    lab.textContent = isDoneCol ? "Completata il" : "Scadenza";
+    lab.textContent = isDoneCol ? "Completata il" : (state.startDateError ? "Scadenza" : "Date");
     $slot.appendChild(lab);
-    $dateField = buildDateField(isDoneCol ? card.done_at : card.due_date, isDoneCol, true);
+    $dateField = isDoneCol ? buildDateField(card.done_at, true, true)
+                           : buildTaskDateField(card.start_date, card.due_date, true);
     $dateField.style.marginTop = "0";
     $dateField.style.marginBottom = "14px";
     $slot.appendChild($dateField);
   }
 
+  var $people = null;
+  var $pslot = backdrop.querySelector("#m-people-slot");
+  if(state.assigneesError){
+    $pslot.remove();
+  } else {
+    var plab = document.createElement("label");
+    plab.textContent = "Destinatari";
+    $pslot.appendChild(plab);
+    $people = buildAssigneePicker(proj, card.assignees || [], true);
+    $people.style.marginBottom = "14px";
+    $pslot.appendChild($people);
+  }
+
   var priority = card.priority || "green";
-  var $pills = backdrop.querySelectorAll(".priority-pill");
+  var $pills = backdrop.querySelectorAll(".priority-row .priority-pill");
   $pills.forEach(function(p){
     if(p.dataset.priority === priority) p.classList.add("active");
     p.addEventListener("click", function(){
@@ -4680,6 +5134,7 @@ function openEditCardModal(cardId, columnId, isDoneCol, projArg){
     if(!v) { $ta.focus(); return; }
     var target = $col.value;
     updateCard(cardId, columnId, v, priority, $dateField ? $dateField.getValue() : null, isDoneCol, proj);
+    if($people) saveAssignees(card, $people.getValue());
     // Lo spostamento passa dalla stessa funzione del drop handler, cosi'
     // riordino delle position e data di completamento restano coerenti.
     if(target && target !== columnId) moveCard(cardId, columnId, target, null, proj);
@@ -5481,6 +5936,64 @@ document.getElementById("logout-btn").addEventListener("click", async function()
 });
 
 var booting = false;
+
+/* =====================================================================
+ * Riepilogo email: ogni mattina quello che e' successo ai miei task
+ * (api/task-digest). Gli account @brown.internal non ricevono posta,
+ * quindi l'indirizzo lo indica ognuno qui.
+ * ===================================================================== */
+async function openNotifyPrefsModal(){
+  if(!state.me) return;
+  var res = await sb.from("be_notify_prefs").select("email, daily_digest").eq("user_id", state.me.id).maybeSingle();
+  if(res.error){
+    notify(isNetworkError(res.error) ? "Sei offline: riprova fra poco."
+      : "Il riepilogo email non è ancora attivo sul database: esegui sql/task.sql su Supabase.");
+    return;
+  }
+  var prefs = res.data || { email: "", daily_digest: true };
+
+  var backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.innerHTML =
+    '<div class="modal" role="dialog" aria-label="Riepilogo email">' +
+      '<h2>Riepilogo email dei task</h2>' +
+      '<p class="np-hint" style="margin:-6px 0 14px">Una mail al giorno, la mattina, con quello che è successo ai task di cui sei destinatario: nuovi task, spostamenti di lista, modifiche.</p>' +
+      '<label for="np-email">Indirizzo email</label>' +
+      '<input type="text" id="np-email" inputmode="email" autocomplete="email" placeholder="nome@esempio.it" maxlength="200">' +
+      '<label class="cm-check"><input type="checkbox" id="np-on"> Mandami il riepilogo ogni giorno</label>' +
+      '<div class="actions">' +
+        '<button class="btn-cancel" id="m-cancel">Annulla</button>' +
+        '<button class="btn-primary" id="m-confirm">Salva</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(backdrop);
+  var $email = backdrop.querySelector("#np-email"), $on = backdrop.querySelector("#np-on");
+  $email.value = prefs.email || "";
+  $on.checked = prefs.daily_digest !== false;
+  setTimeout(function(){ $email.focus(); }, 0);
+
+  function close(){ backdrop.remove(); document.removeEventListener("keydown", onKey); }
+  async function commit(){
+    var email = $email.value.trim();
+    if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ $email.focus(); notify("Indirizzo email non valido."); return; }
+    if(/@brown\.internal$/i.test(email)){ $email.focus(); notify("Gli indirizzi @brown.internal non ricevono posta: usa la tua email."); return; }
+    var up = await sb.from("be_notify_prefs").upsert({
+      user_id: state.me.id, email: email || null, daily_digest: $on.checked, updated_at: new Date().toISOString()
+    });
+    if(up.error){ notify(errorText(up.error, "Preferenze non salvate")); return; }
+    close();
+    notify(email && $on.checked ? "Riceverai il riepilogo ogni mattina a " + email + "." : "Riepilogo email disattivato.", { warn: false });
+  }
+  function onKey(e){
+    if(e.key === "Escape") close();
+    if(e.key === "Enter"){ e.preventDefault(); commit(); }
+  }
+  document.addEventListener("keydown", onKey);
+  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+  backdrop.querySelector("#m-cancel").addEventListener("click", close);
+  backdrop.querySelector("#m-confirm").addEventListener("click", commit);
+}
+document.getElementById("avatar").addEventListener("click", openNotifyPrefsModal);
 
 async function boot(){
   if(booting) return;
