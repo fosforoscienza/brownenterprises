@@ -208,6 +208,10 @@
     background:#1c2b41;
     box-shadow:inset 0 0 0 1px #579dff;
   }
+  /* riordino delle categorie col trascinamento */
+  .label-group.dragging{opacity:0.4}
+  .label-group.drop-before{box-shadow:inset 0 2px 0 #579dff}
+  .label-group.drop-after{box-shadow:inset 0 -2px 0 #579dff}
   .label-head{
     display:flex;
     align-items:center;
@@ -3256,6 +3260,35 @@ async function deleteCategory(cat){
   renderSidebar();
 }
 
+/* Nuovo ordine col trascinamento: la categoria va prima o dopo quella su
+   cui la si lascia. Le posizioni si riscrivono 0, 1, 2... e si salvano
+   solo quelle cambiate. */
+var dragCategoryId = null;
+async function reorderCategory(id, targetId, after){
+  var moving = categoryById(id);
+  if(!moving || id === targetId) return;
+  var list = sortedCategories().filter(function(c){ return c.id !== id; });
+  var at = -1;
+  list.forEach(function(c, i){ if(c.id === targetId) at = i; });
+  if(at < 0) return;
+  list.splice(at + (after ? 1 : 0), 0, moving);
+  var changed = [];
+  list.forEach(function(c, i){
+    if(c.position !== i){ c.position = i; changed.push(c); }
+  });
+  if(!changed.length) return;
+  render();
+  var res = await Promise.all(changed.map(function(c){
+    return sb.from("be_categories").update({ position: c.position }).eq("id", c.id);
+  }));
+  var failed = res.filter(function(r){ return r.error; })[0];
+  if(failed){
+    notify(errorText(failed.error, "Ordine delle categorie non salvato"));
+    await loadCategories();
+    render();
+  }
+}
+
 /* --- spostamenti, anche in blocco -------------------------------------- */
 function plural(n, one, many){ return n + " " + (n === 1 ? one : many); }
 
@@ -3626,6 +3659,47 @@ function buildGroup(g){
 
   group.appendChild(head);
   group.appendChild(body);
+
+  /* le categorie si riordinano col mouse trascinandone il titolo:
+     l'ordine e' uno solo, per tutto il team */
+  if(cat && state.isTeam && !state.selecting){
+    head.draggable = true;
+    head.title += " · trascina per cambiare l'ordine";
+    head.addEventListener("dragstart", function(e){
+      dragCategoryId = cat.id;
+      e.dataTransfer.effectAllowed = "move";
+      try { e.dataTransfer.setData("text/category-id", cat.id); } catch(_){}
+      group.classList.add("dragging");
+    });
+    head.addEventListener("dragend", function(){
+      dragCategoryId = null;
+      group.classList.remove("dragging");
+      $projects.querySelectorAll(".label-group.drop-before,.label-group.drop-after").forEach(function(x){
+        x.classList.remove("drop-before", "drop-after");
+      });
+    });
+  }
+  if(cat){
+    group.addEventListener("dragover", function(e){
+      if(!dragCategoryId || dragCategoryId === cat.id) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      var r = group.getBoundingClientRect();
+      var after = e.clientY > r.top + r.height / 2;
+      group.classList.toggle("drop-after", after);
+      group.classList.toggle("drop-before", !after);
+    });
+    group.addEventListener("dragleave", function(e){
+      if(!group.contains(e.relatedTarget)) group.classList.remove("drop-before", "drop-after");
+    });
+    group.addEventListener("drop", function(e){
+      if(!dragCategoryId || dragCategoryId === cat.id) return;
+      e.preventDefault();
+      var after = group.classList.contains("drop-after");
+      group.classList.remove("drop-before", "drop-after");
+      reorderCategory(dragCategoryId, cat.id, after);
+    });
+  }
 
   /* destinazione del trascinamento */
   if(g.id !== GROUP_SHARED){
