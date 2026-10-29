@@ -6226,9 +6226,14 @@ window.addEventListener("online", function(){
                    "status","project_id","project_name","notes","series_id","recur","source"];
   // Il luogo (sql/luogo.sql). Finche' il file non e' eseguito le colonne
   // mancano: il calendario si carica senza e la casella Luogo non c'e'.
+  // Il place_id di Google arriva con sql/luogo_google.sql: senza, il luogo
+  // c'e' ma il link cerca il testo invece di aprire il posto.
   var LOCATION_FIELDS = ["location","location_lat","location_lon"];
-  var hasLocation = true;
-  function dbFields(){ return hasLocation ? DB_FIELDS.concat(LOCATION_FIELDS) : DB_FIELDS; }
+  var hasLocation = true, hasPlaceId = true;
+  function dbFields(){
+    if(!hasLocation) return DB_FIELDS;
+    return DB_FIELDS.concat(LOCATION_FIELDS, hasPlaceId ? ["location_place_id"] : []);
+  }
 
   var calEvents = [];
   var mode = null;            // "remote" | "local"
@@ -6315,9 +6320,16 @@ window.addEventListener("online", function(){
       var res = await sb.from("be_cal_events").select(dbFields().join(","))
         .order("date", { ascending: true }).order("id", { ascending: true })
         .range(from, from + 999);
-      if(res.error && hasLocation && res.error.code === "42703" && /location/.test(res.error.message || "")){
-        hasLocation = false;    // sql/luogo.sql non ancora eseguito
-        return fetchRemote();
+      if(res.error && res.error.code === "42703"){
+        var missing = res.error.message || "";
+        if(hasPlaceId && /location_place_id/.test(missing)){
+          hasPlaceId = false;   // sql/luogo_google.sql non ancora eseguito
+          return fetchRemote();
+        }
+        if(hasLocation && /location/.test(missing)){
+          hasLocation = false;  // sql/luogo.sql non ancora eseguito
+          return fetchRemote();
+        }
       }
       if(res.error) return { error: res.error };
       all = all.concat(res.data || []);
@@ -8399,15 +8411,17 @@ window.addEventListener("online", function(){
   }
 
   /* ---------- luogo ----------
-   * Si scrive a mano o si sceglie tra i suggerimenti di OpenStreetMap,
-   * presi da Photon (photon.komoot.io): fatto apposta per cercare mentre
-   * si scrive, gratuito e senza chiave. Nominatim, l'altro servizio di
-   * OpenStreetMap, vieta di usarlo cosi'. Google Places vorrebbe una
-   * chiave a pagamento; Google Maps serve solo per aprire il luogo. */
+   * Si scrive a mano o si sceglie tra i suggerimenti di Google Maps, che
+   * arrivano da /api/places: la chiave di Google sta solo su Vercel. Del
+   * posto scelto si tiene il place_id, cosi' il link apre proprio quello.
+   * Se la funzione non c'e' o non ha la chiave, i suggerimenti vengono da
+   * OpenStreetMap via Photon (photon.komoot.io), gratuito e senza chiave;
+   * Nominatim, l'altro servizio di OpenStreetMap, vieta di usarlo cosi'. */
   var ICON_PIN = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>';
   var PHOTON_URL = "https://photon.komoot.io/api/";
   function mapsUrl(e){
-    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(e.location);
+    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(e.location) +
+      (e.location_place_id ? "&query_place_id=" + encodeURIComponent(e.location_place_id) : "");
   }
   /* "Teatro dell'Aquila, Corso Cefalonia 69, Fermo" da una risposta di Photon */
   function placeLabel(p){
@@ -8418,18 +8432,49 @@ window.addEventListener("online", function(){
     return parts.join(", ");
   }
   var placeAbort = null;
+  var googlePlaces = true;    // diventa false se /api/places non c'e' o non ha la chiave
   async function searchPlaces(q){
     if(placeAbort) placeAbort.abort();
     placeAbort = window.AbortController ? new AbortController() : null;
+    var signal = placeAbort ? placeAbort.signal : undefined;
+    if(googlePlaces && mode === "remote"){
+      try{
+        var list = await searchGoogle(q, signal);
+        if(list) return list;
+      }catch(err){
+        if(err && err.name === "AbortError") throw err;
+      }
+    }
+    return searchPhoton(q, signal);
+  }
+  async function searchGoogle(q, signal){
+    var sess = await sb.auth.getSession();
+    var token = sess && sess.data && sess.data.session && sess.data.session.access_token;
+    if(!token) return null;
+    var r = await fetch("/api/places", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify({ q: q }),
+      signal: signal
+    });
+    // 503: manca la chiave; 404/405/501: nessuna funzione (server statico)
+    if([404, 405, 501, 503].indexOf(r.status) >= 0){ googlePlaces = false; return null; }
+    if(!r.ok) return null;
+    var j = await r.json();
+    return (j.places || []).map(function(p){
+      return { label: p.label, place_id: p.place_id, source: "google" };
+    });
+  }
+  async function searchPhoton(q, signal){
     // vicino a Fermo i risultati vengono prima, ma si trova anche altrove
     var url = PHOTON_URL + "?limit=6&lat=43.16&lon=13.72&q=" + encodeURIComponent(q);
-    var r = await fetch(url, placeAbort ? { signal: placeAbort.signal } : {});
+    var r = await fetch(url, signal ? { signal: signal } : {});
     if(!r.ok) throw new Error("errore " + r.status);
     var j = await r.json();
     var seen = {};
     return (j.features || []).map(function(f){
       var c = f.geometry && f.geometry.coordinates || [];
-      return { label: placeLabel(f.properties || {}), lat: c[1], lon: c[0] };
+      return { label: placeLabel(f.properties || {}), lat: c[1], lon: c[0], source: "osm" };
     }).filter(function(x){
       if(!x.label || seen[x.label]) return false;
       seen[x.label] = 1;
@@ -8597,7 +8642,7 @@ window.addEventListener("online", function(){
           '</div>' +
           '<div class="cm-place-foot">' +
             '<a class="cal-place" id="cm-place-map" target="_blank" rel="noopener" hidden>' + ICON_PIN + 'Apri in Google Maps</a>' +
-            '<span class="cm-place-credit">Suggerimenti © OpenStreetMap</span>' +
+            '<span class="cm-place-credit" id="cm-place-credit"></span>' +
           '</div>' +
         '</div>' +
 
@@ -8858,15 +8903,25 @@ window.addEventListener("online", function(){
 
     /* --- luogo: suggerimenti mentre si scrive, link a Google Maps --- */
     var $place = $("cm-place"), $placeList = $("cm-place-list"), $placeMap = $("cm-place-map");
-    var placePick = data.location && data.location_lat != null
-      ? { label: data.location, lat: data.location_lat, lon: data.location_lon } : null;
+    var $placeCredit = $("cm-place-credit");
+    var placePick = data.location && (data.location_lat != null || data.location_place_id)
+      ? { label: data.location, lat: data.location_lat, lon: data.location_lon,
+          place_id: data.location_place_id || null } : null;
     var placeHits = [], placeIdx = -1, placeTimer = null;
     $place.value = data.location || "";
     if(mode === "remote" && !hasLocation) $("cm-place-box").hidden = true;
     function syncPlaceMap(){
       var v = $place.value.trim();
       $placeMap.hidden = !v;
-      if(v) $placeMap.href = mapsUrl({ location: v });
+      if(v) $placeMap.href = mapsUrl({
+        location: v,
+        location_place_id: placePick && placePick.label === v ? placePick.place_id : null
+      });
+    }
+    // Google chiede di dire da dove vengono i suggerimenti
+    function placeCredit(source){
+      $placeCredit.textContent = source === "osm" ? "Suggerimenti © OpenStreetMap"
+                               : "Suggerimenti da Google Maps";
     }
     function showPlaces(list){
       placeHits = list; placeIdx = -1;
@@ -8883,6 +8938,7 @@ window.addEventListener("online", function(){
       });
       $placeList.hidden = !list.length;
       $place.setAttribute("aria-expanded", list.length ? "true" : "false");
+      if(list.length) placeCredit(list[0].source);
     }
     function markPlace(){
       $placeList.querySelectorAll("li").forEach(function(li, i){ li.classList.toggle("on", i === placeIdx); });
@@ -8925,6 +8981,7 @@ window.addEventListener("online", function(){
     });
     $place.addEventListener("blur", function(){ setTimeout(function(){ showPlaces([]); }, 120); });
     syncPlaceMap();
+    placeCredit(googlePlaces && mode === "remote" ? "google" : "osm");
     recurDays.add(isoDow(parseDate(data.date)));
     $recurTo.value = fmtDate(addDays(parseDate(data.date), 7 * 8));
 
@@ -9134,7 +9191,7 @@ window.addEventListener("online", function(){
         kind: kind, half: half, status: status,
         title: $title.value.trim(),
         notes: $notes.value.trim() || null,
-        location: null, location_lat: null, location_lon: null,
+        location: null, location_lat: null, location_lon: null, location_place_id: null,
         date: $date.value,
         date_end: null,
         start_time: null, end_time: null,
@@ -9146,7 +9203,8 @@ window.addEventListener("online", function(){
       if(kind !== "ferie"){
         out.location = $place.value.trim().slice(0, 300) || null;
         if(out.location && placePick && placePick.label === out.location){
-          out.location_lat = placePick.lat; out.location_lon = placePick.lon;
+          if(placePick.place_id) out.location_place_id = placePick.place_id;
+          else { out.location_lat = placePick.lat; out.location_lon = placePick.lon; }
         }
       }
       if(kind === "ferie" && !out.title) out.title = "Ferie";
