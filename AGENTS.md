@@ -23,7 +23,9 @@ del team, «Mario Project Manager».
 - **Funzioni serverless** in `api/` (Vercel, Node): il feed `.ics` per Apple
   Calendar, la lettura dei calendari pubblici iCloud, il riepilogo email
   giornaliero dei task (`api/task-digest`, lanciato dal cron di `vercel.json`,
-  spedisce con Resend) e i suggerimenti di Google Maps per il luogo degli
+  spedisce con Resend), la mail a chi riceve un impegno in «Chi fa cosa»
+  (`api/cal-notify`, chiamata dal browser dopo il salvataggio e dal cron;
+  codice comune in `api/_lib/mail.js`) e i suggerimenti di Google Maps per il luogo degli
   impegni (`api/places`, con la chiave `GOOGLE_MAPS_KEY` che sta solo su
   Vercel; senza chiave l'app usa OpenStreetMap).
 
@@ -92,7 +94,8 @@ Test di `api/` e `api/_lib/ics.js` con `node:test`, senza dipendenze e con la
 rete simulata. Devono passare prima di ogni commit che tocca `api/`.
 
 `tests/calendario.test.sql`, `tests/calendario_extra.test.sql`,
-`tests/categorie.test.sql` e `tests/coordinatore.test.sql` provano i file
+`tests/calendario_email.test.sql`, `tests/categorie.test.sql` e
+`tests/coordinatore.test.sql` provano i file
 omonimi di `sql/` sul database vero
 dentro una transazione annullata alla fine. Si lancia via SSH sul Mac mini
 (l'intestazione dei file usa l'alias `mac-mini`; usa quello configurato sulla

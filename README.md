@@ -43,7 +43,9 @@ quello che si modifica.
 Le funzioni in `api/` girano su Vercel (in locale con `vercel dev`).
 `api/task-digest` parte ogni mattina dal cron di `vercel.json` e ha bisogno
 di `CRON_SECRET`, `BE_SUPABASE_SERVICE_KEY`, `RESEND_API_KEY` e
-`BE_DIGEST_FROM` nelle variabili d'ambiente di Vercel.
+`BE_DIGEST_FROM` nelle variabili d'ambiente di Vercel. `api/cal-notify`
+(la mail a chi riceve un impegno in «Chi fa cosa») usa le stesse variabili:
+la chiama il browser dopo il salvataggio e il cron ripassa ogni mattina.
 
 ## Test
 
@@ -53,7 +55,8 @@ node --test tests/*.test.js
 
 Servono solo Node 18 o più recente. I test SQL del calendario, degli Extra,
 delle categorie e del coordinatore (`tests/calendario.test.sql`,
-`tests/calendario_extra.test.sql`, `tests/categorie.test.sql`,
+`tests/calendario_extra.test.sql`, `tests/calendario_email.test.sql`,
+`tests/categorie.test.sql`,
 `tests/coordinatore.test.sql`) girano sul
 database vero dentro una transazione annullata; il comando è
 nell'intestazione dei file.
