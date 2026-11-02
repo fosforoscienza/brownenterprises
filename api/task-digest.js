@@ -15,13 +15,10 @@
 
 "use strict";
 
-var SUPABASE_URL = process.env.BE_SUPABASE_URL || "https://api.fosforo.info";
-var APP_URL = "https://www.brownenterprises.it/app.html";
+var mail = require("./_lib/mail");
+var esc = mail.esc, rpc = mail.rpc, sendMail = mail.sendMail;
 
-function esc(t){
-  return String(t == null ? "" : t)
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
+var APP_URL = "https://www.brownenterprises.it/app.html";
 
 /* Una riga per evento, in testo semplice */
 function describe(e){
@@ -79,44 +76,13 @@ function buildEmail(row){
   return { subject: subject, text: text, html: html };
 }
 
-async function rpc(name, body, key){
-  var r = await fetch(SUPABASE_URL + "/rest/v1/rpc/" + name, {
-    method: "POST",
-    headers: {
-      "apikey": key,
-      "Authorization": "Bearer " + key,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(body || {}),
-    signal: AbortSignal.timeout(15000)
-  });
-  if(!r.ok) throw new Error(name + ": HTTP " + r.status);
-  return r.status === 204 ? null : r.json();
-}
-
-async function sendMail(to, mail){
-  var r = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer " + process.env.RESEND_API_KEY,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      from: process.env.BE_DIGEST_FROM, to: [to],
-      subject: mail.subject, text: mail.text, html: mail.html
-    }),
-    signal: AbortSignal.timeout(15000)
-  });
-  if(!r.ok) throw new Error("Resend: HTTP " + r.status);
-}
-
 module.exports = async function(req, res){
   var secret = process.env.CRON_SECRET;
   if(!secret || req.headers.authorization !== "Bearer " + secret){
     return res.status(401).json({ error: "Non autorizzato" });
   }
   var key = process.env.BE_SUPABASE_SERVICE_KEY;
-  if(!key || !process.env.RESEND_API_KEY || !process.env.BE_DIGEST_FROM){
+  if(!mail.configured()){
     return res.status(500).json({ error: "Configurazione mancante" });
   }
 
