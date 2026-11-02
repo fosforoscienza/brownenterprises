@@ -44,7 +44,12 @@ async function sendMail(to, mail){
     }),
     signal: AbortSignal.timeout(15000)
   });
-  if(!r.ok) throw new Error("Resend: HTTP " + r.status);
+  if(!r.ok){
+    /* il motivo (dominio non verificato, mittente sbagliato...) sta nel corpo */
+    var why = "";
+    try { why = (await r.text()).slice(0, 300); } catch(_){}
+    throw new Error("Resend: HTTP " + r.status + (why ? " " + why : ""));
+  }
 }
 
 /* Le chiavi per spedire ci sono tutte? */
