@@ -165,8 +165,15 @@
      #chi-fa-cosa: aperta dalla schermata Home, iOS perde il frammento e
      dopo il login si finiva sui progetti. Qui il parametro torna frammento,
      che il resto della pagina (e il passaggio dal login) gia' conosce. */
-  if(/[?&]apri=chi-fa-cosa(&|$)/.test(location.search)){
-    history.replaceState(null, "", location.pathname + "#chi-fa-cosa");
+  /* Il parametro poi resta nell'indirizzo finche' si e' nel calendario:
+     Chrome, Firefox e a volte Safari su iPhone salvano l'icona con
+     l'indirizzo della pagina e non con lo start_url del manifest, e da
+     app.html#chi-fa-cosa (senza parametro) si ripartiva dai progetti. */
+  var CAL_URL = location.pathname + "?apri=chi-fa-cosa#chi-fa-cosa";
+  if(/[?&]apri=chi-fa-cosa(&|$)/.test(location.search) || location.hash === "#chi-fa-cosa"){
+    if(location.pathname + location.search + location.hash !== CAL_URL){
+      history.replaceState(null, "", CAL_URL);
+    }
   }
   var link = document.getElementById("be-manifest");
   var title = document.getElementById("be-app-title");
@@ -177,6 +184,9 @@
   }
   sync();
   window.addEventListener("hashchange", sync);
+  // tornando indietro da ?apri=chi-fa-cosa#chi-fa-cosa cambia anche la
+  // query, e allora il browser manda popstate ma non hashchange
+  window.addEventListener("popstate", sync);
   window.beSyncManifest = sync;
 })();
 </script>
