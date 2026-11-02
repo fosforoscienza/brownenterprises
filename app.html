@@ -2260,8 +2260,15 @@
      #chi-fa-cosa: aperta dalla schermata Home, iOS perde il frammento e
      dopo il login si finiva sui progetti. Qui il parametro torna frammento,
      che il resto della pagina (e il passaggio dal login) gia' conosce. */
-  if(/[?&]apri=chi-fa-cosa(&|$)/.test(location.search)){
-    history.replaceState(null, "", location.pathname + "#chi-fa-cosa");
+  /* Il parametro poi resta nell'indirizzo finche' si e' nel calendario:
+     Chrome, Firefox e a volte Safari su iPhone salvano l'icona con
+     l'indirizzo della pagina e non con lo start_url del manifest, e da
+     app.html#chi-fa-cosa (senza parametro) si ripartiva dai progetti. */
+  var CAL_URL = location.pathname + "?apri=chi-fa-cosa#chi-fa-cosa";
+  if(/[?&]apri=chi-fa-cosa(&|$)/.test(location.search) || location.hash === "#chi-fa-cosa"){
+    if(location.pathname + location.search + location.hash !== CAL_URL){
+      history.replaceState(null, "", CAL_URL);
+    }
   }
   var link = document.getElementById("be-manifest");
   var title = document.getElementById("be-app-title");
@@ -2272,6 +2279,9 @@
   }
   sync();
   window.addEventListener("hashchange", sync);
+  // tornando indietro da ?apri=chi-fa-cosa#chi-fa-cosa cambia anche la
+  // query, e allora il browser manda popstate ma non hashchange
+  window.addEventListener("popstate", sync);
   window.beSyncManifest = sync;
 })();
 </script>
@@ -6863,13 +6873,17 @@ window.addEventListener("online", function(){
    * salvare tra i preferiti. Aprendolo dal pulsante l'indirizzo lo segue
    * e "indietro" lo chiude invece di uscire da Mario. */
   var CAL_HASH = "#chi-fa-cosa";
+  var CAL_QUERY = "apri=chi-fa-cosa";   // perche' anche ?apri= vedi in <head>
   var pushedHash = false;     // la voce nella cronologia l'abbiamo aggiunta noi
   function isOpen(){ return $overlay.classList.contains("show"); }
-  function urlWithoutHash(){ return location.pathname + location.search; }
+  function urlWithoutHash(){
+    var q = location.search.slice(1).split("&").filter(function(p){ return p && p !== CAL_QUERY; });
+    return location.pathname + (q.length ? "?" + q.join("&") : "");
+  }
 
   function open(fromUrl){
     if(fromUrl !== true && location.hash !== CAL_HASH){
-      history.pushState(null, "", CAL_HASH);
+      history.pushState(null, "", location.pathname + "?" + CAL_QUERY + CAL_HASH);
       pushedHash = true;
       // pushState non manda hashchange: il manifest si aggiorna a mano
       if(window.beSyncManifest) window.beSyncManifest();
@@ -6889,7 +6903,7 @@ window.addEventListener("online", function(){
   }
   function close(fromUrl){
     if(fromUrl !== true && location.hash === CAL_HASH){
-      // si torna alla voce di prima; chiude poi l'evento hashchange
+      // si torna alla voce di prima; chiude poi followUrl (popstate)
       if(pushedHash){ pushedHash = false; history.back(); return; }
       history.replaceState(null, "", urlWithoutHash());
       if(window.beSyncManifest) window.beSyncManifest();
@@ -9654,10 +9668,14 @@ window.addEventListener("online", function(){
     close();
     if(window.beGoHome) window.beGoHome();
   });
-  window.addEventListener("hashchange", function(){
+  function followUrl(){
     if(location.hash === CAL_HASH){ if(!isOpen()) open(true); }
     else if(isOpen()){ pushedHash = false; close(true); }
-  });
+  }
+  window.addEventListener("hashchange", followUrl);
+  // da ?apri=chi-fa-cosa#chi-fa-cosa indietro cambia anche la query: arriva
+  // solo popstate, non hashchange
+  window.addEventListener("popstate", followUrl);
   /* All'avvio, a dati caricati (serve sapere chi e' collegato) */
   window.beCalendarFromUrl = function(){
     if(location.hash === CAL_HASH && !isOpen()) open(true);
