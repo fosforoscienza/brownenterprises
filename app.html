@@ -5995,7 +5995,7 @@ document.getElementById("logout-btn").addEventListener("click", async function()
 var booting = false;
 
 /* =====================================================================
- * Notifiche email: ogni mattina quello che e' successo ai miei task
+ * Notifiche email: ogni notte quello che e' successo ai miei task
  * (api/task-digest) e una mail quando qualcuno mi assegna un impegno in
  * «Chi fa cosa» (api/cal-notify). Gli account @brown.internal non
  * ricevono posta, quindi l'indirizzo lo indica ognuno qui.
@@ -6020,11 +6020,11 @@ async function openNotifyPrefsModal(){
   backdrop.innerHTML =
     '<div class="modal" role="dialog" aria-label="Notifiche email">' +
       '<h2>Notifiche email</h2>' +
-      '<p class="np-hint" style="margin:-6px 0 14px">Il riepilogo arriva la mattina, con quello che è successo ai task di cui sei destinatario: nuovi task, spostamenti di lista, modifiche. La mail degli impegni arriva subito, quando qualcun altro ti mette in un impegno di «Chi fa cosa».</p>' +
+      '<p class="np-hint" style="margin:-6px 0 14px">Il riepilogo arriva ogni notte a mezzanotte e un minuto, con tutte le modifiche ai task di cui sei destinatario: nuovi task, spostamenti di lista (per esempio da To Do a In Progress), date, titoli. La mail degli impegni arriva subito, quando qualcun altro crea un impegno per te in «Chi fa cosa»; per quelli che crei tu non arriva.</p>' +
       '<label for="np-email">Indirizzo email</label>' +
       '<input type="text" id="np-email" inputmode="email" autocomplete="email" placeholder="nome@esempio.it" maxlength="200">' +
-      '<label class="cm-check"><input type="checkbox" id="np-on"> Mandami il riepilogo dei task ogni giorno</label>' +
-      '<label class="cm-check" id="np-cal-row"><input type="checkbox" id="np-cal"> Avvisami quando qualcuno mi assegna un impegno</label>' +
+      '<label class="cm-check"><input type="checkbox" id="np-on"> Mandami il riepilogo dei task modificati, ogni giorno</label>' +
+      '<label class="cm-check" id="np-cal-row"><input type="checkbox" id="np-cal"> Avvisami quando qualcuno crea un impegno per me</label>' +
       '<div class="actions">' +
         '<button class="btn-cancel" id="m-cancel">Annulla</button>' +
         '<button class="btn-primary" id="m-confirm">Salva</button>' +
@@ -6049,8 +6049,8 @@ async function openNotifyPrefsModal(){
     if(up.error){ notify(errorText(up.error, "Preferenze non salvate")); return; }
     close();
     var what = [];
-    if($on.checked) what.push("il riepilogo ogni mattina");
-    if(hasCal && $cal.checked) what.push("una mail per ogni impegno che ti assegnano");
+    if($on.checked) what.push("il riepilogo dei task ogni notte");
+    if(hasCal && $cal.checked) what.push("una mail per ogni impegno che creano per te");
     notify(email && what.length ? "Riceverai " + what.join(" e ") + " a " + email + "." : "Notifiche email disattivate.", { warn: false });
   }
   function onKey(e){
@@ -6438,7 +6438,7 @@ window.addEventListener("online", function(){
      mette in coda (sql/calendario_email.sql), /api/cal-notify la spedisce.
      La si chiama solo se il salvataggio mette qualcuno del team in un
      impegno in cui non c'era, e una volta per piu' salvataggi ravvicinati.
-     Se la chiamata non arriva, ci pensa il cron di ogni mattina. */
+     Se la chiamata non arriva, ci pensa il cron delle 6:05 UTC. */
   var notifyTimer = null;
   function addsSomeoneElse(rows){
     var me = myPerson(), byId = {};

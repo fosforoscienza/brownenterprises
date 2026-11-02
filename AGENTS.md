@@ -22,8 +22,8 @@ del team, «Mario Project Manager».
   nuovi del team e può eliminarli.
 - **Funzioni serverless** in `api/` (Vercel, Node): il feed `.ics` per Apple
   Calendar, la lettura dei calendari pubblici iCloud, il riepilogo email
-  giornaliero dei task (`api/task-digest`, lanciato dal cron di `vercel.json`,
-  spedisce con Resend), la mail a chi riceve un impegno in «Chi fa cosa»
+  giornaliero dei task (`api/task-digest`, alle 00:01 ora italiana dai due
+  cron UTC di `vercel.json`, spedisce con Resend), la mail a chi riceve un impegno in «Chi fa cosa»
   (`api/cal-notify`, chiamata dal browser dopo il salvataggio e dal cron;
   codice comune in `api/_lib/mail.js`) e i suggerimenti di Google Maps per il luogo degli
   impegni (`api/places`, con la chiave `GOOGLE_MAPS_KEY` che sta solo su

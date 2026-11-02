@@ -8,9 +8,15 @@ var digest = require("../api/task-digest");
 
 var realFetch = global.fetch;
 var ENV = { CRON_SECRET: "s3cret", BE_SUPABASE_SERVICE_KEY: "service", RESEND_API_KEY: "re_x", BE_DIGEST_FROM: "Mario <task@example.it>" };
-test.beforeEach(function(){ Object.assign(process.env, ENV); });
+var realClock = digest.clock;
+/* 00:01 a Roma, d'inverno */
+test.beforeEach(function(){
+  Object.assign(process.env, ENV);
+  digest.clock = function(){ return new Date("2026-11-02T23:01:00Z"); };
+});
 test.afterEach(function(){
   global.fetch = realFetch;
+  digest.clock = realClock;
   Object.keys(ENV).forEach(function(k){ delete process.env[k]; });
 });
 
@@ -96,4 +102,29 @@ test("task-digest: descrizioni degli eventi", function(){
                "Ale ha rinominato «Vecchio» in «Nuovo»");
   assert.equal(digest.describe({ kind: "updated", title: "T", actor: "", detail: { fields: ["priorità", "date"] } }),
                "Qualcuno ha modificato «T» (priorità, date)");
+});
+
+test("task-digest: parte solo a mezzanotte, ora italiana", async function(){
+  var called = 0;
+  global.fetch = async function(){ called++; return response(200, []); };
+  // il cron delle 22:01 UTC d'inverno: a Roma sono le 23:01
+  digest.clock = function(){ return new Date("2026-11-02T22:01:00Z"); };
+  var res = fakeRes();
+  await digest(req("Bearer s3cret"), res);
+  assert.equal(res.code, 200);
+  assert.deepEqual(res.body, { skipped: true });
+  assert.equal(called, 0);
+  // d'estate e' quello delle 22:01 UTC a cadere a mezzanotte
+  digest.clock = function(){ return new Date("2026-07-14T22:01:00Z"); };
+  await digest(req("Bearer s3cret"), fakeRes());
+  assert.equal(called, 1);
+});
+
+test("task-digest: l'ora di Roma con l'ora legale e senza", function(){
+  assert.equal(digest.romeHour(new Date("2026-11-02T23:01:00Z")), 0);
+  assert.equal(digest.romeHour(new Date("2026-11-02T23:59:00Z")), 0);
+  assert.equal(digest.romeHour(new Date("2026-07-14T22:30:00Z")), 0);
+  assert.equal(digest.romeHour(new Date("2026-07-14T23:01:00Z")), 1);
+  assert.equal(digest.romeHour(new Date("2026-03-29T22:01:00Z")), 0);   // prima notte d'estate
+  assert.equal(digest.romeHour(new Date("2026-10-25T23:01:00Z")), 0);   // prima notte d'inverno
 });
