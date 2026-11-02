@@ -1,6 +1,10 @@
 /* Brown Enterprises · riepilogo email giornaliero dei task.
  *
- * Lo lancia ogni mattina il cron di Vercel (vercel.json). Per ogni persona
+ * Parte alle 00:01 ora italiana. I cron di Vercel ragionano in UTC, e
+ * mezzanotte in Italia e' alle 23:00 UTC d'inverno e alle 22:00 d'estate:
+ * vercel.json la lancia a tutte e due le ore (?utc=22, ?utc=23: solo per
+ * distinguerle nei log) e la funzione lavora solo
+ * quando a Roma e' fra mezzanotte e l'una. Per ogni persona
  * che ha indicato un indirizzo in be_notify_prefs, la funzione SQL
  * be_task_digest_pending (sql/task.sql) restituisce quello che e' successo
  * dall'ultimo invio ai task di cui e' destinataria; qui diventa una mail,
@@ -17,6 +21,11 @@
 
 var mail = require("./_lib/mail");
 var esc = mail.esc, rpc = mail.rpc, sendMail = mail.sendMail;
+
+/* L'ora a Roma, 0-23 */
+function romeHour(date){
+  return +new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Rome", hour: "2-digit", hourCycle: "h23" }).format(date);
+}
 
 var APP_URL = "https://www.brownenterprises.it/app.html";
 
@@ -76,19 +85,29 @@ function buildEmail(row){
   return { subject: subject, text: text, html: html };
 }
 
-module.exports = async function(req, res){
+var digest = module.exports = async function(req, res){
   var secret = process.env.CRON_SECRET;
   if(!secret || req.headers.authorization !== "Bearer " + secret){
     return res.status(401).json({ error: "Non autorizzato" });
   }
+  /* dei due cron (vedi sopra) lavora solo quello che cade dopo mezzanotte */
+  var hour = romeHour(digest.clock());
+  if(hour !== 0){
+    console.log("task-digest: a Roma sono le", hour, "- il riepilogo parte solo a mezzanotte");
+    return res.status(200).json({ skipped: true });
+  }
   var key = process.env.BE_SUPABASE_SERVICE_KEY;
   if(!mail.configured()){
+    console.error("task-digest: mancano BE_SUPABASE_SERVICE_KEY, RESEND_API_KEY o BE_DIGEST_FROM");
     return res.status(500).json({ error: "Configurazione mancante" });
   }
 
   var rows;
   try { rows = await rpc("be_task_digest_pending", {}, key); }
-  catch(_){ return res.status(502).json({ error: "Database non raggiungibile" }); }
+  catch(err){
+    console.error("task-digest: be_task_digest_pending", err && err.message);
+    return res.status(502).json({ error: "Database non raggiungibile" });
+  }
 
   var sent = 0, failed = 0;
   for(var row of Array.isArray(rows) ? rows : []){
@@ -97,13 +116,19 @@ module.exports = async function(req, res){
       await sendMail(row.email, buildEmail(row));
       await rpc("be_task_digest_mark", { p_user: row.user_id, p_until: row.until }, key);
       sent++;
-    } catch(_){
+    } catch(err){
       /* il segno non si sposta: gli eventi tornano nel riepilogo di domani */
+      console.error("task-digest: riepilogo non spedito a", row.user_id, err && err.message);
       failed++;
     }
   }
+  console.log("task-digest:", sent, "spediti,", failed, "non spediti");
   return res.status(failed && !sent ? 502 : 200).json({ sent: sent, failed: failed });
 };
+
+/* L'orologio: i test lo sostituiscono */
+digest.clock = function(){ return new Date(); };
+digest.romeHour = romeHour;
 
 module.exports.buildEmail = buildEmail;
 module.exports.describe = describe;

@@ -41,7 +41,8 @@ L'area riservata in locale usa comunque il database vero: attenzione a
 quello che si modifica.
 
 Le funzioni in `api/` girano su Vercel (in locale con `vercel dev`).
-`api/task-digest` parte ogni mattina dal cron di `vercel.json` e ha bisogno
+`api/task-digest` parte ogni notte alle 00:01 ora italiana dal cron di
+`vercel.json` (due orari UTC, uno per l'ora legale) e ha bisogno
 di `CRON_SECRET`, `BE_SUPABASE_SERVICE_KEY`, `RESEND_API_KEY` e
 `BE_DIGEST_FROM` nelle variabili d'ambiente di Vercel. `api/cal-notify`
 (la mail a chi riceve un impegno in «Chi fa cosa») usa le stesse variabili:
