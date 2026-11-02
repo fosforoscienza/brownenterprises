@@ -133,6 +133,12 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(handleNavigation(event));
     return;
   }
+  // I manifest vanno sempre presi freschi: Safari se li tiene, e una copia
+  // vecchia data dalla cache faceva partire l'icona dalla pagina sbagliata.
+  if (request.destination === 'manifest' || url.pathname.endsWith('.webmanifest')) {
+    event.respondWith(networkWithCacheFallback(event));
+    return;
+  }
   if (isStaticAsset(request, url)) {
     event.respondWith(handleStaticAsset(event));
     return;

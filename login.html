@@ -151,7 +151,6 @@
     h1{font-size:19px}
   }
 </style>
-<link rel="manifest" id="be-manifest" href="/app.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -175,7 +174,13 @@
       history.replaceState(null, "", CAL_URL);
     }
   }
-  var link = document.getElementById("be-manifest");
+  /* Il <link rel="manifest"> nasce qui e non nell'HTML: Safari su iPhone
+     scarica il manifest appena trova il link e poi non lo rilegge piu',
+     anche se l'href cambia. Con un link statico a /app.webmanifest l'icona
+     di «Chi fa cosa» ripartiva dai progetti. */
+  var link = document.createElement("link");
+  link.rel = "manifest";
+  link.id = "be-manifest";
   var title = document.getElementById("be-app-title");
   function sync(){
     var cal = location.hash === "#chi-fa-cosa";
@@ -183,6 +188,7 @@
     title.content = cal ? "Chi fa cosa" : "Progetti";
   }
   sync();
+  document.head.appendChild(link);
   window.addEventListener("hashchange", sync);
   // tornando indietro da ?apri=chi-fa-cosa#chi-fa-cosa cambia anche la
   // query, e allora il browser manda popstate ma non hashchange

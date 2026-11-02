@@ -2246,7 +2246,6 @@
   }
   .card,.project-item{-webkit-touch-callout:none}
 </style>
-<link rel="manifest" id="be-manifest" href="/app.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2270,7 +2269,13 @@
       history.replaceState(null, "", CAL_URL);
     }
   }
-  var link = document.getElementById("be-manifest");
+  /* Il <link rel="manifest"> nasce qui e non nell'HTML: Safari su iPhone
+     scarica il manifest appena trova il link e poi non lo rilegge piu',
+     anche se l'href cambia. Con un link statico a /app.webmanifest l'icona
+     di «Chi fa cosa» ripartiva dai progetti. */
+  var link = document.createElement("link");
+  link.rel = "manifest";
+  link.id = "be-manifest";
   var title = document.getElementById("be-app-title");
   function sync(){
     var cal = location.hash === "#chi-fa-cosa";
@@ -2278,11 +2283,27 @@
     title.content = cal ? "Chi fa cosa" : "Progetti";
   }
   sync();
+  document.head.appendChild(link);
   window.addEventListener("hashchange", sync);
   // tornando indietro da ?apri=chi-fa-cosa#chi-fa-cosa cambia anche la
   // query, e allora il browser manda popstate ma non hashchange
   window.addEventListener("popstate", sync);
   window.beSyncManifest = sync;
+  /* Per questo nel browser dell'iPhone (non nell'app gia' aggiunta alla
+     schermata Home) entrare e uscire da «Chi fa cosa» ricarica la pagina:
+     e' l'unico modo perche' Safari prenda il manifest giusto. */
+  var ios = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var standalone = navigator.standalone === true ||
+    (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  window.beManifestNeedsReload = ios && !standalone;
+  // fuori dal calendario (anche tornati con «indietro» del browser) la
+  // chiusura non ha piu' una pagina dei progetti a cui tornare
+  window.addEventListener("pageshow", function(){
+    if(location.hash !== "#chi-fa-cosa"){
+      try { sessionStorage.removeItem("be-cal-back"); } catch(e){}
+    }
+  });
 })();
 </script>
 <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
@@ -6930,6 +6951,12 @@ window.addEventListener("online", function(){
   }
 
   function open(fromUrl){
+    if(fromUrl !== true && location.hash !== CAL_HASH && window.beManifestNeedsReload){
+      // vedi beManifestNeedsReload in <head>; la chiusura tornera' qui
+      try { sessionStorage.setItem("be-cal-back", "1"); } catch(e){}
+      location.assign(location.pathname + "?" + CAL_QUERY + CAL_HASH);
+      return;
+    }
     if(fromUrl !== true && location.hash !== CAL_HASH){
       history.pushState(null, "", location.pathname + "?" + CAL_QUERY + CAL_HASH);
       pushedHash = true;
@@ -6953,6 +6980,12 @@ window.addEventListener("online", function(){
     if(fromUrl !== true && location.hash === CAL_HASH){
       // si torna alla voce di prima; chiude poi followUrl (popstate)
       if(pushedHash){ pushedHash = false; history.back(); return; }
+      if(window.beManifestNeedsReload){
+        var back = false;
+        try { back = sessionStorage.getItem("be-cal-back") === "1"; sessionStorage.removeItem("be-cal-back"); } catch(e){}
+        if(back) history.back(); else location.assign(urlWithoutHash());
+        return;
+      }
       history.replaceState(null, "", urlWithoutHash());
       if(window.beSyncManifest) window.beSyncManifest();
     }
