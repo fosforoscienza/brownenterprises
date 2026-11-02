@@ -9434,7 +9434,8 @@ window.addEventListener("online", function(){
     }
     document.addEventListener("keydown", onKey);
 
-    bd.addEventListener("click", function(e){ if(e.target === bd) teardown(); });
+    // niente chiusura col clic sullo sfondo: si perderebbe l'impegno a meta'.
+    // Si esce solo con Annulla, Salva o Esc.
     $("cm-cancel").addEventListener("click", teardown);
     $("cm-save").addEventListener("click", save);
     var $del = $("cm-delete");
