@@ -154,12 +154,18 @@ module.exports = async function(req, res){
     return res.status(405).json({ error: "Metodo non consentito" });
   }
   if(!(await allowed(req))) return res.status(401).json({ error: "Non autorizzato" });
-  if(!mail.configured()) return res.status(500).json({ error: "Configurazione mancante" });
+  if(!mail.configured()){
+    console.error("cal-notify: mancano BE_SUPABASE_SERVICE_KEY, RESEND_API_KEY o BE_DIGEST_FROM");
+    return res.status(500).json({ error: "Configurazione mancante" });
+  }
   var key = process.env.BE_SUPABASE_SERVICE_KEY;
 
   var rows;
   try { rows = await rpc("be_cal_notify_claim", {}, key); }
-  catch(_){ return res.status(502).json({ error: "Database non raggiungibile" }); }
+  catch(err){
+    console.error("cal-notify: be_cal_notify_claim", err && err.message);
+    return res.status(502).json({ error: "Database non raggiungibile" });
+  }
 
   var sent = 0, failed = 0;
   for(var row of Array.isArray(rows) ? rows : []){
@@ -171,11 +177,15 @@ module.exports = async function(req, res){
         await sendMail(row.email, buildEmail(row));
         ok = true;
       }
-    } catch(_){}
-    try { await rpc("be_cal_notify_done", { p_ids: ids, p_sent: ok }, key); } catch(_){}
+    } catch(err){
+      console.error("cal-notify: mail non spedita a", row.user_id, err && err.message);
+    }
+    try { await rpc("be_cal_notify_done", { p_ids: ids, p_sent: ok }, key); }
+    catch(err){ console.error("cal-notify: be_cal_notify_done", err && err.message); }
     /* non spedite: tornano in coda per il prossimo giro */
     if(ok) sent++; else failed++;
   }
+  console.log("cal-notify:", req.method === "GET" ? "cron," : "browser,", sent, "spedite,", failed, "non spedite");
   return res.status(failed && !sent ? 502 : 200).json({ sent: sent, failed: failed });
 };
 

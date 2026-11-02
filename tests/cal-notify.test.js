@@ -157,3 +157,18 @@ test("cal-notify: le date", function(){
   assert.equal(notify.when([{ date: "2026-11-02", half: "am", start_time: "10:00", end_time: "10:00" }]),
                "lunedì 2 novembre 2026 · mattina, 10:00");
 });
+
+test("cal-notify: il motivo del rifiuto di Resend finisce nei log", async function(){
+  network({ "resend\\.com": function(){
+    return { ok: false, status: 403, json: async function(){ return {}; },
+             text: async function(){ return '{"message":"The brownenterprises.it domain is not verified"}'; } };
+  } });
+  var logged = [], realError = console.error;
+  console.error = function(){ logged.push(Array.prototype.join.call(arguments, " ")); };
+  try {
+    var res = fakeRes();
+    await notify(req("GET", "Bearer s3cret"), res);
+    assert.equal(res.code, 502);
+  } finally { console.error = realError; }
+  assert.ok(logged.some(function(l){ return /HTTP 403 .*domain is not verified/.test(l); }), logged.join("\n"));
+});
