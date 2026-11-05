@@ -17,7 +17,10 @@ del team, «Mario Project Manager».
   e JavaScript inline (circa 7000 righe) che parla direttamente con Supabase
   dal browser. Progetti divisi in categorie del team (più «Personale»,
   Preferiti e Archiviati), schede To Do / In Progress / Done, Archivio
-  (file e link Drive), Panoramica, scadenze e il calendario «Chi fa cosa».
+  (file e link Drive), Panoramica, scadenze e il calendario «Chi fa cosa»
+  (con il link della videochiamata su call.fosforoscienza.it). Nella barra
+  in alto c'è anche il pulsante per Coding Factory
+  (codingfactory.fosforoscienza.it).
   Alessandro è il coordinatore (`be_profiles.coordinator`): vede i progetti
   nuovi del team e può eliminarli.
 - **Funzioni serverless** in `api/` (Vercel, Node): il feed `.ics` per Apple
@@ -94,8 +97,8 @@ Test di `api/` e `api/_lib/ics.js` con `node:test`, senza dipendenze e con la
 rete simulata. Devono passare prima di ogni commit che tocca `api/`.
 
 `tests/calendario.test.sql`, `tests/calendario_extra.test.sql`,
-`tests/calendario_email.test.sql`, `tests/categorie.test.sql` e
-`tests/coordinatore.test.sql` provano i file
+`tests/calendario_email.test.sql`, `tests/videochiamata.test.sql`,
+`tests/categorie.test.sql` e `tests/coordinatore.test.sql` provano i file
 omonimi di `sql/` sul database vero
 dentro una transazione annullata alla fine. Si lancia via SSH sul Mac mini
 (l'intestazione dei file usa l'alias `mac-mini`; usa quello configurato sulla

@@ -75,11 +75,13 @@ function groupSeries(events){
   return groups;
 }
 
-/* Le righe di dettaglio di una voce: [etichetta, testo] */
+/* Le righe di dettaglio di una voce: [etichetta, testo, link?] */
 function details(items, me){
   var e = items[0];
   var rows = [["Quando", when(items)]];
   if(e.location) rows.push(["Dove", e.location]);
+  // il terzo elemento e' il link: nella mail HTML diventa cliccabile
+  if(e.video_url) rows.push(["Videochiamata", e.video_url, e.video_url]);
   if(e.project) rows.push(["Progetto", e.project]);
   var others = (e.persons || []).filter(function(p){ return String(p).toLowerCase() !== String(me || "").toLowerCase(); });
   if(others.length) rows.push(["Con", others.join(", ")]);
@@ -121,7 +123,9 @@ function buildEmail(row){
           '<table style="border-collapse:collapse;font-size:14px">' +
           details(items, row.display_name).map(function(d){
             return '<tr><td style="color:#626f86;padding:2px 12px 2px 0;vertical-align:top;white-space:nowrap">' + esc(d[0]) + '</td>' +
-                   '<td style="padding:2px 0">' + esc(d[1]).replace(/\n/g, "<br>") + '</td></tr>';
+                   '<td style="padding:2px 0">' +
+                     (d[2] ? '<a href="' + esc(d[2]) + '" style="color:#0c66e4">' + esc(d[1]) + '</a>'
+                           : esc(d[1]).replace(/\n/g, "<br>")) + '</td></tr>';
           }).join("") +
           '</table>';
       }).join("") +

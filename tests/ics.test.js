@@ -447,3 +447,12 @@ test("luogo: LOCATION con escape e GEO solo con le coordinate", function(){
   assert.ok(!ev[1].includes("GEO:"));
   assert.ok(!ev[2].includes("LOCATION:") && !ev[2].includes("GEO:"));
 });
+
+test("videochiamata: URL e una riga nella descrizione", function(){
+  var link = "https://call.fosforoscienza.it/call/riunione-ab12cd34ef";
+  // le righe lunghe vanno a capo (75 byte): qui si riuniscono
+  var ev = vevents(ics.buildIcs([row({ id: "v", video_url: link, notes: "Ordine del giorno" }), row({ id: "w" })]).replace(/\r\n /g, ""));
+  assert.ok(ev[0].includes("URL:" + link + "\r\n"));
+  assert.ok(ev[0].includes("DESCRIPTION:Videochiamata: " + link + "\\nOrdine del giorno\r\n"));
+  assert.ok(!ev[1].includes("URL:"));
+});

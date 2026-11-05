@@ -172,3 +172,11 @@ test("cal-notify: il motivo del rifiuto di Resend finisce nei log", async functi
   } finally { console.error = realError; }
   assert.ok(logged.some(function(l){ return /HTTP 403 .*domain is not verified/.test(l); }), logged.join("\n"));
 });
+
+test("cal-notify: il link della videochiamata, cliccabile nella mail", function(){
+  var link = "https://call.fosforoscienza.it/call/montaggio-ab12cd34ef";
+  var m = notify.buildEmail({ display_name: "Luca", events: [Object.assign({}, EVENT, { video_url: link })] });
+  assert.match(m.text, new RegExp("Videochiamata: " + link.replace(/[.?]/g, "\\$&")));
+  assert.ok(m.html.includes('<a href="' + link + '" style="color:#0c66e4">' + link + '</a>'));
+  assert.ok(!/Videochiamata/.test(notify.buildEmail(ROW).text));
+});

@@ -416,6 +416,7 @@ function buildIcs(rows, opts){
     if(r.project_name) desc.push("Progetto: " + r.project_name);
     if(r.persons && r.persons.length > 1) desc.push("Con: " + r.persons.join(", "));
     if(tentative) desc.push("Da confermare");
+    if(r.video_url) desc.push("Videochiamata: " + r.video_url);
     if(r.notes) desc.push(r.notes);
 
     L.push("BEGIN:VEVENT");
@@ -440,6 +441,8 @@ function buildIcs(rows, opts){
     if(r.location && r.location_lat != null && r.location_lon != null){
       L.push("GEO:" + Number(r.location_lat).toFixed(6) + ";" + Number(r.location_lon).toFixed(6));
     }
+    // il link della videochiamata (sql/videochiamata.sql)
+    if(r.video_url) L.push("URL:" + r.video_url);
     L.push("STATUS:" + (tentative ? "TENTATIVE" : "CONFIRMED"));
     L.push("TRANSP:OPAQUE");
     if(r.kind === "ferie") L.push("CATEGORIES:Ferie");
