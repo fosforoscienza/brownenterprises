@@ -1234,6 +1234,15 @@
   .cm-place-list li:hover,.cm-place-list li.on{background:#1c2b41;color:#fff}
   .cm-place-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;min-height:18px}
   .cm-place-credit{margin-left:auto;font-size:10.5px;color:#738496}
+  .cm-place-credit[hidden]{display:none}
+  .cm-video{display:flex;gap:8px;align-items:flex-start}
+  .modal .cm-video input{flex:1;min-width:0;margin-bottom:6px}
+  .cm-video-new{
+    flex-shrink:0;display:inline-flex;align-items:center;
+    padding:8px 14px;border:1px solid #38414b;border-radius:6px;
+    color:#b6c2cf;font-size:13px;font-weight:600;text-decoration:none;
+  }
+  .cm-video-new:hover{background:#2c3338;color:#f4f5f7;border-color:#579dff}
   .cal-place{
     display:inline-flex;align-items:center;gap:4px;
     color:#85b8ff;font-size:12.5px;font-weight:600;text-decoration:none;
@@ -1304,6 +1313,7 @@
     font-size:13px;font-weight:600;
     transition:background 0.12s,color 0.12s,border-color 0.12s;
   }
+  a.topbar-btn{text-decoration:none}
   .topbar-btn:hover{background:#2c3338;color:#f4f5f7;border-color:#579dff}
   .topbar-btn svg{flex-shrink:0}
 
@@ -2326,6 +2336,10 @@
       <button type="button" data-area="amministrazione">Amministrazione</button>
     </div>
     <div class="topbar-spacer"></div>
+    <a class="topbar-btn" href="https://codingfactory.fosforoscienza.it/" target="_blank" rel="noopener" title="I nostri progetti su Coding Factory">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <span>Coding Factory</span>
+    </a>
     <button class="topbar-btn topbar-msg" id="open-msgs-btn" type="button" title="Messaggi" aria-haspopup="dialog" aria-expanded="false" aria-controls="msg-panel">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
       <span>Messaggi</span>
@@ -6272,10 +6286,14 @@ window.addEventListener("online", function(){
   // Il place_id di Google arriva con sql/luogo_google.sql: senza, il luogo
   // c'e' ma il link cerca il testo invece di aprire il posto.
   var LOCATION_FIELDS = ["location","location_lat","location_lon"];
-  var hasLocation = true, hasPlaceId = true;
+  // Il link della videochiamata (sql/videochiamata.sql): senza la colonna
+  // la casella Videochiamata non c'e'.
+  var hasLocation = true, hasPlaceId = true, hasVideo = true;
   function dbFields(){
-    if(!hasLocation) return DB_FIELDS;
-    return DB_FIELDS.concat(LOCATION_FIELDS, hasPlaceId ? ["location_place_id"] : []);
+    var f = DB_FIELDS;
+    if(hasLocation) f = f.concat(LOCATION_FIELDS, hasPlaceId ? ["location_place_id"] : []);
+    if(hasVideo) f = f.concat(["video_url"]);
+    return f;
   }
 
   var calEvents = [];
@@ -6365,6 +6383,10 @@ window.addEventListener("online", function(){
         .range(from, from + 999);
       if(res.error && res.error.code === "42703"){
         var missing = res.error.message || "";
+        if(hasVideo && /video_url/.test(missing)){
+          hasVideo = false;     // sql/videochiamata.sql non ancora eseguito
+          return fetchRemote();
+        }
         if(hasPlaceId && /location_place_id/.test(missing)){
           hasPlaceId = false;   // sql/luogo_google.sql non ancora eseguito
           return fetchRemote();
@@ -7354,6 +7376,7 @@ window.addEventListener("online", function(){
     var bits = [displayTitle(e), fmtTimeRange(e)];
     if(e.project_name) bits.push("Progetto: " + e.project_name);
     if(e.location) bits.push("Luogo: " + e.location);
+    if(e.video_url) bits.push("Videochiamata");
     if(e.persons && e.persons.length) bits.push(e.persons.join(", "));
     if(e.kind === "extra") bits.push("Extra fosforo" + (e.source === "apple" ? " (da Apple Calendar)" : ""));
     return bits.filter(Boolean).join("\n");
@@ -8482,10 +8505,15 @@ window.addEventListener("online", function(){
       bits.push('<a class="cal-place" href="' + escapeHtml(mapsUrl(e)) + '" target="_blank" rel="noopener" title="Apri in Google Maps">' +
                 ICON_PIN + escapeHtml(e.location) + '</a>');
     }
+    if(e.video_url){
+      bits.push('<a class="cal-place" href="' + escapeHtml(e.video_url) + '" target="_blank" rel="noopener" title="Apri la videochiamata">' +
+                ICON_VIDEO + 'Entra nella videochiamata</a>');
+    }
     meta.innerHTML = bits.join("");
-    // il luogo apre Google Maps, non l'impegno
-    var place = meta.querySelector(".cal-place");
-    if(place) place.addEventListener("click", function(ev){ ev.stopPropagation(); });
+    // luogo e videochiamata aprono il loro link, non l'impegno
+    meta.querySelectorAll(".cal-place").forEach(function(a){
+      a.addEventListener("click", function(ev){ ev.stopPropagation(); });
+    });
     if(bits.length) body.appendChild(meta);
 
     if(e.notes){
@@ -8514,6 +8542,20 @@ window.addEventListener("online", function(){
    * Nominatim, l'altro servizio di OpenStreetMap, vieta di usarlo cosi'. */
   var ICON_PIN = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>';
   var PHOTON_URL = "https://photon.komoot.io/api/";
+
+  /* ---------- videochiamata ----------
+   * Le videochiamate stanno su call.fosforoscienza.it: le crea (o le
+   * programma) un organizzatore, che poi incolla qui il link della
+   * chiamata. Il database accetta solo link di quella web app. */
+  var ICON_VIDEO = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>';
+  var CALL_APP_URL = "https://call.fosforoscienza.it/";
+  var CALL_LINK_RE = /^https:\/\/call\.fosforoscienza\.it\/call\/[A-Za-z0-9-]+\/?$/;
+  /* Quello che si incolla: anche senza https:// o con spazi intorno */
+  function cleanCallLink(v){
+    v = String(v || "").trim();
+    if(v && !/^https?:\/\//i.test(v)) v = "https://" + v;
+    return v.replace(/^http:\/\//i, "https://");
+  }
   function mapsUrl(e){
     return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(e.location) +
       (e.location_place_id ? "&query_place_id=" + encodeURIComponent(e.location_place_id) : "");
@@ -8738,6 +8780,18 @@ window.addEventListener("online", function(){
           '<div class="cm-place-foot">' +
             '<a class="cal-place" id="cm-place-map" target="_blank" rel="noopener" hidden>' + ICON_PIN + 'Apri in Google Maps</a>' +
             '<span class="cm-place-credit" id="cm-place-credit"></span>' +
+          '</div>' +
+        '</div>' +
+
+        '<div id="cm-video-box">' +
+          '<label for="cm-video">Videochiamata (opzionale)</label>' +
+          '<div class="cm-video">' +
+            '<input type="url" id="cm-video" placeholder="https://call.fosforoscienza.it/call/…" maxlength="300" autocomplete="off" inputmode="url">' +
+            '<a class="cm-video-new" id="cm-video-new" href="' + CALL_APP_URL + '" target="_blank" rel="noopener" title="Apre call.fosforoscienza.it: programma la videochiamata, poi copia il link e incollalo qui">Crea</a>' +
+          '</div>' +
+          '<div class="cm-place-foot">' +
+            '<a class="cal-place" id="cm-video-open" target="_blank" rel="noopener" hidden>' + ICON_VIDEO + 'Entra nella videochiamata</a>' +
+            '<span class="cm-place-credit" id="cm-video-hint">Con «Crea» la programmi su call.fosforoscienza.it; poi «Copia link» e incollalo qui.</span>' +
           '</div>' +
         '</div>' +
 
@@ -8995,6 +9049,20 @@ window.addEventListener("online", function(){
     setTime($sh, $sm, data.start_time);
     setTime($eh, $em, data.end_time);
     $notes.value = data.notes || "";
+
+    /* --- videochiamata: il link incollato da call.fosforoscienza.it --- */
+    var $video = $("cm-video"), $videoOpen = $("cm-video-open");
+    $video.value = data.video_url || "";
+    if(mode === "remote" && !hasVideo) $("cm-video-box").hidden = true;
+    function syncVideo(){
+      var v = cleanCallLink($video.value);
+      var ok = CALL_LINK_RE.test(v);
+      $videoOpen.hidden = !ok;
+      if(ok) $videoOpen.href = v;
+      $("cm-video-hint").hidden = ok;
+    }
+    syncVideo();
+    $video.addEventListener("input", syncVideo);
 
     /* --- luogo: suggerimenti mentre si scrive, link a Google Maps --- */
     var $place = $("cm-place"), $placeList = $("cm-place-list"), $placeMap = $("cm-place-map");
@@ -9264,6 +9332,7 @@ window.addEventListener("online", function(){
       var ferie = kind === "ferie";
       $("cm-project-box").hidden = kind !== "lavoro";
       if(!(mode === "remote" && !hasLocation)) $("cm-place-box").hidden = ferie;
+      if(!(mode === "remote" && !hasVideo)) $("cm-video-box").hidden = ferie;
       if(kind !== "lavoro" && groups) closePop(false);
       $projOther.hidden = $project.value !== "__altro__";
       renderPicker();
@@ -9293,6 +9362,7 @@ window.addEventListener("online", function(){
         title: $title.value.trim(),
         notes: $notes.value.trim() || null,
         location: null, location_lat: null, location_lon: null, location_place_id: null,
+        video_url: null,
         date: $date.value,
         date_end: null,
         start_time: null, end_time: null,
@@ -9306,6 +9376,10 @@ window.addEventListener("online", function(){
         if(out.location && placePick && placePick.label === out.location){
           if(placePick.place_id) out.location_place_id = placePick.place_id;
           else { out.location_lat = placePick.lat; out.location_lon = placePick.lon; }
+        }
+        out.video_url = cleanCallLink($video.value) || null;
+        if(out.video_url && !CALL_LINK_RE.test(out.video_url)){
+          return fail("Il link della videochiamata deve essere quello di call.fosforoscienza.it (https://call.fosforoscienza.it/call/…).", $video);
         }
       }
       if(kind === "ferie" && !out.title) out.title = "Ferie";
