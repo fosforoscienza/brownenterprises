@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Simulatore dei costi delle attività STEM del progetto STEAM Village (bando POLARIS+).">
+<link rel="icon" href="/favicon.ico">
+<title>Budget laboratori STEM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: parametri di scala in alto, riepilogo, poi la tabella delle voci editabili raggruppata per sezione */
+:root {
+  --bg: #F3F6F7;
+  --surface: #FFFFFF;
+  --field: #F7F9FA;
+  --fg: #14212B;
+  --muted: #5A6A75;
+  --line: #D8E0E4;
+  --accent: #0B6E79;
+  --accent-soft: #E1F0F1;
+  --s1: #0B6E79;
+  --s2: #4458C9;
+  --s3: #CC7419;
+  --s4: #8C9AA5;
+  --warn-fg: #8A4307;
+  --warn-bg: #FCEFD9;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E151A; --surface: #162028; --field: #1C2830; --fg: #E5ECF0; --muted: #94A4AE; --line: #283640;
+    --accent: #52C2CC; --accent-soft: #15343A;
+    --s1: #52C2CC; --s2: #8796F0; --s3: #EFA65A; --s4: #6E7E89;
+    --warn-fg: #F6C68A; --warn-bg: #3A2A14;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E151A; --surface: #162028; --field: #1C2830; --fg: #E5ECF0; --muted: #94A4AE; --line: #283640;
+  --accent: #52C2CC; --accent-soft: #15343A;
+  --s1: #52C2CC; --s2: #8796F0; --s3: #EFA65A; --s4: #6E7E89;
+  --warn-fg: #F6C68A; --warn-bg: #3A2A14;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { color-scheme: light; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap {
+  max-width: 1180px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid; gap: 28px;
+}
+header.top { display: grid; gap: 8px; max-width: 72ch; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); margin: 0; }
+section.block { display: grid; gap: 12px; min-width: 0; }
+.block-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.note { font-size: 13px; color: var(--muted); }
+
+.params { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 14px; }
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px 16px; }
+.pf { display: grid; gap: 4px; align-content: start; }
+.pf label { font-size: 13px; font-weight: 600; }
+.derived { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+.derived b { color: var(--fg); font-family: var(--mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+input[type="number"], input[type="text"], select {
+  font: inherit; font-size: 14px; color: var(--fg);
+  background: var(--field); border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px; width: 100%; min-width: 0;
+}
+input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+input:hover, select:hover { border-color: var(--muted); }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+.summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 860px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 2px; min-width: 0; }
+.stat.main { border-color: var(--accent); }
+.stat .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.stat .v { font-family: var(--display); font-weight: 700; font-size: clamp(21px, 2.8vw, 30px); font-variant-numeric: tabular-nums; line-height: 1.15; overflow-wrap: anywhere; }
+.stat .s { font-size: 12.5px; color: var(--muted); }
+
+.stack { display: flex; height: 18px; border-radius: 5px; overflow: hidden; background: var(--line); }
+.stack div { transition: width .25s ease; }
+.legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px 14px; }
+.legend .item { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; font-size: 14px; }
+.legend .dot { width: 12px; height: 12px; border-radius: 3px; }
+.legend .amt { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.tbl-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+thead th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; padding-block: 10px; background: var(--surface); }
+th.num, td.num { text-align: right; }
+col.c-voce { width: 32%; } col.c-rip { width: 14%; } col.c-q { width: 9%; } col.c-base { width: 17%; } col.c-cost { width: 11%; } col.c-tot { width: 14%; } col.c-del { width: 3%; }
+tr.sec th { background: var(--field); font-family: var(--display); font-size: 15px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--fg); padding-block: 10px; }
+tr.sec th .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: 0; }
+td.tot { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 500; }
+td.tot .how { display: block; font-size: 11.5px; color: var(--muted); font-weight: 400; }
+tr.sub td { font-weight: 600; background: var(--accent-soft); }
+tr.sub td.tot { font-weight: 600; }
+tr.add td { padding-block: 6px 12px; }
+tfoot td { font-weight: 600; border-bottom: 1px solid var(--line); }
+tfoot tr.grand td { font-family: var(--display); font-size: 17px; border-bottom: 0; background: var(--accent-soft); }
+tfoot tr.grand td.tot { font-family: var(--mono); font-size: 16px; }
+.inline-num { display: inline-flex; align-items: center; gap: 6px; justify-content: flex-end; }
+.inline-num input { width: 70px; }
+
+button {
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  border-radius: 8px; padding: 8px 14px; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+}
+button:hover { border-color: var(--muted); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+button.armed { background: var(--warn-bg); border-color: var(--warn-fg); color: var(--warn-fg); }
+button.link { border: 0; background: none; color: var(--accent); padding: 4px 2px; font-size: 13.5px; }
+button.del { border: 0; background: none; color: var(--muted); padding: 4px 6px; font-size: 18px; line-height: 1; }
+button.del:hover { color: var(--warn-fg); }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+#status { font-size: 13.5px; color: var(--muted); display: inline-flex; gap: 8px; align-items: center; }
+#status button { padding: 2px 6px; }
+#fallback { width: 100%; font-family: var(--mono); font-size: 12px; background: var(--field); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+
+.legendnote { font-size: 13px; color: var(--muted); max-width: 80ch; margin: 0; }
+footer { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
+@media (prefers-reduced-motion: reduce) { .stack div { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">STEAM Village · Bando POLARIS+ · solo attività STEM</span>
+    <h1>Budget laboratori STEM</h1>
+    <p class="lede">Simulatore dei costi dei laboratori nelle classi, della preparazione peer-to-peer, della progettazione dei percorsi e dei materiali. Lo STEAM Village e l'orientamento sono esclusi. Tutte le voci sono modificabili: i valori di partenza sono ipotesi.</p>
+  </header>
+
+  <section class="block">
+    <div class="block-head"><h2>Parametri di scala</h2><span class="note">Valgono per tutte le voci</span></div>
+    <div class="params">
+      <div class="pgrid">
+        <div class="pf"><label for="p-units">Unità (gruppi di classi)</label><input type="number" id="p-units" data-p="units" min="1" step="1"></div>
+        <div class="pf"><label for="p-cpu">Classi per unità</label><input type="number" id="p-cpu" data-p="cpu" min="1" step="1"></div>
+        <div class="pf"><label for="p-stud">Studenti per classe</label><input type="number" id="p-stud" data-p="stud" min="1" step="1"></div>
+        <div class="pf"><label for="p-topic">Topic STEM</label><input type="number" id="p-topic" data-p="topic" min="1" step="1"></div>
+        <div class="pf"><label for="p-incLab">Incontri di laboratorio per classe</label><input type="number" id="p-incLab" data-p="incLab" min="0" step="1"></div>
+        <div class="pf"><label for="p-oreLab">Ore per incontro di laboratorio</label><input type="number" id="p-oreLab" data-p="oreLab" min="0" step="0.5"></div>
+        <div class="pf"><label for="p-incPeer">Incontri peer-to-peer per classe</label><input type="number" id="p-incPeer" data-p="incPeer" min="0" step="1"></div>
+        <div class="pf"><label for="p-orePeer">Ore per incontro peer-to-peer</label><input type="number" id="p-orePeer" data-p="orePeer" min="0" step="0.5"></div>
+        <div class="pf"><label for="p-mesi">Durata progetto (mesi)</label><input type="number" id="p-mesi" data-p="mesi" min="1" step="1"></div>
+        <div class="pf"><label for="p-perSet">Unità servite da un set di kit</label><input type="number" id="p-perSet" data-p="perSet" min="1" step="1"></div>
+        <div class="pf"><label for="p-ind">Costi indiretti (%)</label><input type="number" id="p-ind" data-p="ind" min="0" step="0.5"></div>
+      </div>
+      <div class="derived" id="derived"></div>
+    </div>
+  </section>
+
+  <div class="summary">
+    <div class="stat main"><span class="k">Totale attività STEM</span><span class="v" id="sTot"></span><span class="s" id="sTotSub"></span></div>
+    <div class="stat"><span class="k">Per classe</span><span class="v" id="sClass"></span><span class="s" id="sClassSub"></span></div>
+    <div class="stat"><span class="k">Per studente</span><span class="v" id="sStud"></span><span class="s" id="sStudSub"></span></div>
+    <div class="stat"><span class="k">Per ora di formazione</span><span class="v" id="sHour"></span><span class="s" id="sHourSub"></span></div>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><h2>Ripartizione per sezione</h2><span class="note">costi diretti</span></div>
+    <div class="stack" id="stack" role="img" aria-label="Ripartizione dei costi diretti per sezione"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>Voci di costo</h2>
+      <div class="toolbar">
+        <button type="button" class="primary" id="copyBtn">Copia tabella</button>
+        <button type="button" id="resetBtn">Ripristina valori iniziali</button>
+        <span id="status" role="status"></span>
+      </div>
+    </div>
+    <p class="legendnote">Totale voce = quantità × moltiplicatore × costo unitario × ricorrenza. Il moltiplicatore lega la voce ai parametri di scala: se cambi gli incontri o le ore, le voci collegate si aggiornano da sole. «Copia tabella» copia le voci con i totali, pronte da incollare in un foglio Google o in un documento.</p>
+    <textarea id="fallback" rows="8" hidden aria-label="Tabella da copiare"></textarea>
+    <div class="tbl-wrap">
+      <table id="tbl">
+        <colgroup><col class="c-voce"><col class="c-rip"><col class="c-q"><col class="c-base"><col class="c-cost"><col class="c-tot"><col class="c-del"></colgroup>
+        <thead><tr><th>Voce</th><th>Si ripete</th><th class="num">Quantità</th><th>Moltiplicata per</th><th class="num">Costo unitario €</th><th class="num">Totale</th><th><span hidden>Elimina</span></th></tr></thead>
+        <tbody id="body"></tbody>
+        <tfoot>
+          <tr><td colspan="5">Costi diretti</td><td class="tot" id="fDirect"></td><td></td></tr>
+          <tr><td colspan="5">Costi indiretti (<span id="fIndPct"></span>%)</td><td class="tot" id="fInd"></td><td></td></tr>
+          <tr class="grand"><td colspan="5">Totale attività STEM</td><td class="tot" id="fTot"></td><td></td></tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <footer>Le modifiche restano salvate solo in questo browser. Per condividere i numeri con i partner usa «Copia tabella». Valori di partenza: stima preliminare del 24/11/2026 sulla bozza progettuale v1.0.</footer>
+</div>
+
+<script>
+(function () {
+  var KEY = "steamLabBudget.v1";
+  var REC = {
+    classe: { l: "per classe", u: "classi" },
+    unita: { l: "per unità", u: "unità" },
+    topic: { l: "per topic", u: "topic" },
+    kit: { l: "per set di kit", u: "set" },
+    mese: { l: "al mese", u: "mesi" },
+    una: { l: "una tantum", u: "" }
+  };
+  var BASE = {
+    none: { l: "—", s: "" },
+    oreLab: { l: "ore di laboratorio", s: "h lab" },
+    incLab: { l: "incontri di laboratorio", s: "incontri" },
+    orePeer: { l: "ore peer-to-peer", s: "h peer" },
+    incPeer: { l: "incontri peer-to-peer", s: "incontri peer" }
+  };
+  var COLORS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"];
+
+  var DEF = {
+    params: { units: 16, cpu: 5, stud: 25, topic: 5, incLab: 8, oreLab: 2, incPeer: 2, orePeer: 2, mesi: 18, perSet: 4, ind: 8 },
+    sections: [
+      { name: "Laboratori in classe", rows: [
+        { label: "Esperto STEM in aula", rec: "classe", qty: 1, base: "oreLab", cost: 70 },
+        { label: "Assistente di laboratorio", rec: "classe", qty: 1, base: "oreLab", cost: 45 },
+        { label: "Preparazione degli incontri (ore per incontro)", rec: "classe", qty: 0.5, base: "incLab", cost: 70 },
+        { label: "Trasferte dei formatori", rec: "classe", qty: 1, base: "incLab", cost: 30 },
+        { label: "Materiali di consumo", rec: "classe", qty: 1, base: "none", cost: 300 }
+      ]},
+      { name: "Preparazione peer-to-peer", rows: [
+        { label: "Formatore in aula", rec: "classe", qty: 1, base: "orePeer", cost: 70 },
+        { label: "Trasferte del formatore", rec: "classe", qty: 1, base: "incPeer", cost: 30 },
+        { label: "Materiali per le stazioni dimostrative", rec: "classe", qty: 1, base: "none", cost: 150 },
+        { label: "Co-progettazione con i docenti (ore)", rec: "unita", qty: 2, base: "none", cost: 70 }
+      ]},
+      { name: "Progettazione e materiali", rows: [
+        { label: "Progettazione dei percorsi (ore per topic)", rec: "topic", qty: 40, base: "none", cost: 60 },
+        { label: "Schede didattiche e materiali per gli studenti", rec: "topic", qty: 1, base: "none", cost: 800 },
+        { label: "Set di kit e attrezzature durevoli", rec: "kit", qty: 1, base: "none", cost: 8000 }
+      ]},
+      { name: "Formazione e coordinamento", rows: [
+        { label: "Formazione dei formatori: docenza (ore)", rec: "una", qty: 6, base: "none", cost: 70 },
+        { label: "Formazione dei formatori: ore dei partecipanti (6 h × 10)", rec: "una", qty: 60, base: "none", cost: 35 },
+        { label: "Referente didattico (ore al mese)", rec: "mese", qty: 20, base: "none", cost: 40 }
+      ]}
+    ]
+  };
+
+  var state, uid = 0, lastDeleted = null;
+  var eur = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+  var num = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 2 });
+  function $(id) { return document.getElementById(id); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function n(v) { v = parseFloat(v); return isFinite(v) && v > 0 ? v : 0; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function withIds(s) { s.sections.forEach(function (sec) { sec.rows.forEach(function (r) { r.id = "r" + (++uid); }); }); return s; }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var s = JSON.parse(raw);
+        if (s && s.params && Array.isArray(s.sections)) { s.params = Object.assign({}, DEF.params, s.params); return withIds(s); }
+      }
+    } catch (e) {}
+    return withIds(clone(DEF));
+  }
+  function save() {
+    try {
+      var out = { params: state.params, sections: state.sections.map(function (sec) {
+        return { name: sec.name, rows: sec.rows.map(function (r) { return { label: r.label, rec: r.rec, qty: r.qty, base: r.base, cost: r.cost }; }) };
+      }) };
+      localStorage.setItem(KEY, JSON.stringify(out));
+    } catch (e) {}
+  }
+
+  function derived(p) {
+    var units = Math.max(1, Math.round(n(p.units))), cpu = Math.max(1, Math.round(n(p.cpu)));
+    var classi = units * cpu;
+    var hLab = n(p.incLab) * n(p.oreLab), hPeer = n(p.incPeer) * n(p.orePeer);
+    return {
+      units: units, classi: classi, studenti: classi * n(p.stud), topic: n(p.topic),
+      sets: Math.ceil(units / Math.max(1, Math.round(n(p.perSet)))), mesi: n(p.mesi),
+      hLab: hLab, hPeer: hPeer, hClass: hLab + hPeer, hTot: classi * (hLab + hPeer),
+      base: { none: 1, oreLab: hLab, incLab: n(p.incLab), orePeer: hPeer, incPeer: n(p.incPeer) }
+    };
+  }
+  function recMult(rec, d) {
+    return { classe: d.classi, unita: d.units, topic: d.topic, kit: d.sets, mese: d.mesi, una: 1 }[rec] || 0;
+  }
+  function rowCalc(r, d) {
+    var b = d.base[r.base] != null ? d.base[r.base] : 1;
+    var q = n(r.qty) * b, m = recMult(r.rec, d), tot = q * n(r.cost) * m;
+    var how = num.format(q) + (r.base !== "none" ? " " + BASE[r.base].s : "") + " × " + num.format(n(r.cost)) + " €" + (r.rec === "una" ? "" : " × " + num.format(m) + " " + REC[r.rec].u);
+    return { tot: tot, how: how };
+  }
+
+  function options(map, sel) {
+    return Object.keys(map).map(function (k) { return '<option value="' + k + '"' + (k === sel ? " selected" : "") + ">" + map[k].l + "</option>"; }).join("");
+  }
+
+  function buildTable() {
+    var h = "";
+    state.sections.forEach(function (sec, si) {
+      h += '<tr class="sec"><th colspan="7"><span class="sw" style="background:' + COLORS[si % COLORS.length] + '"></span>' + esc(sec.name) + "</th></tr>";
+      sec.rows.forEach(function (r) {
+        h += '<tr data-row="' + r.id + '">' +
+          '<td><input type="text" id="' + r.id + '-label" data-f="label" value="' + esc(r.label) + '" aria-label="Voce"></td>' +
+          '<td><select id="' + r.id + '-rec" data-f="rec" aria-label="Si ripete">' + options(REC, r.rec) + "</select></td>" +
+          '<td><input type="number" id="' + r.id + '-qty" data-f="qty" min="0" step="any" value="' + r.qty + '" aria-label="Quantità"></td>' +
+          '<td><select id="' + r.id + '-base" data-f="base" aria-label="Moltiplicata per">' + options(BASE, r.base) + "</select></td>" +
+          '<td><input type="number" id="' + r.id + '-cost" data-f="cost" min="0" step="any" value="' + r.cost + '" aria-label="Costo unitario in euro"></td>' +
+          '<td class="tot" id="' + r.id + '-tot"></td>' +
+          '<td><button type="button" class="del" data-del="' + r.id + '" aria-label="Elimina voce ' + esc(r.label) + '">×</button></td></tr>';
+      });
+      h += '<tr class="add"><td colspan="7"><button type="button" class="link" data-add="' + si + '">+ Aggiungi voce</button></td></tr>';
+      h += '<tr class="sub"><td colspan="5">Totale ' + esc(sec.name.toLowerCase()) + '</td><td class="tot" id="sec' + si + '-tot"></td><td></td></tr>';
+    });
+    $("body").innerHTML = h;
+  }
+
+  function findRow(id) {
+    for (var si = 0; si < state.sections.length; si++) {
+      var rows = state.sections[si].rows;
+      for (var i = 0; i < rows.length; i++) if (rows[i].id === id) return { si: si, i: i, r: rows[i] };
+    }
+    return null;
+  }
+
+  var lastCalc = null;
+  function recalc() {
+    var p = state.params, d = derived(p);
+    $("derived").innerHTML =
+      "<span>Classi <b>" + num.format(d.classi) + "</b></span>" +
+      "<span>Studenti <b>" + num.format(d.studenti) + "</b></span>" +
+      "<span>Ore STEM per classe <b>" + num.format(d.hClass) + "</b> (" + num.format(d.hLab) + " lab + " + num.format(d.hPeer) + " peer)</span>" +
+      "<span>Ore STEM totali <b>" + num.format(d.hTot) + "</b></span>" +
+      "<span>Set di kit <b>" + num.format(d.sets) + "</b></span>";
+
+    var direct = 0, secTot = [], perClassRec = 0;
+    state.sections.forEach(function (sec, si) {
+      var st = 0;
+      sec.rows.forEach(function (r) {
+        var c = rowCalc(r, d);
+        st += c.tot;
+        if (r.rec === "classe") perClassRec += c.tot / Math.max(1, d.classi);
+        var cell = $(r.id + "-tot");
+        if (cell) cell.innerHTML = eur.format(c.tot) + '<span class="how">' + c.how + "</span>";
+      });
+      secTot.push(st); direct += st;
+      var sc = $("sec" + si + "-tot"); if (sc) sc.textContent = eur.format(st);
+    });
+    var ind = direct * n(p.ind) / 100, tot = direct + ind;
+
+    $("fDirect").textContent = eur.format(direct);
+    $("fIndPct").textContent = num.format(n(p.ind));
+    $("fInd").textContent = eur.format(ind);
+    $("fTot").textContent = eur.format(tot);
+
+    $("sTot").textContent = eur.format(tot);
+    $("sTotSub").textContent = "di cui indiretti " + eur.format(ind);
+    $("sClass").textContent = eur.format(tot / Math.max(1, d.classi));
+    $("sClassSub").textContent = "voci per classe da sole: " + eur.format(perClassRec);
+    $("sStud").textContent = d.studenti ? eur.format(tot / d.studenti) : "—";
+    $("sStudSub").textContent = num.format(d.studenti) + " studenti";
+    $("sHour").textContent = d.hTot ? eur.format(tot / d.hTot) : "—";
+    $("sHourSub").textContent = num.format(d.hTot) + " ore in aula";
+
+    $("stack").innerHTML = secTot.map(function (v, i) {
+      return '<div style="width:' + (direct ? v / direct * 100 : 0) + "%;background:" + COLORS[i % COLORS.length] + '"></div>';
+    }).join("");
+    $("legend").innerHTML = state.sections.map(function (sec, i) {
+      return '<div class="item"><span class="dot" style="background:' + COLORS[i % COLORS.length] + '"></span><span>' + esc(sec.name) +
+        '</span><span class="amt">' + eur.format(secTot[i]) + " · " + (direct ? Math.round(secTot[i] / direct * 100) : 0) + "%</span></div>";
+    }).join("");
+
+    lastCalc = { d: d, direct: direct, ind: ind, tot: tot, secTot: secTot };
+    save();
+  }
+
+  function writeParams() {
+    document.querySelectorAll("[data-p]").forEach(function (el) { el.value = state.params[el.getAttribute("data-p")]; });
+  }
+
+  function status(html) { $("status").innerHTML = html; }
+
+  // events
+  document.querySelectorAll("[data-p]").forEach(function (el) {
+    el.addEventListener("input", function () { state.params[el.getAttribute("data-p")] = el.value === "" ? 0 : parseFloat(el.value); recalc(); });
+  });
+  $("body").addEventListener("input", function (e) {
+    var t = e.target, tr = t.closest("tr[data-row]"); if (!tr) return;
+    var f = findRow(tr.getAttribute("data-row")); if (!f) return;
+    var field = t.getAttribute("data-f");
+    f.r[field] = (field === "qty" || field === "cost") ? (t.value === "" ? 0 : parseFloat(t.value)) : t.value;
+    recalc();
+  });
+  $("body").addEventListener("change", function (e) {
+    var t = e.target; if (t.tagName === "SELECT") { t.dispatchEvent(new Event("input", { bubbles: true })); }
+  });
+  $("body").addEventListener("click", function (e) {
+    var add = e.target.closest("[data-add]"), del = e.target.closest("[data-del]");
+    if (add) {
+      var si = +add.getAttribute("data-add");
+      var r = { id: "r" + (++uid), label: "Nuova voce", rec: "classe", qty: 1, base: "none", cost: 0 };
+      state.sections[si].rows.push(r);
+      buildTable(); recalc();
+      var inp = $(r.id + "-label"); if (inp) { inp.focus(); inp.select(); }
+      status("");
+    } else if (del) {
+      var f = findRow(del.getAttribute("data-del")); if (!f) return;
+      lastDeleted = { si: f.si, i: f.i, r: state.sections[f.si].rows.splice(f.i, 1)[0] };
+      buildTable(); recalc();
+      status("Voce «" + esc(lastDeleted.r.label) + "» eliminata. <button type=\"button\" class=\"link\" id=\"undoBtn\">Annulla</button>");
+    }
+  });
+  $("status").addEventListener("click", function (e) {
+    if (e.target.id === "undoBtn" && lastDeleted) {
+      state.sections[lastDeleted.si].rows.splice(lastDeleted.i, 0, lastDeleted.r);
+      lastDeleted = null; buildTable(); recalc(); status("Voce ripristinata.");
+    }
+  });
+
+  var armTimer = null;
+  $("resetBtn").addEventListener("click", function () {
+    var b = $("resetBtn");
+    if (!b.classList.contains("armed")) {
+      b.classList.add("armed"); b.textContent = "Conferma: torna ai valori iniziali";
+      armTimer = setTimeout(function () { b.classList.remove("armed"); b.textContent = "Ripristina valori iniziali"; }, 4000);
+      return;
+    }
+    clearTimeout(armTimer); b.classList.remove("armed"); b.textContent = "Ripristina valori iniziali";
+    state = withIds(clone(DEF)); lastDeleted = null;
+    writeParams(); buildTable(); recalc(); status("Valori iniziali ripristinati.");
+  });
+
+  function tsv() {
+    function it(v) { return String(Math.round(v * 100) / 100).replace(".", ","); }
+    var d = lastCalc.d, L = [["Sezione", "Voce", "Si ripete", "Quantità", "Moltiplicata per", "Costo unitario €", "Totale €", "Calcolo"].join("\t")];
+    state.sections.forEach(function (sec, si) {
+      sec.rows.forEach(function (r) {
+        var c = rowCalc(r, d);
+        L.push([sec.name, r.label, REC[r.rec].l, it(n(r.qty)), BASE[r.base].l, it(n(r.cost)), it(c.tot), c.how].join("\t"));
+      });
+      L.push(["", "Totale " + sec.name.toLowerCase(), "", "", "", "", it(lastCalc.secTot[si]), ""].join("\t"));
+    });
+    L.push(["", "Costi diretti", "", "", "", "", it(lastCalc.direct), ""].join("\t"));
+    L.push(["", "Costi indiretti (" + num.format(n(state.params.ind)) + "%)", "", "", "", "", it(lastCalc.ind), ""].join("\t"));
+    L.push(["", "TOTALE ATTIVITÀ STEM", "", "", "", "", it(lastCalc.tot), ""].join("\t"));
+    L.push("");
+    L.push(["Parametri", "Unità " + d.units, "Classi " + d.classi, "Studenti " + d.studenti, "Ore STEM totali " + d.hTot, "", "", ""].join("\t"));
+    return L.join("\n");
+  }
+  $("copyBtn").addEventListener("click", function () {
+    var t = tsv(), ta = $("fallback");
+    function fallback() { ta.hidden = false; ta.value = t; ta.focus(); ta.select(); status("Seleziona il testo qui sotto e copialo."); }
+    try {
+      navigator.clipboard.writeText(t).then(function () { ta.hidden = true; status("Tabella copiata: incollala in un foglio o in un documento."); }, fallback);
+    } catch (e) { fallback(); }
+  });
+
+  state = load();
+  writeParams(); buildTable(); recalc();
+})();
+</script>
+</body>
+</html>
