@@ -88,7 +88,7 @@ p { margin: 0; }
   padding-top: env(safe-area-inset-top, 0px);
 }
 .topbar-in {
-  max-width: 1320px; margin: 0 auto; height: 44px;
+  max-width: 1760px; margin: 0 auto; height: 44px;
   display: flex; align-items: center; gap: 10px; font-size: 13px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
@@ -99,7 +99,7 @@ p { margin: 0; }
 .topbar-in strong { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .wrap {
-  max-width: 1320px; margin: 0 auto;
+  max-width: 1760px; margin: 0 auto;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 28px 56px;
@@ -109,14 +109,8 @@ p { margin: 0; }
 .page-head { display: grid; gap: 6px; max-width: 70ch; }
 .page-head p { color: var(--muted-fg); }
 
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
-.work { display: grid; gap: 20px; min-width: 0; }
-.side { align-self: start;
-  display: grid; gap: 20px; min-width: 0;
-}
-@media (max-width: 1099px) {
-  .layout { grid-template-columns: minmax(0, 1fr); }
-}
+.duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 20px; align-items: start; }
+@media (max-width: 1099px) { .duo { grid-template-columns: minmax(0, 1fr); } }
 
 /* Superfici */
 .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
@@ -228,26 +222,32 @@ tfoot td { font-weight: 600; border-top: 1px solid var(--border); padding-block:
 tfoot tr.grand td { font-size: 16px; background: var(--card-hi); }
 tfoot tr.grand td.tot { color: var(--link); }
 
-/* Scenari */
-.scen-now { display: block; line-height: 1.6; padding: 12px 14px; border-radius: 6px; background: var(--muted); font-size: 13.5px; }
+/* Scenari: fascia a tutta larghezza sotto i totali */
+.scen-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 14px 28px; align-items: end; }
+@media (max-width: 960px) { .scen-top { grid-template-columns: minmax(0, 1fr); } }
+.scen-head { display: grid; gap: 10px; align-content: start; }
+.scen-now { display: block; line-height: 1.6; padding: 10px 14px; border-radius: 6px; background: var(--muted); font-size: 13.5px; }
 .scen-now b { font-weight: 600; }
 .scen-now .meta { color: var(--subtle-fg); font-size: 12.5px; }
 .chip { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 1px 9px; border-radius: 999px; background: var(--warning-bg); color: var(--warning); margin-left: 6px; vertical-align: 1px; }
-.scen-save { display: grid; gap: 12px; }
-.scen-save button { width: 100%; }
+.chip.def { background: rgb(125 211 252 / 0.16); color: var(--link); }
+.scen-save { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 12px; align-items: end; }
+@media (max-width: 640px) { .scen-save { grid-template-columns: minmax(0, 1fr); } .scen-save button { width: 100%; } }
 .scen-msg { font-size: 13px; color: var(--muted-fg); min-height: 1.2em; overflow-wrap: anywhere; animation: fade 200ms var(--ease-out); }
 .scen-msg:empty { display: none; }
 .scen-msg.err { color: var(--danger); }
-.scen-list { list-style: none; margin: 0 -6px; padding: 0; display: grid; gap: 2px; }
-.scen-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 10px; border-radius: 6px; transition: background-color var(--press) var(--ease-out); }
+.scen-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px; max-height: 330px; overflow-y: auto; overscroll-behavior: contain; }
+.scen-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-content: start; padding: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--field); transition: background-color var(--press) var(--ease-out), border-color var(--press) var(--ease-out); }
 .scen-list li:hover { background: var(--hover); }
+.scen-list li.is-def { border-color: rgb(125 211 252 / 0.45); }
 .scen-list li.on { background: rgb(56 189 248 / 0.14); box-shadow: inset 0 0 0 1px rgb(125 211 252 / 0.35); }
-.scen-list li.scen-empty { display: block; color: var(--muted-fg); font-size: 13px; padding: 14px 10px; border: 1px dashed var(--border); }
-.scen-list li.scen-empty:hover { background: none; }
+.scen-list li.scen-empty { grid-column: 1 / -1; display: block; color: var(--muted-fg); font-size: 13px; padding: 14px; border-style: dashed; background: none; }
 .scen-list .nm { font-weight: 600; overflow-wrap: anywhere; }
+.scen-list .nm .chip { margin-left: 4px; }
 .scen-list .meta { font-size: 12px; color: var(--subtle-fg); }
 .scen-list .amt { font-weight: 600; white-space: nowrap; text-align: right; }
-.scen-list .acts { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 4px; margin-left: -6px; }
+.scen-list .acts { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 4px; margin: 6px 0 0 -6px; }
+.scen-list button.rm { color: var(--danger); }
 
 footer { font-size: 12.5px; color: var(--subtle-fg); max-width: 80ch; }
 
@@ -285,49 +285,48 @@ footer { font-size: 12.5px; color: var(--subtle-fg); max-width: 80ch; }
     </div>
   </div>
 
-  <div class="layout">
-    <main class="work">
-      <section class="panel">
-        <div class="panel-head"><h2>Ripartizione per sezione</h2><span class="note">Costi diretti</span></div>
-        <div class="stack" id="stack" role="img" aria-label="Ripartizione dei costi diretti per sezione"></div>
-        <div class="legend" id="legend"></div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head"><h2>Parametri di scala</h2><span class="note">Valgono per tutte le voci</span></div>
-        <div class="pgrid">
-          <div class="pf"><label for="p-units">Unità (gruppi di classi)</label><input type="number" id="p-units" data-p="units" min="1" step="1"></div>
-          <div class="pf"><label for="p-cpu">Classi per unità</label><input type="number" id="p-cpu" data-p="cpu" min="1" step="1"></div>
-          <div class="pf"><label for="p-stud">Studenti per classe</label><input type="number" id="p-stud" data-p="stud" min="1" step="1"></div>
-          <div class="pf"><label for="p-topic">Topic STEM</label><input type="number" id="p-topic" data-p="topic" min="1" step="1"></div>
-          <div class="pf"><label for="p-incLab">Incontri di laboratorio per classe</label><input type="number" id="p-incLab" data-p="incLab" min="0" step="1"></div>
-          <div class="pf"><label for="p-oreLab">Ore per incontro di laboratorio</label><input type="number" id="p-oreLab" data-p="oreLab" min="0" step="0.5"></div>
-          <div class="pf"><label for="p-incPeer">Incontri peer-to-peer per classe</label><input type="number" id="p-incPeer" data-p="incPeer" min="0" step="1"></div>
-          <div class="pf"><label for="p-orePeer">Ore per incontro peer-to-peer</label><input type="number" id="p-orePeer" data-p="orePeer" min="0" step="0.5"></div>
-          <div class="pf"><label for="p-mesi">Durata progetto (mesi)</label><input type="number" id="p-mesi" data-p="mesi" min="1" step="1"></div>
-          <div class="pf"><label for="p-perSet">Unità servite da un set di kit</label><input type="number" id="p-perSet" data-p="perSet" min="1" step="1"></div>
-          <div class="pf"><label for="p-ind">Costi indiretti (%)</label><input type="number" id="p-ind" data-p="ind" min="0" step="0.5"></div>
-        </div>
-        <div class="derived" id="derived"></div>
-      </section>
-
-    </main>
-
-    <aside class="side" id="scenari" aria-label="Scenari salvati">
-      <section class="panel">
-        <div class="panel-head"><h2>Scenari salvati</h2></div>
+  <section class="panel" id="scenari" aria-label="Scenari salvati">
+    <div class="scen-top">
+      <div class="scen-head">
+        <div class="panel-head"><h2>Scenari salvati</h2><span class="note">Chiunque abbia il link li vede, li salva, li elimina e sceglie il predefinito</span></div>
         <div class="scen-now" id="scNow"></div>
-        <form class="scen-save" id="scForm" novalidate>
-          <div class="pf"><label for="scNome">Nome dello scenario</label><input type="text" id="scNome" maxlength="80" placeholder="Es. 16 unità, 8 incontri" autocomplete="off"></div>
-          <div class="pf"><label for="scAutore">Il tuo nome (facoltativo)</label><input type="text" id="scAutore" maxlength="60" autocomplete="name"></div>
-          <button type="submit" class="primary" id="scSave"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salva scenario</button>
-        </form>
-        <span class="scen-msg" id="scMsg" role="status"></span>
-        <ul class="scen-list" id="scList"><li class="scen-empty">Carico gli scenari salvati…</li></ul>
-        <p class="note">Chiunque abbia il link vede gli scenari e ne salva di nuovi. Ogni salvataggio è una versione nuova: nessuno sovrascrive quelli degli altri.</p>
-      </section>
-    </aside>
-  </div>
+      </div>
+      <form class="scen-save" id="scForm" novalidate>
+        <div class="pf"><label for="scNome">Nome dello scenario</label><input type="text" id="scNome" maxlength="80" placeholder="Es. 16 unità, 8 incontri" autocomplete="off"></div>
+        <div class="pf"><label for="scAutore">Il tuo nome (facoltativo)</label><input type="text" id="scAutore" maxlength="60" autocomplete="name"></div>
+        <button type="submit" class="primary" id="scSave"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salva scenario</button>
+      </form>
+    </div>
+    <span class="scen-msg" id="scMsg" role="status"></span>
+    <ul class="scen-list" id="scList"><li class="scen-empty">Carico gli scenari salvati…</li></ul>
+  </section>
+
+  <main class="duo">
+    <section class="panel">
+      <div class="panel-head"><h2>Ripartizione per sezione</h2><span class="note">Costi diretti</span></div>
+      <div class="stack" id="stack" role="img" aria-label="Ripartizione dei costi diretti per sezione"></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Parametri di scala</h2><span class="note">Valgono per tutte le voci</span></div>
+      <div class="pgrid">
+        <div class="pf"><label for="p-units">Unità (gruppi di classi)</label><input type="number" id="p-units" data-p="units" min="1" step="1"></div>
+        <div class="pf"><label for="p-cpu">Classi per unità</label><input type="number" id="p-cpu" data-p="cpu" min="1" step="1"></div>
+        <div class="pf"><label for="p-stud">Studenti per classe</label><input type="number" id="p-stud" data-p="stud" min="1" step="1"></div>
+        <div class="pf"><label for="p-topic">Topic STEM</label><input type="number" id="p-topic" data-p="topic" min="1" step="1"></div>
+        <div class="pf"><label for="p-incLab">Incontri di laboratorio per classe</label><input type="number" id="p-incLab" data-p="incLab" min="0" step="1"></div>
+        <div class="pf"><label for="p-oreLab">Ore per incontro di laboratorio</label><input type="number" id="p-oreLab" data-p="oreLab" min="0" step="0.5"></div>
+        <div class="pf"><label for="p-incPeer">Incontri peer-to-peer per classe</label><input type="number" id="p-incPeer" data-p="incPeer" min="0" step="1"></div>
+        <div class="pf"><label for="p-orePeer">Ore per incontro peer-to-peer</label><input type="number" id="p-orePeer" data-p="orePeer" min="0" step="0.5"></div>
+        <div class="pf"><label for="p-mesi">Durata progetto (mesi)</label><input type="number" id="p-mesi" data-p="mesi" min="1" step="1"></div>
+        <div class="pf"><label for="p-perSet">Unità servite da un set di kit</label><input type="number" id="p-perSet" data-p="perSet" min="1" step="1"></div>
+        <div class="pf"><label for="p-ind">Costi indiretti (%)</label><input type="number" id="p-ind" data-p="ind" min="0" step="0.5"></div>
+      </div>
+      <div class="derived" id="derived"></div>
+    </section>
+
+  </main>
 
       <section class="panel">
         <div class="panel-head">
@@ -649,7 +648,7 @@ footer { font-size: 12.5px; color: var(--subtle-fg); max-width: 80ch; }
 
   // ---- Scenari salvati (Supabase sul Mac mini, tabella be_stem_scenari) ----
   var db = window.beClient || null;
-  var current = null, dirty = false, suppressDirty = true, isTeam = false, scenari = [], listError = "";
+  var current = null, dirty = false, suppressDirty = true, scenari = [], listError = "";
   var UNREACHABLE = "Archivio degli scenari non raggiungibile in questo momento: puoi usare il simulatore, ma non salvare.";
 
   function saveMeta() { try { localStorage.setItem(META, JSON.stringify({ current: current, dirty: dirty })); } catch (e) {} }
@@ -689,23 +688,29 @@ footer { font-size: 12.5px; color: var(--subtle-fg); max-width: 80ch; }
     if (!scenari.length) { ul.innerHTML = '<li class="scen-empty">Nessuno scenario salvato. Modifica i valori e salva il primo.</li>'; return; }
     ul.innerHTML = scenari.map(function (s) {
       var on = current && current.id === s.id;
-      return '<li class="' + (on ? "on" : "") + '"><div><div class="nm">' + esc(s.nome) + '</div><div class="meta">' +
+      return '<li class="' + (on ? "on" : "") + (s.predefinito ? " is-def" : "") + '"><div><div class="nm">' + esc(s.nome) +
+        (s.predefinito ? '<span class="chip def">Predefinito</span>' : "") + '</div><div class="meta">' +
         (s.autore ? esc(s.autore) + " · " : "") + esc(fmtDate(s.created_at)) + "</div></div>" +
         '<span class="amt">' + (s.totale != null ? eur.format(s.totale) : "") + "</span>" +
         '<span class="acts"><button type="button" class="link" data-open="' + s.id + '">' + (on ? "Riapri" : "Apri") + "</button>" +
         '<button type="button" class="link" data-link="' + s.id + '">Copia link</button>' +
-        (isTeam ? '<button type="button" class="link" data-rm="' + s.id + '">Elimina</button>' : "") + "</span></li>";
+        (s.predefinito
+          ? '<button type="button" class="link" data-undef="' + s.id + '">Togli predefinito</button>'
+          : '<button type="button" class="link" data-def="' + s.id + '">Metti come predefinito</button>') +
+        '<button type="button" class="link rm" data-rm="' + s.id + '">Elimina</button></span></li>';
     }).join("");
   }
 
   function listScenari() {
     if (!db) { listError = UNREACHABLE; renderList(); return Promise.resolve(); }
     function fail() { scenari = []; listError = UNREACHABLE; renderList(); }
-    return db.from("be_stem_scenari").select("id,nome,autore,totale,created_at")
+    return db.from("be_stem_scenari").select("id,nome,autore,totale,created_at,predefinito")
       .order("created_at", { ascending: false }).limit(100)
       .then(function (res) {
         if (res.error) return fail();
-        scenari = res.data || []; listError = ""; renderList();
+        // Il predefinito in testa, poi i piu' recenti: all'avvio si apre il primo
+        scenari = (res.data || []).slice().sort(function (a, b) { return (b.predefinito ? 1 : 0) - (a.predefinito ? 1 : 0); });
+        listError = ""; renderList();
       }, fail);
   }
 
@@ -734,7 +739,9 @@ footer { font-size: 12.5px; color: var(--subtle-fg); max-width: 80ch; }
 
   $("scList").addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
-    var id = b.getAttribute("data-open") || b.getAttribute("data-link") || b.getAttribute("data-rm");
+    var id = b.getAttribute("data-open") || b.getAttribute("data-link") || b.getAttribute("data-rm") ||
+      b.getAttribute("data-def") || b.getAttribute("data-undef");
+    function nomeDi(x) { for (var i = 0; i < scenari.length; i++) if (scenari[i].id === x) return scenari[i].nome; return "lo scenario"; }
     if (b.hasAttribute("data-open")) {
       if (dirty) arm(b, "Apri e perdi le modifiche", function () { openScenario(id); });
       else openScenario(id);
@@ -743,12 +750,22 @@ footer { font-size: 12.5px; color: var(--subtle-fg); max-width: 80ch; }
       try {
         navigator.clipboard.writeText(url).then(function () { scMsg("Link copiato."); }, function () { scMsg("Copia questo link: " + url); });
       } catch (er) { scMsg("Copia questo link: " + url); }
+    } else if (b.hasAttribute("data-def") || b.hasAttribute("data-undef")) {
+      var togli = b.hasAttribute("data-undef");
+      b.disabled = true;
+      db.rpc("be_stem_predefinito", { p_id: togli ? null : id }).then(function (res) {
+        b.disabled = false;
+        if (res.error) { scMsg(res.error.message || "Non sono riuscito a cambiare il predefinito.", true); return; }
+        scMsg(togli ? "Nessuno scenario predefinito: chi arriva vede l'ultimo salvato." : "«" + nomeDi(id) + "» è ora lo scenario predefinito.");
+        listScenari();
+      }, function () { b.disabled = false; scMsg("Archivio non raggiungibile: riprova più tardi.", true); });
     } else if (b.hasAttribute("data-rm")) {
       arm(b, "Conferma eliminazione", function () {
-        db.from("be_stem_scenari").delete().eq("id", id).then(function (res) {
-          if (res.error) { scMsg("Eliminazione non riuscita.", true); return; }
+        var nome = nomeDi(id);
+        db.rpc("be_stem_elimina", { p_id: id }).then(function (res) {
+          if (res.error) { scMsg(res.error.message || "Eliminazione non riuscita.", true); return; }
           if (current && current.id === id) { current = null; dirty = true; saveMeta(); renderCurrent(); clearHash(); }
-          scMsg("Scenario eliminato.");
+          scMsg("«" + nome + "» eliminato.");
           listScenari();
         }, function () { scMsg("Archivio non raggiungibile: riprova più tardi.", true); });
       });
@@ -793,13 +810,6 @@ footer { font-size: 12.5px; color: var(--subtle-fg); max-width: 80ch; }
   if (!db) {
     $("scSave").disabled = true; listError = UNREACHABLE; renderList();
   } else {
-    try {
-      db.auth.getSession().then(function (r) {
-        var u = r && r.data && r.data.session && r.data.session.user;
-        isTeam = !!(u && /@brown\.internal$/i.test(u.email || ""));
-        if (isTeam) renderList();
-      }, function () {});
-    } catch (e) {}
     var startId = hashId();
     // Se il link punta allo scenario su cui si stava gia' lavorando, la bozza
     // del browser vince: ricaricare la pagina non deve buttare le modifiche
