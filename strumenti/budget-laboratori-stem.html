@@ -4,150 +4,312 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#082f49">
 <meta name="description" content="Simulatore dei costi delle attività STEM del progetto STEAM Village (bando POLARIS+).">
 <link rel="icon" href="/favicon.ico">
 <title>Budget laboratori STEM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <style>
-/* Layout: parametri di scala in alto, riepilogo, poi la tabella delle voci editabili raggruppata per sezione */
+/* Tema glass dell'admin di fosforo.me (app/globals.css, .glass + .glass-bg):
+   gradiente blu notte con due aloni fissi, superfici bianche semitrasparenti
+   senza backdrop-filter, testo bianco, secondario slate-200, link fosforo-300,
+   bottone pieno nel blu fosforo. Tema unico e scuro, come l'admin.
+   Raggi: superfici 12px, controlli 6px, etichette a pillola.
+   Layout: colonna di lavoro a sinistra, colonna «Scenari» fissa a destra;
+   sotto i 1100px una colonna sola. */
 :root {
-  --bg: #F3F6F7;
-  --surface: #FFFFFF;
-  --field: #F7F9FA;
-  --fg: #14212B;
-  --muted: #5A6A75;
-  --line: #D8E0E4;
-  --accent: #0B6E79;
-  --accent-soft: #E1F0F1;
-  --s1: #0B6E79;
-  --s2: #4458C9;
-  --s3: #CC7419;
-  --s4: #8C9AA5;
-  --warn-fg: #8A4307;
-  --warn-bg: #FCEFD9;
-  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
-  --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: dark;
+  --bg: #0f172a;
+  --fg: #ffffff;
+  --muted-fg: #e2e8f0;            /* slate-200 */
+  --subtle-fg: #cbd5e1;           /* slate-300, solo testi piccoli secondari */
+  --card: rgb(255 255 255 / 0.06);
+  --card-hi: rgb(255 255 255 / 0.09);
+  --muted: rgb(255 255 255 / 0.08);
+  --hover: rgb(255 255 255 / 0.10);
+  --field: rgb(255 255 255 / 0.05);
+  --border: rgb(255 255 255 / 0.12);
+  --input: rgb(255 255 255 / 0.22);
+  --popover: rgb(8 47 73 / 0.96);  /* fosforo-950 quasi pieno */
+  --primary: hsl(200 98% 35%);    /* bianco sopra a 4.9:1 */
+  --primary-hover: hsl(200 98% 30%);
+  --link: #7dd3fc;                /* fosforo-300 */
+  --warning: #fcd34d;             /* amber-300 */
+  --warning-bg: rgb(252 211 77 / 0.14);
+  --success: #a7f3d0;             /* emerald-200 */
+  --danger: #fecaca;              /* red-200 */
+  --s1: #38bdf8;                  /* fosforo-400 */
+  --s2: #bae6fd;                  /* fosforo-200 */
+  --s3: #fb923c;                  /* arancio del brand */
+  --s4: #94a3b8;                  /* slate-400 */
+  --font: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --press: 160ms;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0E151A; --surface: #162028; --field: #1C2830; --fg: #E5ECF0; --muted: #94A4AE; --line: #283640;
-    --accent: #52C2CC; --accent-soft: #15343A;
-    --s1: #52C2CC; --s2: #8796F0; --s3: #EFA65A; --s4: #6E7E89;
-    --warn-fg: #F6C68A; --warn-bg: #3A2A14;
-    color-scheme: dark;
+/* Chi chiede meno trasparenze vede superfici piene dello stesso tono */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --card: #12324b; --card-hi: #163a55; --muted: #173a54; --hover: #1d4562;
+    --field: #0f2c43; --border: #2c5470; --input: #4a7190; --popover: #082f49;
   }
 }
-:root[data-theme="dark"] {
-  --bg: #0E151A; --surface: #162028; --field: #1C2830; --fg: #E5ECF0; --muted: #94A4AE; --line: #283640;
-  --accent: #52C2CC; --accent-soft: #15343A;
-  --s1: #52C2CC; --s2: #8796F0; --s3: #EFA65A; --s4: #6E7E89;
-  --warn-fg: #F6C68A; --warn-bg: #3A2A14;
-  color-scheme: dark;
-}
+
 * { box-sizing: border-box; }
-html { color-scheme: light; }
-body { margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100dvh;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font); font-size: 14px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+  position: relative; isolation: isolate;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(40rem 40rem at 100% 0%, rgb(14 165 233 / 0.12), transparent 70%),
+    radial-gradient(40rem 40rem at 0% 100%, rgb(249 115 22 / 0.10), transparent 70%),
+    linear-gradient(135deg, #082f49 0%, #0c4a6e 50%, #0f172a 100%);
+}
 [hidden] { display: none !important; }
-body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
-.wrap {
-  max-width: 1180px; margin: 0 auto;
+h1, h2 { margin: 0; font-weight: 600; letter-spacing: -0.015em; text-wrap: balance; }
+h1 { font-size: clamp(24px, 3.2vw, 32px); line-height: 1.15; }
+h2 { font-size: 15px; line-height: 1.3; }
+p { margin: 0; }
+.ph { font-size: 16px; line-height: 1; }
+
+/* Barra in alto, come l'header dell'admin */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  background: var(--popover); border-bottom: 1px solid var(--border);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.topbar-in {
+  max-width: 1760px; margin: 0 auto; height: 44px;
+  display: flex; align-items: center; gap: 10px; font-size: 13px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 32px 64px;
-  display: grid; gap: 28px;
 }
-header.top { display: grid; gap: 8px; max-width: 72ch; }
-.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-h1 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
-h2 { font-family: var(--display); font-weight: 600; font-size: 20px; margin: 0; text-wrap: balance; }
-.lede { color: var(--muted); margin: 0; }
-section.block { display: grid; gap: 12px; min-width: 0; }
-.block-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.note { font-size: 13px; color: var(--muted); }
+.topbar-in .ph { color: var(--link); font-size: 18px; }
+.crumb { color: var(--muted-fg); }
+.crumb-sep { color: var(--subtle-fg); opacity: .6; }
+.topbar-in strong { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.params { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 14px; }
-.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px 16px; }
-.pf { display: grid; gap: 4px; align-content: start; }
-.pf label { font-size: 13px; font-weight: 600; }
-.derived { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
-.derived b { color: var(--fg); font-family: var(--mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+.wrap {
+  max-width: 1760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px;
+}
+.wrap > * { min-width: 0; }
+.page-head { display: grid; gap: 6px; max-width: 70ch; }
+.page-head p { color: var(--muted-fg); }
 
-input[type="number"], input[type="text"], select {
+.duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 20px; align-items: start; }
+@media (max-width: 1099px) { .duo { grid-template-columns: minmax(0, 1fr); } }
+
+/* Superfici */
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 10px 16px; flex-wrap: wrap; }
+.note { font-size: 12.5px; color: var(--subtle-fg); }
+
+/* Barra dei totali: resta attaccata sotto la barra in alto. Qui il
+   contenuto scorre sotto, quindi fondo quasi pieno e una leggera sfocatura
+   (l'unica della pagina). */
+.kpi-bar {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 44px); z-index: 20;
+  margin-inline: -8px; padding: 10px 8px;
+  background: rgb(8 47 73 / 0.88);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid var(--border); border-radius: 0 0 12px 12px;
+}
+@media (prefers-reduced-transparency: reduce) { .kpi-bar { background: #082f49; -webkit-backdrop-filter: none; backdrop-filter: none; } }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpi { display: grid; gap: 2px; align-content: start; min-width: 0; padding: 12px 16px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); }
+.kpi.main { background: rgb(56 189 248 / 0.10); border-color: rgb(125 211 252 / 0.55); }
+.kpi .k { font-size: 12px; font-weight: 500; color: var(--muted-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi .v { font-size: clamp(20px, 2.4vw, 28px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; white-space: nowrap; transform-origin: left center; }
+.kpi.main .v { color: #fff; }
+.kpi .s { font-size: 12px; color: var(--subtle-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Lampo breve quando un valore cambia: si vede che il totale si e' aggiornato */
+.kpi .v.bump { animation: bump 420ms var(--ease-out); }
+@keyframes bump { 0% { color: var(--link); transform: scale(1.04); } 100% { transform: scale(1); } }
+/* Sul telefono i quattro riquadri scorrono in orizzontale su una riga sola */
+@media (max-width: 760px) {
+  .kpis { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(150px, 46%); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .kpis::-webkit-scrollbar { display: none; }
+  .kpi { scroll-snap-align: start; padding: 10px 12px; }
+  .kpi .v { font-size: 20px; }
+}
+.stack { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--muted); gap: 2px; }
+.stack div { transition: width 250ms var(--ease-out); min-width: 0; }
+.legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px 20px; }
+.legend .item { display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 2px 8px; align-items: center; font-size: 13px; font-weight: 500; }
+.legend .dot { width: 10px; height: 10px; border-radius: 3px; }
+.legend .amt { grid-column: 2; color: var(--muted-fg); font-size: 12.5px; font-weight: 400; white-space: nowrap; }
+
+
+/* Parametri */
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 14px 16px; }
+.pf { display: grid; gap: 6px; align-content: start; }
+.pf label { font-size: 12.5px; font-weight: 500; color: var(--muted-fg); }
+.derived { display: flex; flex-wrap: wrap; gap: 8px; }
+.derived span { display: inline-flex; gap: 6px; align-items: baseline; padding: 4px 10px; border-radius: 999px; background: var(--muted); font-size: 12.5px; color: var(--muted-fg); }
+.derived b { color: var(--fg); font-weight: 600; }
+
+/* Campi */
+input[type="number"], input[type="text"], select, textarea {
   font: inherit; font-size: 14px; color: var(--fg);
-  background: var(--field); border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px; width: 100%; min-width: 0;
+  background: var(--field); border: 1px solid var(--input); border-radius: 6px;
+  height: 36px; padding: 0 10px; width: 100%; min-width: 0;
+  transition: border-color var(--press) var(--ease-out), background-color var(--press) var(--ease-out);
 }
-input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
-input:hover, select:hover { border-color: var(--muted); }
-input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+textarea { height: auto; padding: 8px 10px; }
+input[type="number"] { text-align: right; }
+input::placeholder { color: var(--subtle-fg); opacity: .75; }
+select { appearance: none; padding-right: 28px; background-image: linear-gradient(45deg, transparent 50%, var(--muted-fg) 50%), linear-gradient(135deg, var(--muted-fg) 50%, transparent 50%); background-position: calc(100% - 14px) 15px, calc(100% - 9px) 15px; background-size: 5px 5px; background-repeat: no-repeat; }
+select option { background: #082f49; color: #fff; }
+input:hover, select:hover, textarea:hover { border-color: rgb(255 255 255 / 0.36); }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 0; border-color: var(--link); }
+@media (max-width: 640px) { input[type="number"], input[type="text"], select, textarea { font-size: 16px; } }
 
-.summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-@media (max-width: 860px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 2px; min-width: 0; }
-.stat.main { border-color: var(--accent); }
-.stat .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-.stat .v { font-family: var(--display); font-weight: 700; font-size: clamp(21px, 2.8vw, 30px); font-variant-numeric: tabular-nums; line-height: 1.15; overflow-wrap: anywhere; }
-.stat .s { font-size: 12.5px; color: var(--muted); }
-
-.stack { display: flex; height: 18px; border-radius: 5px; overflow: hidden; background: var(--line); }
-.stack div { transition: width .25s ease; }
-.legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px 14px; }
-.legend .item { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; font-size: 14px; }
-.legend .dot { width: 12px; height: 12px; border-radius: 3px; }
-.legend .amt { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
-
-.tbl-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
-table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 14px; }
-th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
-thead th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; padding-block: 10px; background: var(--surface); }
-th.num, td.num { text-align: right; }
-col.c-voce { width: 32%; } col.c-rip { width: 14%; } col.c-q { width: 9%; } col.c-base { width: 17%; } col.c-cost { width: 11%; } col.c-tot { width: 14%; } col.c-del { width: 3%; }
-tr.sec th { background: var(--field); font-family: var(--display); font-size: 15px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--fg); padding-block: 10px; }
-tr.sec th .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: 0; }
-td.tot { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 500; }
-td.tot .how { display: block; font-size: 11.5px; color: var(--muted); font-weight: 400; }
-tr.sub td { font-weight: 600; background: var(--accent-soft); }
-tr.sub td.tot { font-weight: 600; }
-tr.add td { padding-block: 6px 12px; }
-tfoot td { font-weight: 600; border-bottom: 1px solid var(--line); }
-tfoot tr.grand td { font-family: var(--display); font-size: 17px; border-bottom: 0; background: var(--accent-soft); }
-tfoot tr.grand td.tot { font-family: var(--mono); font-size: 16px; }
-.inline-num { display: inline-flex; align-items: center; gap: 6px; justify-content: flex-end; }
-.inline-num input { width: 70px; }
-
+/* Bottoni */
 button {
-  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
-  border-radius: 8px; padding: 8px 14px; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+  font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; color: var(--fg);
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap;
+  height: 36px; padding: 0 14px; border-radius: 6px; border: 1px solid var(--input); background: var(--field);
+  transition: transform var(--press) var(--ease-out), background-color var(--press) var(--ease-out), border-color var(--press) var(--ease-out);
 }
-button:hover { border-color: var(--muted); }
-button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
-button.armed { background: var(--warn-bg); border-color: var(--warn-fg); color: var(--warn-fg); }
-button.link { border: 0; background: none; color: var(--accent); padding: 4px 2px; font-size: 13.5px; }
-button.del { border: 0; background: none; color: var(--muted); padding: 4px 6px; font-size: 18px; line-height: 1; }
-button.del:hover { color: var(--warn-fg); }
+button:hover { background: var(--hover); }
+button:active { transform: scale(0.97); }
+button.primary { background: var(--primary); border-color: transparent; color: #fff; }
+button.primary:hover { background: var(--primary-hover); }
+button[disabled] { opacity: .5; cursor: not-allowed; transform: none; }
+button.ghost { border-color: transparent; background: transparent; color: var(--muted-fg); }
+button.ghost:hover { background: var(--hover); color: var(--fg); }
+button.link { height: auto; padding: 4px 6px; border: 0; background: none; color: var(--link); font-weight: 600; font-size: 13px; border-radius: 6px; }
+button.link:hover { background: var(--hover); }
+button.armed { background: var(--warning-bg); border-color: transparent; color: var(--warning); }
+button.del { height: 30px; width: 30px; padding: 0; border: 0; background: none; color: var(--subtle-fg); }
+button.del:hover { background: var(--hover); color: var(--danger); }
 .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-#status { font-size: 13.5px; color: var(--muted); display: inline-flex; gap: 8px; align-items: center; }
-#status button { padding: 2px 6px; }
-#fallback { width: 100%; font-family: var(--mono); font-size: 12px; background: var(--field); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+#status { font-size: 13px; color: var(--muted-fg); display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; animation: fade 200ms var(--ease-out); }
+#fallback { width: 100%; font-size: 12px; }
 
-.legendnote { font-size: 13px; color: var(--muted); max-width: 80ch; margin: 0; }
-footer { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
-@media (prefers-reduced-motion: reduce) { .stack div { transition: none; } }
+/* Tabella delle voci */
+.legendnote { font-size: 13px; color: var(--muted-fg); max-width: 80ch; }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; margin-inline: -4px; }
+table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 6px 10px; vertical-align: middle; }
+thead th { font-size: 12px; font-weight: 500; color: var(--subtle-fg); padding-block: 10px; border-bottom: 1px solid var(--border); }
+th.num, td.num { text-align: right; }
+col.c-voce { width: 31%; } col.c-rip { width: 14%; } col.c-q { width: 9%; } col.c-base { width: 18%; } col.c-cost { width: 11%; } col.c-tot { width: 14%; } col.c-del { width: 3%; }
+tbody tr[data-row]:hover td { background: rgb(255 255 255 / 0.03); }
+tr.sec th { background: var(--muted); font-size: 13.5px; font-weight: 600; color: var(--fg); padding-block: 10px; border-top: 1px solid var(--border); }
+tbody tr.sec:first-child th { border-top: 0; }
+tr.sec th .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
+td.tot { text-align: right; white-space: nowrap; font-weight: 600; }
+td.tot .how { display: block; font-size: 11.5px; color: var(--subtle-fg); font-weight: 400; }
+tr.add td { padding-block: 2px 8px; }
+tr.sub td { font-weight: 600; color: var(--muted-fg); border-top: 1px solid var(--border); padding-block: 9px; }
+tr.sub td.tot { color: var(--fg); }
+tfoot td { font-weight: 600; border-top: 1px solid var(--border); padding-block: 10px; }
+tfoot tr.grand td { font-size: 16px; background: var(--card-hi); }
+tfoot tr.grand td.tot { color: var(--link); }
+
+/* Scenari: fascia a tutta larghezza sotto i totali */
+.scen-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 14px 28px; align-items: end; }
+@media (max-width: 960px) { .scen-top { grid-template-columns: minmax(0, 1fr); } }
+.scen-head { display: grid; gap: 10px; align-content: start; }
+.scen-now { display: block; line-height: 1.6; padding: 10px 14px; border-radius: 6px; background: var(--muted); font-size: 13.5px; }
+.scen-now b { font-weight: 600; }
+.scen-now .meta { color: var(--subtle-fg); font-size: 12.5px; }
+.chip { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 1px 9px; border-radius: 999px; background: var(--warning-bg); color: var(--warning); margin-left: 6px; vertical-align: 1px; }
+.chip.def { background: rgb(125 211 252 / 0.16); color: var(--link); }
+.scen-save { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 12px; align-items: end; }
+@media (max-width: 640px) { .scen-save { grid-template-columns: minmax(0, 1fr); } .scen-save button { width: 100%; } }
+.scen-msg { font-size: 13px; color: var(--muted-fg); min-height: 1.2em; overflow-wrap: anywhere; animation: fade 200ms var(--ease-out); }
+.scen-msg:empty { display: none; }
+.scen-msg.err { color: var(--danger); }
+.scen-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px; max-height: 330px; overflow-y: auto; overscroll-behavior: contain; }
+.scen-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-content: start; padding: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--field); transition: background-color var(--press) var(--ease-out), border-color var(--press) var(--ease-out); }
+.scen-list li:hover { background: var(--hover); }
+.scen-list li.is-def { border-color: rgb(125 211 252 / 0.45); }
+.scen-list li.on { background: rgb(56 189 248 / 0.14); box-shadow: inset 0 0 0 1px rgb(125 211 252 / 0.35); }
+.scen-list li.scen-empty { grid-column: 1 / -1; display: block; color: var(--muted-fg); font-size: 13px; padding: 14px; border-style: dashed; background: none; }
+.scen-list .nm { font-weight: 600; overflow-wrap: anywhere; }
+.scen-list .nm .chip { margin-left: 4px; }
+.scen-list .meta { font-size: 12px; color: var(--subtle-fg); }
+.scen-list .amt { font-weight: 600; white-space: nowrap; text-align: right; }
+.scen-list .acts { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 4px; margin: 6px 0 0 -6px; }
+.scen-list button.rm { color: var(--danger); }
+
+footer { font-size: 12.5px; color: var(--subtle-fg); max-width: 80ch; }
+
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  button:active { transform: none; }
+}
 </style>
 </head>
 <body>
 
+<div class="topbar">
+  <div class="topbar-in">
+    <i class="ph ph-calculator" aria-hidden="true"></i>
+    <span class="crumb">Strumenti</span>
+    <span class="crumb-sep" aria-hidden="true">/</span>
+    <strong>Budget laboratori STEM</strong>
+  </div>
+</div>
+
 <div class="wrap">
-  <header class="top">
-    <span class="eyebrow">STEAM Village · Bando POLARIS+ · solo attività STEM</span>
+  <header class="page-head">
     <h1>Budget laboratori STEM</h1>
-    <p class="lede">Simulatore dei costi dei laboratori nelle classi, della preparazione peer-to-peer, della progettazione dei percorsi e dei materiali. Lo STEAM Village e l'orientamento sono esclusi. Tutte le voci sono modificabili: i valori di partenza sono ipotesi.</p>
+    <p>Costi di laboratori, preparazione peer-to-peer, progettazione e materiali del progetto STEAM Village. Village e orientamento esclusi.</p>
   </header>
 
-  <section class="block">
-    <div class="block-head"><h2>Parametri di scala</h2><span class="note">Valgono per tutte le voci</span></div>
-    <div class="params">
+  <!-- I quattro totali restano fissi sotto la barra mentre si scorre -->
+  <div class="kpi-bar" id="kpiBar">
+    <div class="kpis" aria-live="polite">
+      <div class="kpi main"><span class="k">Totale attività STEM</span><span class="v" id="sTot"></span><span class="s" id="sTotSub"></span></div>
+      <div class="kpi"><span class="k">Per classe</span><span class="v" id="sClass"></span><span class="s" id="sClassSub"></span></div>
+      <div class="kpi"><span class="k">Per studente</span><span class="v" id="sStud"></span><span class="s" id="sStudSub"></span></div>
+      <div class="kpi"><span class="k">Per ora in aula</span><span class="v" id="sHour"></span><span class="s" id="sHourSub"></span></div>
+    </div>
+  </div>
+
+  <section class="panel" id="scenari" aria-label="Scenari salvati">
+    <div class="scen-top">
+      <div class="scen-head">
+        <div class="panel-head"><h2>Scenari salvati</h2><span class="note">Chiunque abbia il link li vede, li salva, li elimina e sceglie il predefinito</span></div>
+        <div class="scen-now" id="scNow"></div>
+      </div>
+      <form class="scen-save" id="scForm" novalidate>
+        <div class="pf"><label for="scNome">Nome dello scenario</label><input type="text" id="scNome" maxlength="80" placeholder="Es. 16 unità, 8 incontri" autocomplete="off"></div>
+        <div class="pf"><label for="scAutore">Il tuo nome (facoltativo)</label><input type="text" id="scAutore" maxlength="60" autocomplete="name"></div>
+        <button type="submit" class="primary" id="scSave"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salva scenario</button>
+      </form>
+    </div>
+    <span class="scen-msg" id="scMsg" role="status"></span>
+    <ul class="scen-list" id="scList"><li class="scen-empty">Carico gli scenari salvati…</li></ul>
+  </section>
+
+  <main class="duo">
+    <section class="panel">
+      <div class="panel-head"><h2>Ripartizione per sezione</h2><span class="note">Costi diretti</span></div>
+      <div class="stack" id="stack" role="img" aria-label="Ripartizione dei costi diretti per sezione"></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Parametri di scala</h2><span class="note">Valgono per tutte le voci</span></div>
       <div class="pgrid">
         <div class="pf"><label for="p-units">Unità (gruppi di classi)</label><input type="number" id="p-units" data-p="units" min="1" step="1"></div>
         <div class="pf"><label for="p-cpu">Classi per unità</label><input type="number" id="p-cpu" data-p="cpu" min="1" step="1"></div>
@@ -162,53 +324,44 @@ footer { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
         <div class="pf"><label for="p-ind">Costi indiretti (%)</label><input type="number" id="p-ind" data-p="ind" min="0" step="0.5"></div>
       </div>
       <div class="derived" id="derived"></div>
-    </div>
-  </section>
+    </section>
 
-  <div class="summary">
-    <div class="stat main"><span class="k">Totale attività STEM</span><span class="v" id="sTot"></span><span class="s" id="sTotSub"></span></div>
-    <div class="stat"><span class="k">Per classe</span><span class="v" id="sClass"></span><span class="s" id="sClassSub"></span></div>
-    <div class="stat"><span class="k">Per studente</span><span class="v" id="sStud"></span><span class="s" id="sStudSub"></span></div>
-    <div class="stat"><span class="k">Per ora di formazione</span><span class="v" id="sHour"></span><span class="s" id="sHourSub"></span></div>
-  </div>
+  </main>
 
-  <section class="block">
-    <div class="block-head"><h2>Ripartizione per sezione</h2><span class="note">costi diretti</span></div>
-    <div class="stack" id="stack" role="img" aria-label="Ripartizione dei costi diretti per sezione"></div>
-    <div class="legend" id="legend"></div>
-  </section>
-
-  <section class="block">
-    <div class="block-head">
-      <h2>Voci di costo</h2>
-      <div class="toolbar">
-        <button type="button" class="primary" id="copyBtn">Copia tabella</button>
-        <button type="button" id="resetBtn">Ripristina valori iniziali</button>
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Voci di costo</h2>
+          <div class="toolbar">
+            <button type="button" id="copyBtn"><i class="ph ph-copy" aria-hidden="true"></i>Copia tabella</button>
+            <button type="button" class="ghost" id="resetBtn">Ripristina valori iniziali</button>
+          </div>
+        </div>
+        <p class="legendnote">Totale voce = quantità × moltiplicatore × costo unitario × ricorrenza. Il moltiplicatore collega la voce ai parametri di scala. «Copia tabella» copia voci e totali per un foglio o un documento.</p>
         <span id="status" role="status"></span>
-      </div>
-    </div>
-    <p class="legendnote">Totale voce = quantità × moltiplicatore × costo unitario × ricorrenza. Il moltiplicatore lega la voce ai parametri di scala: se cambi gli incontri o le ore, le voci collegate si aggiornano da sole. «Copia tabella» copia le voci con i totali, pronte da incollare in un foglio Google o in un documento.</p>
-    <textarea id="fallback" rows="8" hidden aria-label="Tabella da copiare"></textarea>
-    <div class="tbl-wrap">
-      <table id="tbl">
-        <colgroup><col class="c-voce"><col class="c-rip"><col class="c-q"><col class="c-base"><col class="c-cost"><col class="c-tot"><col class="c-del"></colgroup>
-        <thead><tr><th>Voce</th><th>Si ripete</th><th class="num">Quantità</th><th>Moltiplicata per</th><th class="num">Costo unitario €</th><th class="num">Totale</th><th><span hidden>Elimina</span></th></tr></thead>
-        <tbody id="body"></tbody>
-        <tfoot>
-          <tr><td colspan="5">Costi diretti</td><td class="tot" id="fDirect"></td><td></td></tr>
-          <tr><td colspan="5">Costi indiretti (<span id="fIndPct"></span>%)</td><td class="tot" id="fInd"></td><td></td></tr>
-          <tr class="grand"><td colspan="5">Totale attività STEM</td><td class="tot" id="fTot"></td><td></td></tr>
-        </tfoot>
-      </table>
-    </div>
-  </section>
+        <textarea id="fallback" rows="8" hidden aria-label="Tabella da copiare"></textarea>
+        <div class="tbl-wrap">
+          <table id="tbl">
+            <colgroup><col class="c-voce"><col class="c-rip"><col class="c-q"><col class="c-base"><col class="c-cost"><col class="c-tot"><col class="c-del"></colgroup>
+            <thead><tr><th>Voce</th><th>Si ripete</th><th class="num">Quantità</th><th>Moltiplicata per</th><th class="num">Costo unitario €</th><th class="num">Totale</th><th><span hidden>Elimina</span></th></tr></thead>
+            <tbody id="body"></tbody>
+            <tfoot>
+              <tr><td colspan="5">Costi diretti</td><td class="tot" id="fDirect"></td><td></td></tr>
+              <tr><td colspan="5">Costi indiretti (<span id="fIndPct"></span>%)</td><td class="tot" id="fInd"></td><td></td></tr>
+              <tr class="grand"><td colspan="5">Totale attività STEM</td><td class="tot" id="fTot"></td><td></td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
 
-  <footer>Le modifiche restano salvate solo in questo browser. Per condividere i numeri con i partner usa «Copia tabella». Valori di partenza: stima preliminare del 24/11/2026 sulla bozza progettuale v1.0.</footer>
+  <footer>Finché non salvi uno scenario, le modifiche restano solo in questo browser. Valori di partenza: stima preliminare del 24/11/2026 sulla bozza progettuale v1.0.</footer>
 </div>
 
+<script src="/vendor/supabase-js.min.js"></script>
+<script src="/js/be-config.js"></script>
 <script>
 (function () {
-  var KEY = "steamLabBudget.v1";
+  var KEY = "steamLabBudget.v1", META = KEY + ".meta", AUTHOR_KEY = "steamLabBudget.autore";
+  var hasDraft = false;
   var REC = {
     classe: { l: "per classe", u: "classi" },
     unita: { l: "per unità", u: "unità" },
@@ -218,7 +371,7 @@ footer { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
     una: { l: "una tantum", u: "" }
   };
   var BASE = {
-    none: { l: "—", s: "" },
+    none: { l: "nessun parametro", s: "" },
     oreLab: { l: "ore di laboratorio", s: "h lab" },
     incLab: { l: "incontri di laboratorio", s: "incontri" },
     orePeer: { l: "ore peer-to-peer", s: "h peer" },
@@ -264,23 +417,45 @@ footer { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function withIds(s) { s.sections.forEach(function (sec) { sec.rows.forEach(function (r) { r.id = "r" + (++uid); }); }); return s; }
 
+  // Ripulisce uno stato letto dal browser o dal database prima di usarlo
+  function sanitize(s) {
+    if (!s || typeof s !== "object" || !s.params || !Array.isArray(s.sections)) return null;
+    var params = {};
+    Object.keys(DEF.params).forEach(function (k) {
+      var v = parseFloat(s.params[k]);
+      params[k] = isFinite(v) ? v : DEF.params[k];
+    });
+    var sections = s.sections.slice(0, 20).map(function (sec) {
+      return {
+        name: String((sec && sec.name) || "Sezione").slice(0, 80),
+        rows: (Array.isArray(sec && sec.rows) ? sec.rows : []).slice(0, 100).map(function (r) {
+          r = r || {};
+          return {
+            label: String(r.label == null ? "" : r.label).slice(0, 200),
+            rec: REC[r.rec] ? r.rec : "classe",
+            qty: n(r.qty),
+            base: BASE[r.base] ? r.base : "none",
+            cost: n(r.cost)
+          };
+        })
+      };
+    });
+    return withIds({ params: params, sections: sections });
+  }
   function load() {
     try {
       var raw = localStorage.getItem(KEY);
-      if (raw) {
-        var s = JSON.parse(raw);
-        if (s && s.params && Array.isArray(s.sections)) { s.params = Object.assign({}, DEF.params, s.params); return withIds(s); }
-      }
+      if (raw) { var s = sanitize(JSON.parse(raw)); if (s) { hasDraft = true; return s; } }
     } catch (e) {}
     return withIds(clone(DEF));
   }
+  function snapshot() {
+    return { params: state.params, sections: state.sections.map(function (sec) {
+      return { name: sec.name, rows: sec.rows.map(function (r) { return { label: r.label, rec: r.rec, qty: r.qty, base: r.base, cost: r.cost }; }) };
+    }) };
+  }
   function save() {
-    try {
-      var out = { params: state.params, sections: state.sections.map(function (sec) {
-        return { name: sec.name, rows: sec.rows.map(function (r) { return { label: r.label, rec: r.rec, qty: r.qty, base: r.base, cost: r.cost }; }) };
-      }) };
-      localStorage.setItem(KEY, JSON.stringify(out));
-    } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) {}
   }
 
   function derived(p) {
@@ -320,9 +495,9 @@ footer { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
           '<td><select id="' + r.id + '-base" data-f="base" aria-label="Moltiplicata per">' + options(BASE, r.base) + "</select></td>" +
           '<td><input type="number" id="' + r.id + '-cost" data-f="cost" min="0" step="any" value="' + r.cost + '" aria-label="Costo unitario in euro"></td>' +
           '<td class="tot" id="' + r.id + '-tot"></td>' +
-          '<td><button type="button" class="del" data-del="' + r.id + '" aria-label="Elimina voce ' + esc(r.label) + '">×</button></td></tr>';
+          '<td><button type="button" class="del" data-del="' + r.id + '" aria-label="Elimina voce ' + esc(r.label) + '"><i class="ph ph-x" aria-hidden="true"></i></button></td></tr>';
       });
-      h += '<tr class="add"><td colspan="7"><button type="button" class="link" data-add="' + si + '">+ Aggiungi voce</button></td></tr>';
+      h += '<tr class="add"><td colspan="7"><button type="button" class="link" data-add="' + si + '"><i class="ph ph-plus" aria-hidden="true"></i>Aggiungi voce</button></td></tr>';
       h += '<tr class="sub"><td colspan="5">Totale ' + esc(sec.name.toLowerCase()) + '</td><td class="tot" id="sec' + si + '-tot"></td><td></td></tr>';
     });
     $("body").innerHTML = h;
@@ -370,9 +545,9 @@ footer { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
     $("sTotSub").textContent = "di cui indiretti " + eur.format(ind);
     $("sClass").textContent = eur.format(tot / Math.max(1, d.classi));
     $("sClassSub").textContent = "voci per classe da sole: " + eur.format(perClassRec);
-    $("sStud").textContent = d.studenti ? eur.format(tot / d.studenti) : "—";
+    $("sStud").textContent = d.studenti ? eur.format(tot / d.studenti) : "-";
     $("sStudSub").textContent = num.format(d.studenti) + " studenti";
-    $("sHour").textContent = d.hTot ? eur.format(tot / d.hTot) : "—";
+    $("sHour").textContent = d.hTot ? eur.format(tot / d.hTot) : "-";
     $("sHourSub").textContent = num.format(d.hTot) + " ore in aula";
 
     $("stack").innerHTML = secTot.map(function (v, i) {
@@ -385,6 +560,7 @@ footer { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
 
     lastCalc = { d: d, direct: direct, ind: ind, tot: tot, secTot: secTot };
     save();
+    markDirty();
   }
 
   function writeParams() {
@@ -439,8 +615,10 @@ footer { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
       return;
     }
     clearTimeout(armTimer); b.classList.remove("armed"); b.textContent = "Ripristina valori iniziali";
-    state = withIds(clone(DEF)); lastDeleted = null;
-    writeParams(); buildTable(); recalc(); status("Valori iniziali ripristinati.");
+    applyState(withIds(clone(DEF)));
+    current = null; dirty = false; saveMeta(); renderCurrent(); renderList();
+    clearHash();
+    status("Valori iniziali ripristinati.");
   });
 
   function tsv() {
@@ -468,8 +646,202 @@ footer { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
     } catch (e) { fallback(); }
   });
 
+  // ---- Scenari salvati (Supabase sul Mac mini, tabella be_stem_scenari) ----
+  var db = window.beClient || null;
+  var current = null, dirty = false, suppressDirty = true, scenari = [], listError = "";
+  var UNREACHABLE = "Archivio degli scenari non raggiungibile in questo momento: puoi usare il simulatore, ma non salvare.";
+
+  function saveMeta() { try { localStorage.setItem(META, JSON.stringify({ current: current, dirty: dirty })); } catch (e) {} }
+  function markDirty() {
+    if (suppressDirty) return;
+    if (!dirty) { dirty = true; renderCurrent(); }
+    saveMeta();
+  }
+  function applyState(s) {
+    suppressDirty = true;
+    state = s; lastDeleted = null;
+    writeParams(); buildTable(); recalc();
+    suppressDirty = false;
+  }
+  function fmtDate(s) {
+    try { return new Date(s).toLocaleString("it-IT", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }); } catch (e) { return ""; }
+  }
+  function scMsg(text, err) { var m = $("scMsg"); m.textContent = text || ""; m.className = "scen-msg" + (err ? " err" : ""); }
+  function hashId() { var m = /^#scenario-([0-9a-f-]{36})$/i.exec(location.hash); return m ? m[1].toLowerCase() : null; }
+  function setHash(id) { try { history.replaceState(null, "", "#scenario-" + id); } catch (e) {} }
+  function clearHash() { try { history.replaceState(null, "", location.pathname); } catch (e) {} }
+  function linkFor(id) { return location.origin + location.pathname + "#scenario-" + id; }
+
+  function renderCurrent() {
+    var el = $("scNow");
+    if (current) {
+      el.innerHTML = "Stai guardando lo scenario <b>" + esc(current.nome) + "</b>" +
+        (dirty ? '<span class="chip">Modificato, non salvato</span>' : "") +
+        '<br><span class="meta">' + (current.autore ? "Salvato da " + esc(current.autore) + ", " : "Salvato il ") + esc(fmtDate(current.created_at)) + "</span>";
+    } else {
+      el.innerHTML = dirty ? 'Stai lavorando su una bozza<span class="chip">Non salvata</span>' : "Stai guardando i valori iniziali.";
+    }
+  }
+  function renderList() {
+    var ul = $("scList");
+    if (listError) { ul.innerHTML = '<li class="scen-empty">' + esc(listError) + "</li>"; return; }
+    if (!scenari.length) { ul.innerHTML = '<li class="scen-empty">Nessuno scenario salvato. Modifica i valori e salva il primo.</li>'; return; }
+    ul.innerHTML = scenari.map(function (s) {
+      var on = current && current.id === s.id;
+      return '<li class="' + (on ? "on" : "") + (s.predefinito ? " is-def" : "") + '"><div><div class="nm">' + esc(s.nome) +
+        (s.predefinito ? '<span class="chip def">Predefinito</span>' : "") + '</div><div class="meta">' +
+        (s.autore ? esc(s.autore) + " · " : "") + esc(fmtDate(s.created_at)) + "</div></div>" +
+        '<span class="amt">' + (s.totale != null ? eur.format(s.totale) : "") + "</span>" +
+        '<span class="acts"><button type="button" class="link" data-open="' + s.id + '">' + (on ? "Riapri" : "Apri") + "</button>" +
+        '<button type="button" class="link" data-link="' + s.id + '">Copia link</button>' +
+        (s.predefinito
+          ? '<button type="button" class="link" data-undef="' + s.id + '">Togli predefinito</button>'
+          : '<button type="button" class="link" data-def="' + s.id + '">Metti come predefinito</button>') +
+        '<button type="button" class="link rm" data-rm="' + s.id + '">Elimina</button></span></li>';
+    }).join("");
+  }
+
+  function listScenari() {
+    if (!db) { listError = UNREACHABLE; renderList(); return Promise.resolve(); }
+    function fail() { scenari = []; listError = UNREACHABLE; renderList(); }
+    return db.from("be_stem_scenari").select("id,nome,autore,totale,created_at,predefinito")
+      .order("created_at", { ascending: false }).limit(100)
+      .then(function (res) {
+        if (res.error) return fail();
+        // Il predefinito in testa, poi i piu' recenti: all'avvio si apre il primo
+        scenari = (res.data || []).slice().sort(function (a, b) { return (b.predefinito ? 1 : 0) - (a.predefinito ? 1 : 0); });
+        listError = ""; renderList();
+      }, fail);
+  }
+
+  function openScenario(id) {
+    if (!db) return;
+    scMsg("Apro lo scenario…");
+    db.from("be_stem_scenari").select("id,nome,autore,totale,created_at,dati").eq("id", id).maybeSingle()
+      .then(function (res) {
+        if (res.error || !res.data) { scMsg("Scenario non trovato: forse è stato eliminato.", true); return; }
+        var s = sanitize(res.data.dati);
+        if (!s) { scMsg("Questo scenario non si può aprire.", true); return; }
+        applyState(s);
+        current = { id: res.data.id, nome: res.data.nome, autore: res.data.autore, created_at: res.data.created_at };
+        dirty = false; saveMeta(); renderCurrent(); renderList(); setHash(current.id);
+        scMsg("");
+      }, function () { scMsg("Archivio non raggiungibile: riprova più tardi.", true); });
+  }
+
+  // Un clic arma il pulsante, il secondo conferma (i dialoghi del browser non servono)
+  function arm(btn, label, fn) {
+    if (btn.classList.contains("armed")) { fn(); return; }
+    var old = btn.textContent;
+    btn.classList.add("armed"); btn.textContent = label;
+    setTimeout(function () { if (btn.isConnected) { btn.classList.remove("armed"); btn.textContent = old; } }, 4000);
+  }
+
+  $("scList").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var id = b.getAttribute("data-open") || b.getAttribute("data-link") || b.getAttribute("data-rm") ||
+      b.getAttribute("data-def") || b.getAttribute("data-undef");
+    function nomeDi(x) { for (var i = 0; i < scenari.length; i++) if (scenari[i].id === x) return scenari[i].nome; return "lo scenario"; }
+    if (b.hasAttribute("data-open")) {
+      if (dirty) arm(b, "Apri e perdi le modifiche", function () { openScenario(id); });
+      else openScenario(id);
+    } else if (b.hasAttribute("data-link")) {
+      var url = linkFor(id);
+      try {
+        navigator.clipboard.writeText(url).then(function () { scMsg("Link copiato."); }, function () { scMsg("Copia questo link: " + url); });
+      } catch (er) { scMsg("Copia questo link: " + url); }
+    } else if (b.hasAttribute("data-def") || b.hasAttribute("data-undef")) {
+      var togli = b.hasAttribute("data-undef");
+      b.disabled = true;
+      db.rpc("be_stem_predefinito", { p_id: togli ? null : id }).then(function (res) {
+        b.disabled = false;
+        if (res.error) { scMsg(res.error.message || "Non sono riuscito a cambiare il predefinito.", true); return; }
+        scMsg(togli ? "Nessuno scenario predefinito: chi arriva vede l'ultimo salvato." : "«" + nomeDi(id) + "» è ora lo scenario predefinito.");
+        listScenari();
+      }, function () { b.disabled = false; scMsg("Archivio non raggiungibile: riprova più tardi.", true); });
+    } else if (b.hasAttribute("data-rm")) {
+      arm(b, "Conferma eliminazione", function () {
+        var nome = nomeDi(id);
+        db.rpc("be_stem_elimina", { p_id: id }).then(function (res) {
+          if (res.error) { scMsg(res.error.message || "Eliminazione non riuscita.", true); return; }
+          if (current && current.id === id) { current = null; dirty = true; saveMeta(); renderCurrent(); clearHash(); }
+          scMsg("«" + nome + "» eliminato.");
+          listScenari();
+        }, function () { scMsg("Archivio non raggiungibile: riprova più tardi.", true); });
+      });
+    }
+  });
+
+  $("scForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var nome = $("scNome").value.trim(), autore = $("scAutore").value.trim();
+    if (!nome) { scMsg("Dai un nome allo scenario.", true); $("scNome").focus(); return; }
+    if (!db) { scMsg(UNREACHABLE, true); return; }
+    try { localStorage.setItem(AUTHOR_KEY, autore); } catch (er) {}
+    var btn = $("scSave"); btn.disabled = true; scMsg("Salvo lo scenario…");
+    db.rpc("be_stem_salva", { p_nome: nome, p_autore: autore || null, p_dati: snapshot(), p_totale: Math.round(lastCalc.tot) })
+      .then(function (res) {
+        btn.disabled = false;
+        if (res.error) { scMsg(res.error.message || "Salvataggio non riuscito.", true); return; }
+        current = { id: res.data, nome: nome, autore: autore || null, created_at: new Date().toISOString() };
+        dirty = false; saveMeta(); renderCurrent(); setHash(current.id);
+        $("scNome").value = "";
+        scMsg("Scenario salvato. «Copia link» porta chiunque direttamente a questa versione.");
+        listScenari();
+      }, function () { btn.disabled = false; scMsg("Archivio non raggiungibile: lo scenario non è stato salvato.", true); });
+  });
+
+  window.addEventListener("hashchange", function () {
+    var h = hashId(); if (h && (!current || current.id !== h)) openScenario(h);
+  });
+
+  // ---- Avvio ----
   state = load();
+  try {
+    var meta = JSON.parse(localStorage.getItem(META) || "null");
+    if (meta && hasDraft) { current = meta.current || null; dirty = !!meta.dirty; }
+    else if (hasDraft) { dirty = true; }
+  } catch (e) { dirty = hasDraft; }
+  try { $("scAutore").value = localStorage.getItem(AUTHOR_KEY) || ""; } catch (e) {}
   writeParams(); buildTable(); recalc();
+  suppressDirty = false;
+  renderCurrent();
+
+  if (!db) {
+    $("scSave").disabled = true; listError = UNREACHABLE; renderList();
+  } else {
+    var startId = hashId();
+    // Se il link punta allo scenario su cui si stava gia' lavorando, la bozza
+    // del browser vince: ricaricare la pagina non deve buttare le modifiche
+    var keepDraft = hasDraft && current && current.id === startId;
+    listScenari().then(function () {
+      if (startId && !keepDraft) openScenario(startId);
+      else if (!startId && !hasDraft && scenari.length) openScenario(scenari[0].id);
+    });
+  }
+})();
+</script>
+<script>
+/* Barra dei totali: misura la sua altezza (la colonna Scenari si ferma
+   sotto di lei) e fa lampeggiare un valore quando cambia. */
+(function () {
+  var bar = document.getElementById("kpiBar");
+  function setH() { document.documentElement.style.setProperty("--kpi-h", bar.offsetHeight + "px"); }
+  setH();
+  if (window.ResizeObserver) new ResizeObserver(setH).observe(bar);
+  else window.addEventListener("resize", setH);
+  if (!window.MutationObserver) return;
+  var quiet = true;
+  setTimeout(function () { quiet = false; }, 600);
+  document.querySelectorAll(".kpi .v").forEach(function (el) {
+    var last = el.textContent;
+    new MutationObserver(function () {
+      if (el.textContent === last) return;
+      last = el.textContent;
+      if (quiet) return;
+      el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump");
+    }).observe(el, { childList: true, characterData: true, subtree: true });
+  });
 })();
 </script>
 </body>
