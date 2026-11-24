@@ -27,7 +27,11 @@ del team, «Mario Project Manager».
   raggiungibili solo da chi ha il link (oggi il simulatore
   `budget-laboratori-stem.html`). Non vanno in `sitemap.xml`, `llms.txt` né
   IndexNow, non hanno la gemella in `en/` e `vercel.json` le esclude dai
-  motori di ricerca con `X-Robots-Tag`.
+  motori di ricerca con `X-Robots-Tag`. Il simulatore salva gli scenari
+  nella tabella `be_stem_scenari` (`sql/budget_stem_scenari.sql`): chiunque
+  legge e salva con la chiave anon, ma solo attraverso la funzione
+  `be_stem_salva` (con limiti di dimensione e frequenza); niente modifiche,
+  elimina solo il team.
 - **Funzioni serverless** in `api/` (Vercel, Node): il feed `.ics` per Apple
   Calendar, la lettura dei calendari pubblici iCloud, il riepilogo email
   giornaliero dei task (`api/task-digest`, alle 00:01 ora italiana dai due
