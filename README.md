@@ -12,6 +12,7 @@ del team, **Mario Project Manager**.
 |---|---|---|
 | Sito pubblico | `index.html`, `en/`, `product/`, `software/` | Mirror statico del vecchio sito WordPress, in italiano e inglese, installabile come PWA |
 | Area riservata | `login.html`, `app.html` | Progetti in categorie (più Personale, Preferiti e Archiviati) e schede, Archivio, Panoramica, scadenze e il calendario condiviso «Chi fa cosa» |
+| Strumenti | `strumenti/` | Pagine di lavoro raggiungibili solo col link e nascoste ai motori di ricerca, come il simulatore del budget dei laboratori STEM |
 | Funzioni | `api/` | Feed `.ics` per Apple Calendar, lettura dei calendari pubblici iCloud e riepilogo email giornaliero dei task |
 | Database | `sql/` | Le modifiche allo schema Supabase, da eseguire a mano |
 | Test | `tests/` | Test delle funzioni e del calendario |

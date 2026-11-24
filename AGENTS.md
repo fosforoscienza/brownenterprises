@@ -23,6 +23,11 @@ del team, «Mario Project Manager».
   (codingfactory.fosforoscienza.it).
   Alessandro è il coordinatore (`be_profiles.coordinator`): vede i progetti
   nuovi del team e può eliminarli.
+- **Strumenti di lavoro** in `strumenti/`: pagine HTML autonome, senza login,
+  raggiungibili solo da chi ha il link (oggi il simulatore
+  `budget-laboratori-stem.html`). Non vanno in `sitemap.xml`, `llms.txt` né
+  IndexNow, non hanno la gemella in `en/` e `vercel.json` le esclude dai
+  motori di ricerca con `X-Robots-Tag`.
 - **Funzioni serverless** in `api/` (Vercel, Node): il feed `.ics` per Apple
   Calendar, la lettura dei calendari pubblici iCloud, il riepilogo email
   giornaliero dei task (`api/task-digest`, alle 00:01 ora italiana dai due

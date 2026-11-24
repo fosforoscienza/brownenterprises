@@ -88,6 +88,15 @@
       ]
     },
     {
+      "source": "/strumenti/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
       "source": "/vendor/(.*)",
       "headers": [
         {
