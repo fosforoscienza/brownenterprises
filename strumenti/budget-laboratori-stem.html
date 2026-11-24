@@ -285,48 +285,24 @@ footer { font-size: 12.5px; color: var(--subtle-fg); max-width: 80ch; }
     </div>
   </div>
 
-  <section class="panel" id="scenari" aria-label="Scenari salvati">
-    <div class="scen-top">
-      <div class="scen-head">
-        <div class="panel-head"><h2>Scenari salvati</h2><span class="note">Chiunque abbia il link li vede, li salva, li elimina e sceglie il predefinito</span></div>
-        <div class="scen-now" id="scNow"></div>
-      </div>
-      <form class="scen-save" id="scForm" novalidate>
-        <div class="pf"><label for="scNome">Nome dello scenario</label><input type="text" id="scNome" maxlength="80" placeholder="Es. 16 unità, 8 incontri" autocomplete="off"></div>
-        <div class="pf"><label for="scAutore">Il tuo nome (facoltativo)</label><input type="text" id="scAutore" maxlength="60" autocomplete="name"></div>
-        <button type="submit" class="primary" id="scSave"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salva scenario</button>
-      </form>
+  <section class="panel">
+    <div class="panel-head"><h2>Parametri di scala</h2><span class="note">Valgono per tutte le voci</span></div>
+    <div class="pgrid">
+      <div class="pf"><label for="p-units">Unità (gruppi di classi)</label><input type="number" id="p-units" data-p="units" min="1" step="1"></div>
+      <div class="pf"><label for="p-cpu">Classi per unità</label><input type="number" id="p-cpu" data-p="cpu" min="1" step="1"></div>
+      <div class="pf"><label for="p-stud">Studenti per classe</label><input type="number" id="p-stud" data-p="stud" min="1" step="1"></div>
+      <div class="pf"><label for="p-topic">Topic STEM</label><input type="number" id="p-topic" data-p="topic" min="1" step="1"></div>
+      <div class="pf"><label for="p-incLab">Incontri di laboratorio per classe</label><input type="number" id="p-incLab" data-p="incLab" min="0" step="1"></div>
+      <div class="pf"><label for="p-oreLab">Ore per incontro di laboratorio</label><input type="number" id="p-oreLab" data-p="oreLab" min="0" step="0.5"></div>
+      <div class="pf"><label for="p-incPeer">Incontri peer-to-peer per classe</label><input type="number" id="p-incPeer" data-p="incPeer" min="0" step="1"></div>
+      <div class="pf"><label for="p-orePeer">Ore per incontro peer-to-peer</label><input type="number" id="p-orePeer" data-p="orePeer" min="0" step="0.5"></div>
+      <div class="pf"><label for="p-mesi">Durata progetto (mesi)</label><input type="number" id="p-mesi" data-p="mesi" min="1" step="1"></div>
+      <div class="pf"><label for="p-perSet">Unità servite da un set di kit</label><input type="number" id="p-perSet" data-p="perSet" min="1" step="1"></div>
+      <div class="pf"><label for="p-ind">Costi indiretti (%)</label><input type="number" id="p-ind" data-p="ind" min="0" step="0.5"></div>
     </div>
-    <span class="scen-msg" id="scMsg" role="status"></span>
-    <ul class="scen-list" id="scList"><li class="scen-empty">Carico gli scenari salvati…</li></ul>
+    <div class="derived" id="derived"></div>
   </section>
 
-  <main class="duo">
-    <section class="panel">
-      <div class="panel-head"><h2>Ripartizione per sezione</h2><span class="note">Costi diretti</span></div>
-      <div class="stack" id="stack" role="img" aria-label="Ripartizione dei costi diretti per sezione"></div>
-      <div class="legend" id="legend"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head"><h2>Parametri di scala</h2><span class="note">Valgono per tutte le voci</span></div>
-      <div class="pgrid">
-        <div class="pf"><label for="p-units">Unità (gruppi di classi)</label><input type="number" id="p-units" data-p="units" min="1" step="1"></div>
-        <div class="pf"><label for="p-cpu">Classi per unità</label><input type="number" id="p-cpu" data-p="cpu" min="1" step="1"></div>
-        <div class="pf"><label for="p-stud">Studenti per classe</label><input type="number" id="p-stud" data-p="stud" min="1" step="1"></div>
-        <div class="pf"><label for="p-topic">Topic STEM</label><input type="number" id="p-topic" data-p="topic" min="1" step="1"></div>
-        <div class="pf"><label for="p-incLab">Incontri di laboratorio per classe</label><input type="number" id="p-incLab" data-p="incLab" min="0" step="1"></div>
-        <div class="pf"><label for="p-oreLab">Ore per incontro di laboratorio</label><input type="number" id="p-oreLab" data-p="oreLab" min="0" step="0.5"></div>
-        <div class="pf"><label for="p-incPeer">Incontri peer-to-peer per classe</label><input type="number" id="p-incPeer" data-p="incPeer" min="0" step="1"></div>
-        <div class="pf"><label for="p-orePeer">Ore per incontro peer-to-peer</label><input type="number" id="p-orePeer" data-p="orePeer" min="0" step="0.5"></div>
-        <div class="pf"><label for="p-mesi">Durata progetto (mesi)</label><input type="number" id="p-mesi" data-p="mesi" min="1" step="1"></div>
-        <div class="pf"><label for="p-perSet">Unità servite da un set di kit</label><input type="number" id="p-perSet" data-p="perSet" min="1" step="1"></div>
-        <div class="pf"><label for="p-ind">Costi indiretti (%)</label><input type="number" id="p-ind" data-p="ind" min="0" step="0.5"></div>
-      </div>
-      <div class="derived" id="derived"></div>
-    </section>
-
-  </main>
 
       <section class="panel">
         <div class="panel-head">
@@ -352,6 +328,28 @@ footer { font-size: 12.5px; color: var(--subtle-fg); max-width: 80ch; }
           </table>
         </div>
       </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Ripartizione per sezione</h2><span class="note">Costi diretti</span></div>
+    <div class="stack" id="stack" role="img" aria-label="Ripartizione dei costi diretti per sezione"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="panel" id="scenari" aria-label="Scenari salvati">
+    <div class="scen-top">
+      <div class="scen-head">
+        <div class="panel-head"><h2>Scenari salvati</h2><span class="note">Chiunque abbia il link li vede, li salva, li elimina e sceglie il predefinito</span></div>
+        <div class="scen-now" id="scNow"></div>
+      </div>
+      <form class="scen-save" id="scForm" novalidate>
+        <div class="pf"><label for="scNome">Nome dello scenario</label><input type="text" id="scNome" maxlength="80" placeholder="Es. 16 unità, 8 incontri" autocomplete="off"></div>
+        <div class="pf"><label for="scAutore">Il tuo nome (facoltativo)</label><input type="text" id="scAutore" maxlength="60" autocomplete="name"></div>
+        <button type="submit" class="primary" id="scSave"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salva scenario</button>
+      </form>
+    </div>
+    <span class="scen-msg" id="scMsg" role="status"></span>
+    <ul class="scen-list" id="scList"><li class="scen-empty">Carico gli scenari salvati…</li></ul>
+  </section>
 
   <footer>Finché non salvi uno scenario, le modifiche restano solo in questo browser. Valori di partenza: stima preliminare del 24/11/2026 sulla bozza progettuale v1.0.</footer>
 </div>
